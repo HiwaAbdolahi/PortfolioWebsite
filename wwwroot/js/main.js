@@ -70,3 +70,30 @@ if (localStorage.getItem('theme') === 'light-theme') {
     document.body.classList.remove('light-theme');
     document.body.classList.add('dark-theme');
 }
+
+
+
+
+//-------------------------------------------------------------------------------Background------------------------------
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    Particles.init({
+        selector: '.particles-js',
+        color: ['#ff9000', '#ff0266', '#00ffff'],
+        connectParticles: true,
+        speed: 0.3,
+        maxParticles: 150,
+        responsive: [
+            {
+                breakpoint: 1000,
+                options: {
+                    speed: 0.6,
+                    color: ['#ff9000', '#ff0266', '#00ffff', '#15ff00'],
+                    maxParticles: 63,
+                    connectParticles: false,
+                },
+            },
+        ],
+    });
+});
