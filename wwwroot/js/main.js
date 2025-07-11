@@ -83,7 +83,7 @@ window.addEventListener('DOMContentLoaded', () => {
         color: ['#ff9000', '#ff0266', '#00ffff'],
         connectParticles: true,
         speed: 0.3,
-        maxParticles: 150,
+        maxParticles: 90,
         responsive: [
             {
                 breakpoint: 1000,
@@ -97,3 +97,30 @@ window.addEventListener('DOMContentLoaded', () => {
         ],
     });
 });
+
+
+
+
+
+
+/* Mobile justeringer for sats card Hiwa */
+
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            
+        }
+    });
+}, {
+    threshold: 0.3
+});
+
+document.querySelectorAll('.stats-card').forEach(card => {
+    observer.observe(card);
+});
+
+
+
+
