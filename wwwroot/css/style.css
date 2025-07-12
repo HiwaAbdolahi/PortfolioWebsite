@@ -442,6 +442,53 @@ main {
     margin-inline: auto;
 }
 
+/*--------------------------------------------------------------------------------- Mobile Versjon for Hero klassen ---------------------------------------------------- */
+@media (max-width: 767px) {
+    .hero {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding-top: 80px;
+    }
+
+    .hero-banner {
+        max-width: 100%;
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+        .hero-banner img {
+            width: 100%;
+            height: 850px;
+            object-fit: cover;
+            opacity: 1; /* Gjør bildet litt gjennomsiktig så teksten blir mer synlig */
+        }
+
+    .hero-content {
+        position: absolute;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        max-width: 90%;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: white; /* Sørg for at teksten er tydelig */
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero .btn-primary {
+        margin-inline: auto;
+    }
+}
+
+
 /*--------------------------------------------------------------------------------------------------------------- Stats */
 
         
