@@ -123,4 +123,16 @@ document.querySelectorAll('.stats-card').forEach(card => {
 
 
 
+/*--------------------------------------------------------Fiks: Lukk meny automatisk når klikkes i mobilversjon-----------------------*/
+const navLinks = document.querySelectorAll('.navbar-link');
+
+navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        if (navbar.classList.contains('active')) {
+            navToggleBtn.classList.remove('active');
+            navbar.classList.remove('active');
+            document.body.classList.remove('active');
+        }
+    });
+});
 
