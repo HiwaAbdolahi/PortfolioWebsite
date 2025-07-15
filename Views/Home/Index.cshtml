@@ -13,7 +13,11 @@
     <link rel="stylesheet" href="~/css/style.css" />
     <link rel="shortcut icon" href="https://i.postimg.cc/7PTsH5kF/H.png">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
-     <script src="https://cdn.jsdelivr.net/npm/particlesjs@2.2.3/dist/particles.min.js"></script>          <!-----------Background--------->  
+     <script src="https://cdn.jsdelivr.net/npm/particlesjs@2.2.3/dist/particles.min.js"></script>          <!-----------Background--------->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     
 
 </head>
@@ -335,101 +339,94 @@
                     </div>
                 </section>
 
-                <section class="project" id="portfolio">
-                    <ul class="project-list">
-                        <li>
-                            <div class="project-content section-content">
-                                <p class="section-subtitle">My Works</p>                                        <!---------------------erfaaaaaaaaaaaaaaaaaaaaaaringer------------------->
+            <section class="project" id="portfolio">
+                <ul class="project-list">
+
+                    <li>
+                        <div class="project-content section-content">
+                            <p class="section-subtitle">My Works</p>
                             <h2 class="h3 section-title">Utforsk mine prosjekter</h2>
-                            <p class="section-text">Her kan du se et utvalg av prosjekter jeg har utviklet — alt fra nettsider til 
-                                skybaserte applikasjoner. Jeg legger vekt på rene brukeropplevelser, sikkerhet og moderne teknologi. 
-                                Hvert prosjekt er dokumentert og bygget med høy kvalitet, for å sikre robuste og fremtidsrettede løsninger.</p>
+                            <p class="section-text">
+                                Her kan du se et utvalg av prosjekter jeg har utviklet — alt fra nettsider til skybaserte applikasjoner.
+                                Jeg legger vekt på rene brukeropplevelser, sikkerhet og moderne teknologi.
+                                Hvert prosjekt er bygget for å imponere og inspirere.
+                            </p>
+                        </div>
+                    </li>
+
+                    <!-- Example Project -->
+                    <li>
+                        <a href="https://i.postimg.cc/qvhyjBP7/Image-Prosjekt-Resize.png" class="project-card" target="_blank">
+                            <figure class="card-banner">
+                                <img src="https://i.postimg.cc/tRv0bB2B/Image-Prosjekt.png" alt="House Rental Screenshot">
+                            </figure>
+                            <div class="card-text">
+                                <h3>HouseRentalProject</h3>
+                                <p>Fullstack-plattform med .NET og Azure</p>
+                                <span>Juni 2025</span>
                             </div>
-                        </li>
+                        </a>
+                    </li>
 
-                        <li>
-                            <a href="#" class="project-card">
-                                <figure class="card-banner">
-                                    <img src="https://i.postimg.cc/SRGFrbyY/image-plane.jpg" alt="Plane flight" width="500">
-                                </figure>
+                    <!-- Bachelor Project -->
+                    <li>
+                        <a href="https://github.com/HiwaAbdolahi/bachelorOppgave2024EvidiOsloMet" class="project-card" target="_blank">
+                            <figure class="card-banner">
+                                <img src="https://i.postimg.cc/yxXPrfgn/Bachelor-Oppgave-Visning.png" alt="Bachelor Project Screenshot">
+                            </figure>
+                            <div class="card-text">
+                                <h3>Ansikt til ansikt med teknologi</h3>
+                                <p>Azure Face API & realtime system</p>
+                                <span>Mai 2024</span>
+                            </div>
+                        </a>
+                    </li>
 
-                                <div class="card-content">
-                                    <h3 class="h4 card-title">Below the plane</h3>
-                                    <time class="publish-date" datetime="2025-03">March 2025</time>
-                                </div>
-                            </a>
-                        </li>
+                    <!-- Legg til flere prosjekter her på samme måte -->
 
-                        <li>
-                            <a href="#" class="project-card">
-                                <figure class="card-banner">
-                                    <img src="https://i.postimg.cc/3r4jFjjr/coffee.jpg" alt="Ceramic cup filled with coffee" width="500">
-                                </figure>
+                    <li>
+                        <a href="https://github.com/HiwaAbdolahi/testingAvProgramvare" class="project-card" target="_blank">
+                            <figure class="card-banner">
+                                <img src="https://i.postimg.cc/fTwH30rX/Testing-Av-Program-Vare.png" alt="Testing av programvare">
+                            </figure>
+                            <div class="card-text">
+                                <h3>Testing</h3>
+                                <p>Enhetstesting, Integrasjonstesting, Systemtesting</p>
+                                <span>Mai 2024</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/HiwaAbdolahi/sky" class="project-card" target="_blank">
+                            <figure class="card-banner">
+                                <img src="https://i.postimg.cc/QdH71S32/Network1.png" alt="Sky and DevOps Screenshot">
+                            </figure>
+                            <div class="card-text">
+                                <h3>Sky & DevOps-prosjekt</h3>
+                                <p>Python & Linux</p>
+                                <span>April 2024</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/HiwaAbdolahi/algoritmerOgDatastrukturer-master" class="project-card" target="_blank">
+                            <figure class="card-banner">
+                                <img src="https://i.postimg.cc/Cx5qV7rv/AlgDat.png" alt="Algorithms and Data Structures">
+                            </figure>
+                            <div class="card-text">
+                                <h3>Algoritmer & Datastrukturer</h3>
+                                <p>Java & Inteliji </p>
+                                <span>November 2023</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <button class="load-more">Load More Works</button>
+                    </li>
+                </ul>
+            </section>
 
-                                <div class="card-content">
-                                    <h3 class="h4 card-title">Pile of coffee beans</h3>
-                                    <time class="publish-date" datetime="2025-03">February 2025</time>
-                                </div>
-                            </a>
-                        </li>
 
-                        <li>
-                            <a href="#" class="project-card">
-                                <figure class="card-banner">
-                                    <img src="https://i.postimg.cc/grFpxQzw/desert.jpg" alt="Natural Rock Arch" width="500">
-                                </figure>
-
-                                <div class="card-content">
-                                    <h3 class="h4 card-title">Weathering Arc</h3>
-                                    <time class="publish-date" datetime="2025-02">February 2025</time>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="#" class="project-card">
-                                <figure class="card-banner">
-                                    <img src="https://i.postimg.cc/s2mpWxFt/article-3.jpg" alt="Cityscape during sunset" width="500">
-                                </figure>
-
-                                <div class="card-content">
-                                    <h3 class="h4 card-title">Natural light</h3>
-                                    <time class="publish-date" datetime="2025-02">February 2025</time>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="#" class="project-card">
-                                <figure class="card-banner">
-                                    <img src="https://i.postimg.cc/bJCS8cR7/explore-product-4.jpg" alt="Heart-shaped object" width="500">
-                                </figure>
-
-                                <div class="card-content">
-                                    <h3 class="h4 card-title">Mixed shades</h3>
-                                    <time class="publish-date" datetime="2025-01">January 2025</time>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="#" class="project-card">
-                                <figure class="card-banner">
-                                    <img src="https://i.postimg.cc/PJgBCFgV/img.jpg" alt="Dark Rock and the White Snow" width="500">
-                                </figure>
-
-                                <div class="card-content">
-                                    <h3 class="h4 card-title">Rugged mountains</h3>
-                                    <time class="publish-date" datetime="2025-01">January 2025</time>
-                                </div>
-                            </a>
-                        </li>
-
-                        <li>
-                            <button class="load-more">Load More Works</button>
-                        </li>
-                    </ul>
-                </section>
 
                 <section class="contact" id="contact">
                     <div class="contact-content section-content">
@@ -553,6 +550,8 @@
         <script src="~/js/main.js"></script>
         <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
         <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        <script src="~/js/gsap-animations.js"></script>
+
     </body>
     
 </html>
