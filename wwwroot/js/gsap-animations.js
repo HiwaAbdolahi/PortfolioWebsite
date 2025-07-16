@@ -5,22 +5,25 @@
 --------------------------------------------------- */
 function animateHeroTitle() {
     const heroTitle = document.querySelector(".hero-title");
-
     const isMobile = window.innerWidth <= 767;
 
-    // Velg gradient basert på enhet
     if (isMobile) {
-        // Lysere, rolig gradient for mobil
-        heroTitle.style.background = "linear-gradient(90deg, rgba(255,180,0,0.9), rgba(255,255,255,0.9), rgba(0,200,255,0.9))";
+        // Ikke bruk gradient på mobil — bruk vanlig hvit tekst
+        heroTitle.style.background = "";
+        heroTitle.style.backgroundSize = "";
+        heroTitle.style.webkitBackgroundClip = "";
+        heroTitle.style.webkitTextFillColor = "";
+        heroTitle.style.color = "#ffffff"; // ← Dette gir hvit tekst
+        heroTitle.style.fontWeight = "700";
     } else {
-        // Original kraftigere gradient for desktop
+        // Gradient for desktop
         heroTitle.style.background = "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
+        heroTitle.style.backgroundSize = "200% auto";
+        heroTitle.style.webkitBackgroundClip = "text";
+        heroTitle.style.webkitTextFillColor = "transparent";
+        heroTitle.style.color = ""; // Fjern vanlig farge
+        heroTitle.style.fontWeight = "700";
     }
-
-    heroTitle.style.backgroundSize = "200% auto";
-    heroTitle.style.webkitBackgroundClip = "text";
-    heroTitle.style.webkitTextFillColor = "transparent";
-    heroTitle.style.fontWeight = "700";
 
     // Startposisjon
     gsap.set(heroTitle, {
@@ -35,11 +38,10 @@ function animateHeroTitle() {
         duration: 1.5,
         ease: "power4.out",
         onStart: () => typeWriter(heroTitle, () => {
-            // Glow kun på desktop
             if (!isMobile) {
                 animateGlow(heroTitle);
             }
-            animateContactButton(); // Kjør knapp etter typing uansett
+            animateContactButton();
         })
     });
 }
