@@ -153,10 +153,61 @@ function animateContactButton(isMobile) {
 
 
 
+
+
+
+
+
+
+gsap.registerPlugin(ScrollTrigger);
+
+function animateProjectCardsAdvanced() {
+    const cards = document.querySelectorAll(".project-card");
+
+    cards.forEach((card, index) => {
+        const randomRotate = gsap.utils.random(-5, 5, 1);
+        const randomSkew = gsap.utils.random(-8, 8, 1);
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: card,
+                start: "top 90%",
+                toggleActions: "play none none none"
+            }
+        });
+
+        tl.fromTo(card, {
+            opacity: 0,
+            y: 100,
+            rotateY: randomRotate,
+            skewY: randomSkew,
+            scale: 0.8,
+        }, {
+            opacity: 1,
+            y: 0,
+            rotateY: 0,
+            skewY: 0,
+            scale: 1,
+            duration: 1.3,
+            ease: "power4.out"
+        });
+
+        tl.to(card, {
+            boxShadow: "0 0 30px rgba(0, 255, 255, 0.2), 0 0 60px rgba(255, 144, 0, 0.1)",
+            duration: 1.2,
+            ease: "power1.inOut"
+        }, "-=1");
+    });
+}
+
+
+
+
 /* ---------------------------------------------------
    🚀 Init
 --------------------------------------------------- */
 window.addEventListener('DOMContentLoaded', () => {
     animateHeroTitle();
     animateContactButton();
+    animateProjectCardsAdvanced();
 });

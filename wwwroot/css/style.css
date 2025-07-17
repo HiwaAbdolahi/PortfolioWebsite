@@ -825,7 +825,7 @@ body.light-theme .icon-light {
 
 .project-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(380px, 5fr));
     gap: 30px;
     padding: 0;
 }
@@ -859,7 +859,12 @@ body.light-theme .icon-light {
         padding: 20px;
         color: white;
         text-align: center;
+        background: rgba(0, 0, 0, 0.4); /* Ny bakgrunn for bedre lesbarhet */
+        backdrop-filter: blur(5px);
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
     }
+
 
         .project-card .card-text h3 {
             margin: 10px 0 5px;
@@ -882,7 +887,7 @@ body.light-theme .icon-light {
             content: '';
             display: block;
             width: 0;
-            height: 20px;
+            height: 5px;
             background: var(--raw-seinna, #ff9000);
             transition: width 0.4s;
             margin: 0 auto;
@@ -891,6 +896,8 @@ body.light-theme .icon-light {
     .project-card:hover .card-text h3::after {
         width: 40%;
     }
+
+
 
 
 
