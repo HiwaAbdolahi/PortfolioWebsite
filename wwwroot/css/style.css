@@ -403,6 +403,15 @@ body {
     width: 100%;
 }
 
+.navbar-link.active-link::before {
+    width: 100%;
+}
+
+
+
+
+
+
 /* Hero */
 
 main {
