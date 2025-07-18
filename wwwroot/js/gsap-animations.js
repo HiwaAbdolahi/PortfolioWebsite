@@ -13,7 +13,7 @@ function animateHeroTitle() {
         heroTitle.style.backgroundSize = "";
         heroTitle.style.webkitBackgroundClip = "";
         heroTitle.style.webkitTextFillColor = "";
-        heroTitle.style.color = "#ffffff"; // ← Dette gir hvit tekst
+        heroTitle.style.color = "#ffffff";
         heroTitle.style.fontWeight = "700";
     } else {
         // Gradient for desktop
@@ -21,7 +21,7 @@ function animateHeroTitle() {
         heroTitle.style.backgroundSize = "200% auto";
         heroTitle.style.webkitBackgroundClip = "text";
         heroTitle.style.webkitTextFillColor = "transparent";
-        heroTitle.style.color = ""; // Fjern vanlig farge
+        heroTitle.style.color = "";
         heroTitle.style.fontWeight = "700";
     }
 
@@ -38,10 +38,8 @@ function animateHeroTitle() {
         duration: 1.5,
         ease: "power4.out",
         onStart: () => typeWriter(heroTitle, () => {
-            if (!isMobile) {
-                animateGlow(heroTitle);
-            }
-            animateContactButton();
+            if (!isMobile) animateGlow(heroTitle);
+            animateContactButton(isMobile);
         })
     });
 }
@@ -73,7 +71,6 @@ function animateGlow(element) {
         yoyo: true
     });
 }
-
 
 /* ---------------------------------------------------
    ✉️ Animate "Ta Kontakt"-knapp
@@ -120,13 +117,8 @@ function animateContactButton(isMobile) {
     }, 0);
 
     if (!isMobile) {
-        // Desktop: hover events
-        contactBtn.addEventListener("mouseenter", () => {
-            hoverTimeline.play();
-        });
-        contactBtn.addEventListener("mouseleave", () => {
-            hoverTimeline.reverse();
-        });
+        contactBtn.addEventListener("mouseenter", () => hoverTimeline.play());
+        contactBtn.addEventListener("mouseleave", () => hoverTimeline.reverse());
 
         gsap.to(contactBtn, {
             scale: 1.02,
@@ -137,7 +129,6 @@ function animateContactButton(isMobile) {
             delay: 1.5
         });
     } else {
-        // Mobil: auto "hover" animasjon
         hoverTimeline.play();
 
         gsap.to(contactBtn, {
@@ -151,20 +142,13 @@ function animateContactButton(isMobile) {
     }
 }
 
-
-
-
-
-
-
-
-
-gsap.registerPlugin(ScrollTrigger);
-
+/* ---------------------------------------------------
+   🧩 Animate Project Cards
+--------------------------------------------------- */
 function animateProjectCardsAdvanced() {
     const cards = document.querySelectorAll(".project-card");
 
-    cards.forEach((card, index) => {
+    cards.forEach((card) => {
         const randomRotate = gsap.utils.random(-5, 5, 1);
         const randomSkew = gsap.utils.random(-8, 8, 1);
 
@@ -200,14 +184,39 @@ function animateProjectCardsAdvanced() {
     });
 }
 
+/* ---------------------------------------------------
+   📍 ScrollSpy Navbar Highlight
+--------------------------------------------------- */
+const navbarLinks = document.querySelectorAll('.navbar-link');
 
+function setActiveLink(activeLink) {
+    navbarLinks.forEach(link => link.classList.remove('active-link'));
+    activeLink.classList.add('active-link');
+}
 
+navbarLinks.forEach(link => {
+    const targetId = link.getAttribute('href');
+    const section = document.querySelector(targetId);
+
+    if (section) {
+        ScrollTrigger.create({
+            trigger: section,
+            start: "top center",
+            end: "bottom center",
+            onEnter: () => setActiveLink(link),
+            onEnterBack: () => setActiveLink(link)
+        });
+    }
+
+    link.addEventListener("click", () => setActiveLink(link));
+});
 
 /* ---------------------------------------------------
    🚀 Init
 --------------------------------------------------- */
 window.addEventListener('DOMContentLoaded', () => {
+    const isMobile = window.innerWidth <= 767;
     animateHeroTitle();
-    animateContactButton();
+    animateContactButton(isMobile);
     animateProjectCardsAdvanced();
 });
