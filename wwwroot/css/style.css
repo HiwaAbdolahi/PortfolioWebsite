@@ -23,6 +23,8 @@
     --section-padding: 80px;
     --radius-4: 4px;
     --radius-12: 12px;
+    --stats-text-color: rgba(255,255,255,0.95); /* overskrift */
+    --stats-subtitle-color: rgba(255,255,255,0.75); /* undertekst */
 }
 
 body.dark-theme {
@@ -43,6 +45,8 @@ body.light-theme {
     --card-shadow: hsla(0, 0%, 0%, 0.1);
     --input-bg: hsl(0, 0%, 93%);
     --shadow-1: 10px 10px 40px var(--card-shadow);
+    --stats-text-color: #121212;
+    --stats-subtitle-color: #3a3a3a;
 }
 
 *, ::before, ::after {
@@ -572,21 +576,22 @@ main {
         0 12px 20px rgba(0, 0, 0, 0.35);
 }
 
-.stats-card .card-title {
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 1.5rem;
-    margin: 0;
-    font-weight: 700;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
-}
+    .stats-card .card-title {
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1.5rem;
+        margin: 0;
+        font-weight: 700;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+        color: var(--stats-text-color);
+    }
 
-.stats-card .stats-subtitle {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.95rem;
-    margin: 0;
-    font-weight: 500;
-    font-style: italic;
-}
+    .stats-card .stats-subtitle {
+        color: var(--stats-subtitle-color);
+        font-size: 0.95rem;
+        margin: 0;
+        font-weight: 500;
+        font-style: italic;
+    }
 
 
 
@@ -669,7 +674,7 @@ body.light-theme .icon-light {
 
         .stats-card .card-title {
             font-size: 1.4rem;
-            color: rgba(255, 255, 255, 0.97);
+            color: var(--stats-text-color);
             font-weight: 700;
             text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             margin-bottom: 8px;
@@ -677,8 +682,7 @@ body.light-theme .icon-light {
 
         .stats-card .stats-subtitle {
             font-size: 1rem;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.75);
+            font-weight: 400;           
             font-style: italic;
         }
 
@@ -733,6 +737,22 @@ body.light-theme .icon-light {
 .about .btn-secondary {
     margin-bottom: 10px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Skills */
 
@@ -830,6 +850,43 @@ body.light-theme .icon-light {
 
 
 
+    .skills-card:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 15px var(--raw-seinna);
+        transition: all 0.3s ease;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Projects */
 
 .project-list {
@@ -905,6 +962,144 @@ body.light-theme .icon-light {
     .project-card:hover .card-text h3::after {
         width: 40%;
     }
+
+
+
+
+                                                                                /*--------------------------------------------------Knapene live og github repo------------------------------------------*/
+
+.project-card-wrapper {
+    position: relative;
+}
+
+.project-buttons {
+    position: absolute;
+    bottom: 9px;
+    right: 9px;
+    display: flex;
+    gap: 10px;
+    opacity: 1;
+    transform: translateY(0px);
+    
+}
+
+
+
+.btn-live, .btn-github {
+    background: #fff;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+    .btn-live:hover {
+        background: #00b096;
+        color: #fff;
+    }
+
+    .btn-github:hover {
+        background: #24292e;
+        color: #fff;
+    }
+
+
+
+
+
+                       /*-----------------------------------------------Github knapp for Resten av proskjektene-----------------------------------------------*/
+
+.github-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #0d1117;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+}
+
+    .github-link:hover {
+        transform: scale(1.05);
+        background: #161b22;
+    }
+
+.view-all {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.github-link {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #24292e;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+    .github-link:hover {
+        background: #000;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1405,6 +1600,78 @@ textarea.input-field {
         max-width: 450px;
     }
 }
+
+
+.project-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+.project-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.project-links {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-live, .btn-github {
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn-live {
+  background: #00c9a7;
+  color: #fff;
+}
+.btn-github {
+  background: #24292e;
+  color: #fff;
+}
+
+.btn-live:hover {
+  background: #00b096;
+}
+.btn-github:hover {
+  background: #000;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
