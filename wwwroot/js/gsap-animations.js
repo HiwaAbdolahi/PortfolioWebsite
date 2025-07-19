@@ -146,7 +146,7 @@ function animateContactButton(isMobile) {
    🧩 Animate Project Cards
 --------------------------------------------------- */
 function animateProjectCardsAdvanced() {
-    const cards = document.querySelectorAll(".project-card");
+    const cards = document.querySelectorAll(".project-card-wrapper");
 
     cards.forEach((card) => {
         const randomRotate = gsap.utils.random(-5, 5, 1);
@@ -211,12 +211,71 @@ navbarLinks.forEach(link => {
     link.addEventListener("click", () => setActiveLink(link));
 });
 
+
+
+
+
+
+/******************************************************************
+ 🚀 initSkillsSection  –  én inngang for ALLE effektene
+ ******************************************************************/
+function initSkillsSection() {
+    // ⇢ 1. Fade‑/Slide‑in kortene når seksjonen kommer i view
+    gsap.from(".skills-card", {
+        opacity: 0,
+        y: 30,
+        stagger: 0.1,
+        duration: 0.6,
+        ease: "power2.out",
+        scrollTrigger: {
+            trigger: ".skills-box",
+            start: "top 80%",
+        }
+    });
+
+    // ⇢ 2. 3‑D tilt‑effekt (Vanilla‑Tilt)
+    VanillaTilt.init(document.querySelectorAll(".skills-card"), {
+        max: 22,
+        speed: 400,
+        glare: true,
+        "max-glare": 0.3,
+    });
+
+    // ⇢ 3. Animasjon når man bytter mellom “Ferdigheter” og “Verktøy”
+    const skillsList = document.querySelector(".skills-list");
+    const toolsList = document.querySelector(".tools-list");
+    const [skillsBtn, toolsBtn] = document.querySelectorAll("[data-toggle-btn]");
+
+    skillsBtn.addEventListener("click", () => {
+        gsap.fromTo(
+            skillsList,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.4, overwrite: "auto" }
+        );
+    });
+
+    toolsBtn.addEventListener("click", () => {
+        gsap.fromTo(
+            toolsList,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.4, overwrite: "auto" }
+        );
+    });
+}
+
+
+
+
+
 /* ---------------------------------------------------
    🚀 Init
 --------------------------------------------------- */
 window.addEventListener('DOMContentLoaded', () => {
     const isMobile = window.innerWidth <= 767;
+
+
     animateHeroTitle();
     animateContactButton(isMobile);
     animateProjectCardsAdvanced();
+    initSkillsSection();
 });
