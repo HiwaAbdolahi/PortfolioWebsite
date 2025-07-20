@@ -1,7 +1,16 @@
+using PortfolioWebsite.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+// ?? Legg til user secrets
+builder.Configuration.AddUserSecrets<Program>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<EmailService>();
+// Register EmailService with dependency injection
+
 
 var app = builder.Build();
 
@@ -19,6 +28,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+
 
 app.MapControllerRoute(
     name: "default",

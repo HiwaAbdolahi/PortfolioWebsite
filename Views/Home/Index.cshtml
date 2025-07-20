@@ -1,4 +1,9 @@
-﻿@{
+﻿@model PortfolioWebsite.Models.ContactFormModel
+
+
+
+
+@{
     Layout = null;
 }
 
@@ -23,6 +28,33 @@
 
 </head>
     <body class="dark-theme">
+
+
+
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            ✅ @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Lukk"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            ❌ @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Lukk"></button>
+        </div>
+    }
+
+
+
+
+
+
+
+
         <header class="header" data-header>
 
             <div class="container">
@@ -527,45 +559,61 @@
                         </ul>
                     </div>
 
-                    <form action="" class="contact-form">
-                        <div class="form-wrapper">
-                            <label for="name" class="form-label">Navn</label>
 
-                            <div class="input-wrapper">
-                                <input type="text" name="name" id="name" required placeholder="Hiwa Ab" class="input-field">
-                                <ion-icon name="person-outline"></ion-icon>
-                            </div>
+
+
+                
+
+
+
+                <form asp-action="Index" asp-controller="Home" method="post" class="contact-form">
+
+                    <div class="form-wrapper">
+                        <label asp-for="Name" class="form-label"></label>
+                        <div class="input-wrapper">
+                            <input asp-for="Name" class="input-field" placeholder="Hiwa Ab">
+                            <ion-icon name="person-outline"></ion-icon>
                         </div>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
 
-                        <div class="form-wrapper">
-                            <label for="email" class="form-label">E-post</label>
-
-                            <div class="input-wrapper">
-                            <input type="email" name="email" id="email" required placeholder="hiwa.abdolahi.dev@gmail.com" class="input-field">
-                                <ion-icon name="mail"></ion-icon>
-                            </div>
+                    <div class="form-wrapper">
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-wrapper">
+                            <input asp-for="Email" class="input-field" placeholder="hiwa.abdolahi.dev@gmail.com">
+                            <ion-icon name="mail"></ion-icon>
                         </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
 
-                        <div class="form-wrapper">
-                            <label for="phone" class="form-label">Telefon</label>
+                    <div class="form-wrapper">
+                        <label for="phone" class="form-label">Telefon</label>
+                        <div class="input-wrapper">
+                            <input asp-for="Phone" class="input-field" placeholder="Phone Number">
 
-                            <div class="input-wrapper">
-                                <input type="tel" name="phone" id="phone" required placeholder="Phone Number" class="input-field">
-                                <ion-icon name="call"></ion-icon>
-                            </div>
+                            <ion-icon name="call"></ion-icon>
                         </div>
+                        <span asp-validation-for="Phone" class="text-danger"></span>
 
-                        <div class="form-wrapper">
-                            <label for="message" class="form-label">Melding</label>
+                    </div>
 
-                            <div class="input-wrapper">
-                                <textarea name="message" id="message" class="input-field" required placeholder="Skriv din melding"></textarea>
-                                <ion-icon name="chatbubbles"></ion-icon>
-                            </div>
+
+
+                    <div class="form-wrapper">
+                        <label asp-for="Message" class="form-label"></label>
+                        <div class="input-wrapper">
+                            <textarea asp-for="Message" class="input-field" placeholder="Skriv din melding"></textarea>
+                            <ion-icon name="chatbubbles"></ion-icon>
                         </div>
+                        <span asp-validation-for="Message" class="text-danger"></span>
+                    </div>
 
-                        <button type="submit" class="btn btn-primary">Send</button>
-                    </form>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
+
+                @section Scripts {
+                    <partial name="_ValidationScriptsPartial" />
+                }
                 </section>
             </article>
         </main>
