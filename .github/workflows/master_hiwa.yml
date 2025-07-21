@@ -58,4 +58,4 @@ jobs:
         with:
           app-name: 'Hiwa'
           slot-name: 'Production'
-          package: published-app            # ?? riktig sti (den vi lastet ned nettopp)
+          package: .            # ?? riktig sti (den vi lastet ned nettopp)
