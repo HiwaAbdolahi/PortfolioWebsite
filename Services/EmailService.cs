@@ -13,7 +13,8 @@ namespace PortfolioWebsite.Services
         public EmailService(IConfiguration config)
         {
             _accessKey = config["AZURE_COMMUNICATION_CONNECTION_STRING"]
-                ?? throw new ArgumentNullException("ACS:AccessKey", "Mangler ACS AccessKey i secrets eller config.");
+                ?? throw new ArgumentNullException("AZURE_COMMUNICATION_CONNECTION_STRING", "Mangler ACS-tilkoblingsstreng i secrets eller app settings.");
+
         }
 
         public async Task<bool> SendEmailAsync(string toEmail, string subject, string bodyHtml)
