@@ -12,7 +12,7 @@ namespace PortfolioWebsite.Services
 
         public EmailService(IConfiguration config)
         {
-            _accessKey = config["ACS:AccessKey"]
+            _accessKey = config["AZURE_COMMUNICATION_CONNECTION_STRING"]
                 ?? throw new ArgumentNullException("ACS:AccessKey", "Mangler ACS AccessKey i secrets eller config.");
         }
 
