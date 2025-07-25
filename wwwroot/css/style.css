@@ -1695,3 +1695,118 @@ canvas {
     z-index: -1;
     pointer-events: none;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                /*---------------------------------------------------------------------------Form style starter her -------------------------------------------------------------------------*/
+
+
+
+/* Success container */
+#confirmation {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    z-index: 1000;
+}
+
+/* Boks med suksessmelding */
+.success-box {
+    padding: 25px 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    background: var(--success-bg);
+    color: var(--success-text);
+    position: relative;
+    z-index: 2;
+}
+
+/* Checkmark animasjon */
+.confirmation-checkmark {
+    width: 64px;
+    height: 64px;
+    stroke: var(--checkmark-color);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    margin-bottom: 12px;
+    animation: draw-check 1s ease forwards;
+}
+
+@keyframes draw-check {
+    0% {
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Meldingsstil */
+.confirmation-message {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Bobleeffekt */
+.bubble {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #00ffff, #00c2ff);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Definer farge for lys og mørk modus */
+body.dark-theme {
+    --success-bg: #0a2b29;
+    --success-text: #c2fafa;
+    --checkmark-color: #ffffff; /* hvit i mørk modus */
+}
+
+body:not(.dark-theme) {
+    --success-bg: #e1fcf8;
+    --success-text: #033232;
+    --checkmark-color: #0a2b29; /* mørk farge i lys modus */
+}
+
+.bubble {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, #00ffff 0%, #00c2ff 50%, #005577 100%);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.4);
+    opacity: 0.95;
+    pointer-events: none;
+    z-index: 1;
+}
+
+
+
+

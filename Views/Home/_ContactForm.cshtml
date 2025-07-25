@@ -1,0 +1,43 @@
+﻿@model PortfolioWebsite.Models.ContactFormModel
+
+
+<!-- Formularet -->
+<form id="contactForm" asp-action="Index" asp-controller="Home" method="post" class="contact-form" novalidate>
+    <div class="form-wrapper">
+        <label asp-for="Name" class="form-label"></label>
+        <div class="input-wrapper">
+            <input asp-for="Name" class="input-field" placeholder="Hiwa Ab">
+            <ion-icon name="person-outline"></ion-icon>
+        </div>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-wrapper">
+        <label asp-for="Email" class="form-label"></label>
+        <div class="input-wrapper">
+            <input asp-for="Email" class="input-field" placeholder="hiwa.abdolahi.dev@gmail.com">
+            <ion-icon name="mail"></ion-icon>
+        </div>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-wrapper">
+        <label for="Phone" class="form-label">Telefon</label>
+        <div class="input-wrapper">
+            <input asp-for="Phone" class="input-field" placeholder="Phone Number">
+            <ion-icon name="call"></ion-icon>
+        </div>
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="form-wrapper">
+        <label asp-for="Message" class="form-label"></label>
+        <div class="input-wrapper">
+            <textarea asp-for="Message" class="input-field" placeholder="Skriv din melding"></textarea>
+            <ion-icon name="chatbubbles"></ion-icon>
+        </div>
+        <span asp-validation-for="Message" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Send</button>
+</form>
