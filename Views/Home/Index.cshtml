@@ -22,33 +22,14 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CustomEase.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.7.2/dist/vanilla-tilt.min.js"></script>
 
 
 </head>
     <body class="dark-theme">
-
-
-
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-            ✅ @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Lukk"></button>
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-            ❌ @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Lukk"></button>
-        </div>
-    }
-
-
 
 
 
@@ -562,54 +543,19 @@
 
 
 
-                
 
 
 
-                <form asp-action="Index" asp-controller="Home" method="post" class="contact-form">
-
-                    <div class="form-wrapper">
-                        <label asp-for="Name" class="form-label"></label>
-                        <div class="input-wrapper">
-                            <input asp-for="Name" class="input-field" placeholder="Hiwa Ab">
-                            <ion-icon name="person-outline"></ion-icon>
-                        </div>
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-wrapper">
-                        <label asp-for="Email" class="form-label"></label>
-                        <div class="input-wrapper">
-                            <input asp-for="Email" class="input-field" placeholder="hiwa.abdolahi.dev@gmail.com">
-                            <ion-icon name="mail"></ion-icon>
-                        </div>
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-wrapper">
-                        <label for="Phone" class="form-label">Telefon</label>
-                        <div class="input-wrapper">
-                            <input asp-for="Phone" class="input-field" placeholder="Phone Number">
-
-                            <ion-icon name="call"></ion-icon>
-                        </div>
-                        <span asp-validation-for="Phone" class="text-danger"></span>
-
-                    </div>
 
 
 
-                    <div class="form-wrapper">
-                        <label asp-for="Message" class="form-label"></label>
-                        <div class="input-wrapper">
-                            <textarea asp-for="Message" class="input-field" placeholder="Skriv din melding"></textarea>
-                            <ion-icon name="chatbubbles"></ion-icon>
-                        </div>
-                        <span asp-validation-for="Message" class="text-danger"></span>
-                    </div>
+                @await Html.PartialAsync("_ContactForm", Model)
 
-                    <button type="submit" class="btn btn-primary">Send</button>
-                </form>
+
+                    <!-- Meldingsområde -->
+                    <div id="confirmation" style="display: none;"></div>
+
+
 
                 @section Scripts {
                     <partial name="_ValidationScriptsPartial" />
@@ -632,6 +578,8 @@
         <a href="#top" class="go-top " data-go-top title="Go to Top"><ion-icon name="arrow-up"></ion-icon></a>
 
         <script src="~/js/main.js"></script>
+    <script src="~/js/contact-form.js"></script>
+
         <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
         <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
         <script src="~/js/gsap-animations.js"></script>

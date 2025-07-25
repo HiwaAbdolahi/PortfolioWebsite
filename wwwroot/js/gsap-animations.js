@@ -267,6 +267,142 @@ function initSkillsSection() {
 
 
 
+
+
+
+
+
+
+
+
+/* ---------------------------------------------------
+   ✨ Kontakt-suksessanimasjon – Avansert versjon
+--------------------------------------------------- */
+gsap.registerPlugin(MotionPathPlugin, CustomEase);
+
+window.addEventListener("formSent", (e) => {
+    const confirmation = document.getElementById("confirmation");
+    if (!confirmation) return;
+
+    const { alertHtml, newForm } = e.detail;
+
+    // Fjern tidligere innhold
+    confirmation.innerHTML = "";
+
+    // 🎯 Suksessboks
+    const box = document.createElement("div");
+    box.className = "success-box";
+    box.innerHTML = `
+        <svg class="confirmation-checkmark" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="25" fill="none"/>
+            <path fill="none" d="M14 27l7 7 16-16"/>
+        </svg>
+        <div class="confirmation-message">Takk! Meldingen er sendt ✉️</div>
+    `;
+    confirmation.appendChild(box);
+    confirmation.style.display = "flex";
+
+    // ✨ GSAP boksanimasjon med CustomEase
+    CustomEase.create("pop-ease", "M0,0 C0.17,0.84 0.44,1.03 1,1");
+    gsap.fromTo(box, {
+        scale: 0.4,
+        opacity: 0,
+        rotate: -15
+    }, {
+        scale: 1,
+        opacity: 1,
+        rotate: 0,
+        duration: 1.4,
+        ease: "pop-ease"
+    });
+
+
+    gsap.fromTo(box, {
+        scale: 0.4,
+        opacity: 0,
+        rotate: -15,
+        filter: "blur(8px) brightness(0.8)"  // ← Ny effekt
+    }, {
+        scale: 1,
+        opacity: 1,
+        rotate: 0,
+        duration: 1.4,
+        ease: "pop-ease",
+        filter: "blur(0px) brightness(1.2)", // ← Smooth transition
+        boxShadow: "0 0 50px rgba(0, 255, 255, 0.4), 0 0 80px rgba(255, 144, 0, 0.3)"
+    });
+
+
+    
+    // 🎈 Bobler (particles)
+    for (let i = 0; i < 18; i++) {  // ← Flere bobler
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        confirmation.appendChild(bubble);
+
+        const x = gsap.utils.random(-600, 600);
+        const y = gsap.utils.random(-700, -120);
+
+        gsap.fromTo(bubble, {
+            x: 0,
+            y: 0,
+            scale: 0.8,
+            opacity: 1,
+        }, {
+            motionPath: {
+                path: [{ x, y }],
+                curviness: 1
+            },
+            scale: 0.2,
+            opacity: 0,
+            duration: gsap.utils.random(1.8, 3.2),
+            ease: "power2.out",
+            delay: i * 0.08
+        });
+    }
+
+
+    // ⏳ Tilbakestill skjema etter 7 sekunder
+    setTimeout(() => {
+        confirmation.style.display = "none";
+        confirmation.innerHTML = "";
+
+        const contactSection = document.querySelector("#contact");
+        if (contactSection && newForm) {
+            contactSection.insertAdjacentHTML("beforeend", newForm);
+
+            gsap.from(".contact-form", {
+                opacity: 0,
+                y: 30,
+                duration: 0.6,
+                ease: "power4.out"
+            });
+        }
+    }, 7000);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---------------------------------------------------
    🚀 Init
 --------------------------------------------------- */
