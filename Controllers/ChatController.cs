@@ -77,7 +77,7 @@ namespace PortfolioWebsite.Controllers
                     .GetProperty("choices")[0]
                     .GetProperty("message")
                     .GetProperty("content")
-                    .GetString();
+                    .GetString() ?? "⚠️ AI-svar mangler.";
 
                 _chatMemory[sessionId].Add(new() { ["role"] = "assistant", ["content"] = assistantReply });
 
