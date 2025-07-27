@@ -1825,22 +1825,22 @@ body:not(.dark-theme) {
     right: 20px;
     width: 360px;
     max-height: 600px;
-    background: var(--bg-secondary, #1e1e2f);
+    background: var(--bg-secondary);
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--ff-roboto);
     z-index: 9999;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     animation: fadeInUp 0.6s ease-out;
     backdrop-filter: blur(8px);
 }
 
 #chat-header {
     background: linear-gradient(135deg, #4f46e5, #3b82f6);
-    color: white;
+    color: var(--white);
     padding: 14px 20px;
     font-weight: 600;
     font-size: 16px;
@@ -1853,8 +1853,8 @@ body:not(.dark-theme) {
     flex: 1;
     padding: 14px;
     overflow-y: auto;
-    background: var(--bg-primary, #121218);
-    color: var(--text-primary, #eaeaea);
+    background: var(--bg-primary);
+    color: var(--color-primary);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -1867,14 +1867,14 @@ body:not(.dark-theme) {
     }
 
     #chat-messages::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(0, 0, 0, 0.15);
         border-radius: 3px;
     }
 
 #chat-input-area {
     display: flex;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background: var(--input-bg);
     padding: 8px;
 }
 
@@ -1884,18 +1884,18 @@ body:not(.dark-theme) {
     border: none;
     outline: none;
     font-size: 14px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
+    background: var(--input-bg);
+    color: var(--color-primary);
     border-radius: 8px;
     transition: background 0.3s;
 }
 
     #chat-input::placeholder {
-        color: #aaa;
+        color: var(--color-secondary);
     }
 
     #chat-input:focus {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.05);
     }
 
 #chat-send {
@@ -1934,8 +1934,8 @@ body:not(.dark-theme) {
 
 .bot {
     align-self: flex-start;
-    background: rgba(255, 255, 255, 0.05);
-    color: #ddd;
+    background: var(--input-bg);
+    color: var(--color-primary);
     border-left: 4px solid #06b6d4;
 }
 
@@ -1964,3 +1964,4 @@ body:not(.dark-theme) {
         transform: translateY(0);
     }
 }
+
