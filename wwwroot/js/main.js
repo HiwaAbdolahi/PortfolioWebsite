@@ -83,7 +83,7 @@ window.addEventListener('DOMContentLoaded', () => {
         color: ['#ff9000', '#ff0266', '#00ffff'],
         connectParticles: true,
         speed: 0.3,
-        maxParticles: 90,
+        maxParticles: 120,
         responsive: [
             {
                 breakpoint: 1000,

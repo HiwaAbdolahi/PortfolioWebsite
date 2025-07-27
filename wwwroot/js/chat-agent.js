@@ -41,4 +41,6 @@
         const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
         addMessage("🤖 " + reply, "bot");
     }
+
+
 });
