@@ -537,14 +537,7 @@
                     </div>
 
                     <!--------------------------------------------------------------------------AGENTEN MIN----------------------------------------------------->
-                    <div id="chat-widget">
-                        <div id="chat-header">Hiwa AI Agent 🤖</div>
-                        <div id="chat-messages"></div>
-                        <div id="chat-input-area">
-                            <input type="text" id="chat-input" placeholder="Skriv en melding..." />
-                            <button id="chat-send">Send</button>
-                        </div>
-                    </div>
+                   
 
 
 
@@ -559,7 +552,33 @@
 
 
                     <!-- Meldingsområde -->
-                    <div id="confirmation" style="display: none;"></div>
+                
+                <div id="confirmation" style="display: none;"></div>
+
+                <!-- 💬 Toggle-knapp (åpner chat) -->
+                <button id="chat-toggle" aria-label="Åpne chat">💬</button>
+
+                <div id="chat-widget">
+                    <div id="chat-header">
+                        <span class="chat-title">Hiwa AI Agent 🤖</span>
+                        <div class="chat-controls">
+                            <span class="chat-btn" id="chat-minimize">−</span>
+                            <button class="chat-btn" id="chat-close">✕</button>
+                        </div>
+                    </div>
+
+                    <div id="chat-messages"></div>
+                    <div id="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Skriv en melding..." />
+                        <button id="chat-send">Send</button>
+                    </div>
+                </div>
+
+
+
+
+
+                <!-- slutt widget------------------------>
 
 
 
