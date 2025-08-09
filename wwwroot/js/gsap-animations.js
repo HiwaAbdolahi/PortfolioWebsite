@@ -275,9 +275,9 @@ function initSkillsSection() {
 
 
 
-/* ---------------------------------------------------
-   ✨ Kontakt-suksessanimasjon – Avansert versjon
---------------------------------------------------- */
+/* 
+   ✨ Kontakt-suksessanimasjon  
+*/
 gsap.registerPlugin(MotionPathPlugin, CustomEase);
 
 window.addEventListener("formSent", (e) => {
