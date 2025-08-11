@@ -1,5 +1,6 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Saira+Stencil+One&family=Turret+Road:wght@200;300;400;500;700;800&display=swap');
 
+/*  Globale variabler */
 :root {
     --raw-seinna: hsl(24, 74%, 58%);
     --sizzling-sunrise: hsl(51, 95%, 54%);
@@ -23,10 +24,40 @@
     --section-padding: 80px;
     --radius-4: 4px;
     --radius-12: 12px;
-    --stats-text-color: rgba(255,255,255,0.95); /* overskrift */
-    --stats-subtitle-color: rgba(255,255,255,0.75); /* undertekst */
+    --stats-text-color: rgba(255,255,255,0.95);
+    --stats-subtitle-color: rgba(255,255,255,0.75);
+    /* glass tuning */
+    --glass-alpha: .42; /* base transparency for LIGHT */
+    --glass-stroke: rgba(0,0,0,.06); /* hairline in LIGHT */
+    --glass-blur: 22px;
+    --glass-saturate: 180%;
+
+
+    /*  AI Agent vars */
+    --gm-accent: #7b8aa0;
+    --gm-accent-2: #9aa8be;
+    --gm-ink: #10131a;
+    --gm-ink-weak: #5c6473;
+    --gm-ink-dark: #e9edf5;
+    --gm-ink-dweak: #aab4c7;
+    --gm-radius: 22px;
+    --gm-ring: rgba(123,138,160,.28);
+    --gm-bd-dark: 1px solid rgba(255,255,255,.10);
+    --gm-bd-light: 1px solid rgba(10,10,20,.10);
+    --gm-xshadow: 0 28px 80px rgba(0,0,0,.38);
+    --gm-mshadow: 0 14px 30px rgba(0,0,0,.22);
+    /* RGB triplets for kompatibilitet uten color-mix */
+    --bg-primary-rgb: 230 230 230; /* lys standard */
+    --bg-secondary-rgb: 255 255 255; /* lys sekundær */
+
+    --gm-accent-rgb: 123 138 160; /* #7b8aa0 */
+    --gm-accent-2-rgb: 154 168 190; /* #9aa8be */
+
+    --gm-ink-rgb: 16 19 26; /* mørk tekst */
+    --gm-ink-dark-rgb: 233 237 245; /* lys tekst */
 }
 
+/*  Dark mode */
 body.dark-theme {
     --bg-primary: hsl(0, 0%, 12%);
     --bg-secondary: hsl(0, 0%, 19%);
@@ -35,8 +66,17 @@ body.dark-theme {
     --card-shadow: hsla(0, 0%, 0%, 0.4);
     --input-bg: hsl(0, 0%, 16%);
     --shadow-1: 10px 10px 40px var(--card-shadow);
+    /* RGB for dark mode */
+    --bg-primary-rgb: 31 31 31;
+    --bg-secondary-rgb: 48 48 48;
+    --gm-ink-rgb: 233 237 245; /* mørk bakgrunn = lys tekst */
+    --glass-alpha: .12; /* darker = more transparent tint */
+    --glass-stroke: rgba(255,255,255,.12);
+    --glass-blur: 32px;
+    --glass-saturate: 190%;
 }
 
+/*  Light mode */
 body.light-theme {
     --bg-primary: hsl(0, 0%, 90%);
     --bg-secondary: hsl(0, 0%, 100%);
@@ -47,6 +87,11 @@ body.light-theme {
     --shadow-1: 10px 10px 40px var(--card-shadow);
     --stats-text-color: #121212;
     --stats-subtitle-color: #3a3a3a;
+    /* RGB for light mode */
+    --bg-primary-rgb: 230 230 230;
+    --bg-secondary-rgb: 255 255 255;
+    --gm-ink-rgb: 16 19 26; /* lys bakgrunn = mørk tekst */
+
 }
 
 *, ::before, ::after {
@@ -1843,6 +1888,7 @@ body:not(.dark-theme) {
     animation: fadeInUp 0.6s ease-out;
     backdrop-filter: blur(8px);
     transition: transform 0.3s ease-in-out, opacity 0.3s ease;
+    color-scheme: light dark;
 }
 
 
@@ -1978,12 +2024,16 @@ body.light-theme #chat-input::placeholder {
     line-height: 1.5;
     white-space: pre-wrap;
     animation: messageFadeIn 0.3s ease;
+    background-clip: padding-box;
+    -webkit-background-clip: padding-box;
+    border: 1px solid rgba(255,255,255,.18); /* fin hairline for begge */
 }
 
 .user {
     align-self: flex-end;
     background: linear-gradient(to right, #6366f1, #8b5cf6);
     color: white;
+    border-top-right-radius: 10px;
 }
 
 .bot {
@@ -1991,6 +2041,7 @@ body.light-theme #chat-input::placeholder {
     background: var(--input-bg);
     color: var(--color-primary);
     border-left: 4px solid #06b6d4;
+    border-top-left-radius: 10px;
 }
 
 /* 🔥 Animasjoner */
@@ -2055,37 +2106,306 @@ body.light-theme #chat-input::placeholder {
 
 
 
+/* =========================================================
+   HIWA AI – Glass‑Mono (Calm, Corporate, Liquid Glass)
+   Beholder HTML og #chat-toggle uendret
+========================================================= */
 
-/* 📱 Mobiltilpasning */
-@media (max-width: 768px) {
-    #chat-widget {
-        width: 90vw;
-        height: 70vh;
-        bottom: 80px;
-        right: 16px;
-        border-radius: 16px;
-    }
 
-    .chat-btn {
-        padding: 6px 10px;
-        font-size: 16px;
-    }
+
+/* ------------ Shell (liquid glass, Apple‑style) ------------ */
+#chat-widget {
+    display: none;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: clamp(320px, 24vw, 400px);
+    max-height: 600px;
+    border-radius: var(--gm-radius);
+    border: 1px solid var(--glass-stroke);
+    box-shadow: 0 30px 80px rgba(0,0,0,.40), 0 1px 0 rgba(255,255,255,.08) inset; /* soft inner highlight */
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--gm-ink-dark);
+    /* true glass: faint white sheen + translucent tint + subtle noise */
+    background:
+    /* top glossy sweep */
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 35%),
+    /* bottom shadow fade */
+    linear-gradient(0deg, rgba(0,0,0,.10), rgba(0,0,0,0) 55%),
+    /* base tint from your theme rgb */
+    rgb(var(--bg-secondary-rgb) / var(--glass-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    transform: translateZ(0);
+    animation: gmIn .35s cubic-bezier(.22,1,.36,1) both;
+    z-index: 9999;
+    background-clip: padding-box; /* ikke trekk blur inn i border */
+    -webkit-background-clip: padding-box;
 }
 
-@media (max-width: 480px) {
-    .chat-btn {
-        padding: 8px 12px;
-        font-size: 18px;
+    /* micro‑noise texture for realism (no image needed) */
+    #chat-widget::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+        /* crystalline speckle */
+        repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 2px, rgba(255,255,255,0) 2px 4px), repeating-linear-gradient(-45deg, rgba(0,0,0,.02) 0 3px, rgba(0,0,0,0) 3px 6px);
+        mix-blend-mode: overlay;
+        pointer-events: none;
+        opacity: .35;
     }
+
+    /* soft moving “sheen” */
+    #chat-widget::after {
+        content: "";
+        position: absolute;
+        inset: -30% -25% auto -25%;
+        height: 70%;
+        background: radial-gradient(60% 90% at 10% 30%, rgba(255,255,255,.12), transparent 60%), radial-gradient(80% 90% at 100% 0%, rgba(255,255,255,.06), transparent 70%);
+        filter: blur(28px) saturate(115%);
+        opacity: .5;
+        pointer-events: none;
+        animation: gmSheen 16s ease-in-out infinite alternate;
+    }
+
+/* Light mode keeps high legibility but still glassy */
+body.light-theme #chat-widget {
+    color: var(--gm-ink);
+    box-shadow: 0 24px 60px rgba(22,28,45,.12), 0 1px 0 rgba(255,255,255,.85) inset;
 }
 
-/* 📦 States */
+    body.light-theme #chat-widget::before {
+        opacity: .26;
+        
+    }
+
+/* ------------ Header (glossy mono bar) ------------ */
+#chat-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    color: #fff;
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)), linear-gradient(135deg, #232834, #2b3242);
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,.18), 0 10px 26px rgba(0,0,0,.28);
+    user-select: none;
+    cursor: grab;
+    will-change: transform, background;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+}
+
+    #chat-header:active {
+        cursor: grabbing;
+    }
+
+.chat-title {
+    font: 800 16px/1 var(--ff-roboto, ui-sans-serif);
+    letter-spacing: .25px;
+    text-shadow: 0 1px 0 rgba(0,0,0,.25);
+    padding: 0 74px;
+    flex: 1;
+    text-align: center;
+}
+
+.chat-controls {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.chat-btn {
+    background: rgba(255,255,255,.20);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 6px 12px;
+    box-shadow: 0 2px 0 rgba(0,0,0,.25), 0 10px 20px rgba(0,0,0,.18);
+    transition: transform .12s ease, background .22s ease, box-shadow .22s ease;
+}
+
+    .chat-btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255,255,255,.32);
+    }
+
+
+
+
+
+
+
+
+
+/* ------------ Messages (frosted mono bobler) ------------ */
+#chat-messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    background:
+    /* faint inner veil so text pops but still glassy */
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.03)), rgb(var(--bg-primary-rgb) / 0.04);
+    overflow: auto;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+
+    #chat-messages::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    #chat-messages::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #3d4658, #59657a);
+        border-radius: 999px;
+    }
+
+/* base bubble */
+.user, .bot {
+    position: relative;
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    box-shadow: 0 14px 28px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.08);
+    animation: gmMsg .18s ease-out both;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+}
+
+/* User (right) — translucent light plate */
+.user {
+    align-self: flex-end;
+    color: #1b2230;
+    background: linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.35));
+    border-top-right-radius: 10px;
+    border: 1px solid rgba(255,255,255,.35);
+    text-shadow: 0 1px 0 rgba(255,255,255,.5);
+}
+    
+
+body.dark-theme .user {
+    color: #0e1117; 
+    background: linear-gradient(135deg, rgba(255,255,255,.42), rgba(255,255,255,.24));
+    border-color: rgba(255,255,255,.22);
+    text-shadow: none;
+}
+
+/* Bot (left) — darker frosted plate with accent spine */
+.bot {
+    align-self: flex-start;
+    color: var(--gm-ink-dark);
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08)), rgb(var(--bg-secondary-rgb) / 0.10);
+    border: 1px solid rgba(255,255,255,.22);
+    border-left: 4px solid rgb(var(--gm-accent-rgb) / 0.30);
+    border-top-left-radius: 10px;
+}
+
+body.light-theme .bot {
+    color: var(--gm-ink);
+    border-left-color: rgb(var(--gm-accent-rgb) / 0.22);
+}
+
+
+.bot::after {
+    content: "";
+    position: absolute;
+    left: -6px;
+    bottom: 10px;
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    transform: rotate(45deg);
+    border-bottom-left-radius: 4px;
+    filter: blur(.2px);
+}
+
+/* tighter grouping */
+.user + .user, .bot + .bot {
+    margin-top: 2px;
+}
+
+.user + .bot, .bot + .user {
+    margin-top: 10px;
+}
+
+/* ------------ Composer ------------ */
+#chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-top: 1px solid var(--glass-stroke);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)), rgb(var(--bg-secondary-rgb) / var(--glass-alpha));
+    backdrop-filter: blur(calc(var(--glass-blur) - 6px)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) - 6px)) saturate(var(--glass-saturate));
+}
+
+#chat-input {
+    flex: 1;
+    height: 46px;
+    padding: 0 14px;
+    outline: none;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.28);
+    color: inherit;
+    background: rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+    #chat-input:focus {
+        box-shadow: 0 0 0 4px var(--gm-ring), inset 0 1px 0 rgba(255,255,255,.12);
+        background: rgba(255,255,255,.14);
+    }
+
+#chat-send {
+    height: 46px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.28);
+    background: linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,.18));
+    color: #0c0f16;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: var(--gm-mshadow);
+}
+
+body.dark-theme #chat-send {
+    color: #0b0e14;
+}
+
+#chat-send:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--gm-mshadow), 0 0 0 6px rgb(var(--gm-accent-2-rgb) / 0.18);
+}
+
+
+#chat-send:active {
+    transform: translateY(0);
+    filter: saturate(1.04);
+}
+
+/* ------------ States & Responsive ------------ */
 #chat-widget.active {
     display: flex;
+    flex-direction: column;
 }
 
 #chat-widget.minimized {
-    height: 50px;
+    height: 52px;
     overflow: hidden;
 }
 
@@ -2093,5 +2413,74 @@ body.light-theme #chat-input::placeholder {
     #chat-widget.minimized #chat-messages {
         display: none;
     }
+
+@media (max-width:768px) {
+    #chat-widget {
+        width: 90vw;
+        height: 70vh;
+        bottom: 80px;
+        right: 16px;
+        border-radius: 20px;
+    }
+}
+
+@media (max-width:480px) {
+    .chat-btn {
+        padding: 8px 12px;
+        font-size: 18px;
+    }
+}
+
+/* ------------ Animations (subtle) ------------ */
+@keyframes gmIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes gmSheen {
+    0% {
+        transform: translateY(-6%) translateX(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-2%) translateX(1.5%) rotate(1.5deg);
+    }
+
+    100% {
+        transform: translateY(-8%) translateX(-1.5%) rotate(-1.5deg);
+    }
+}
+
+@keyframes gmMsg {
+    from {
+        opacity: 0;
+        transform: translateY(6px) scale(.985);
+        filter: blur(1.5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #chat-widget::before {
+        animation: none;
+    }
+
+    .user, .bot {
+        animation: none;
+
+    }
+}
 
 
