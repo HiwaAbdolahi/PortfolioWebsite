@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
         _scrollY = window.scrollY || 0;
         document.body.style.top = `-${_scrollY}px`;
         document.body.style.position = "fixed";
-        document.body.classList.add("chat-open"); // matcher CSS-en din
+        document.body.classList.add("chat-open"); 
     }
     function unlockBodyScroll() {
         document.body.classList.remove("chat-open");
