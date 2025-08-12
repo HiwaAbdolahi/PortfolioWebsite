@@ -2507,7 +2507,7 @@ body.chat-open {
 @media (max-width: 768px) {
     #chat-widget {
         width: 92vw;
-        height: min(70dvh, 560px); /* dvh = visible viewport */
+        height: min(45dvh, 560px); /* dvh = visible viewport */
         right: 4vw;
         left: 4vw;
     }
