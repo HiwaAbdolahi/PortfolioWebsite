@@ -85,3 +85,5 @@ app.MapControllers(); // ? VIKTIG for at API (ChatController) skal virke
 
 
 app.Run();
+
+
