@@ -150,27 +150,77 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const sessionId = "session-" + Date.now();
 
-    // 🟢 Vis chat
+    /* ---------- iOS/mobile: lås scroll når chat er åpen ---------- */
+    let _scrollY = 0;
+    function lockBodyScroll() {
+        _scrollY = window.scrollY || 0;
+        document.body.style.top = `-${_scrollY}px`;
+        document.body.style.position = "fixed";
+        document.body.classList.add("chat-open"); // matcher CSS-en din
+    }
+    function unlockBodyScroll() {
+        document.body.classList.remove("chat-open");
+        document.body.style.position = "";
+        document.body.style.top = "";
+        window.scrollTo(0, _scrollY);
+    }
+
+    /* ---------- iOS keyboard offset – oppdater --kb ---------- */
+    const vv = window.visualViewport;
+    function updateKbOffset() {
+        if (!vv) return;
+        // Hvor mye av vinduet “forsvinner” pga tastatur
+        const kb = Math.max(0, (window.innerHeight - vv.height) * vv.scale);
+        document.documentElement.style.setProperty("--kb", kb > 0 ? `${kb}px` : "0px");
+    }
+    if (vv) {
+        vv.addEventListener("resize", updateKbOffset);
+        vv.addEventListener("scroll", updateKbOffset);
+        updateKbOffset();
+    }
+
+    /* ---------- Åpne/Lukk/Minimer ---------- */
     toggleBtn.addEventListener("click", () => {
         chatWidget.classList.add("active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
+        lockBodyScroll();
+        // sørg for at input er synlig når boksen åpnes
+        setTimeout(() => chatWidget.scrollIntoView({ block: "end", behavior: "smooth" }), 0);
     });
 
-    // 🔴 Lukk chat
     closeBtn.addEventListener("click", () => {
         chatWidget.classList.remove("active");
         toggleBtn.style.display = "flex";
+        unlockBodyScroll();
     });
 
-    // 🟡 Minimer chat
     minimizeBtn.addEventListener("click", () => {
         chatWidget.classList.toggle("minimized");
     });
 
+    /* ---------- Input fokus/blur: unngå hopp & zoom ---------- */
+    chatInput.addEventListener("focus", () => {
+        // unngå at siden hopper: hold fokusområdet i viewport
+        setTimeout(() => {
+            chatWidget.scrollIntoView({ block: "end", behavior: "smooth" });
+            updateKbOffset();
+        }, 0);
+    });
+
+    chatInput.addEventListener("blur", () => {
+        // når tastaturet lukkes: nullstill kb-offset litt etterpå
+        setTimeout(updateKbOffset, 120);
+    });
+
+    /* ---------- Send melding ---------- */
     chatSend.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keypress", function (e) {
-        if (e.key === "Enter") sendMessage();
+    // keypress er deprecated og oppfører seg rart på iOS – bruk keydown
+    chatInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+        }
     });
 
     function addMessage(content, sender) {
@@ -188,20 +238,21 @@ document.addEventListener("DOMContentLoaded", function () {
         addMessage("🧑‍💻 " + message, "user");
         chatInput.value = "";
 
-        const response = await fetch("/api/Chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                text: message,
-                sessionId: sessionId
-            })
-        });
+        try {
+            const response = await fetch("/api/Chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: message, sessionId })
+            });
 
-        const data = await response.json();
-        const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
-        addMessage("🤖 " + reply, "bot");
+            const data = await response.json();
+            const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
+            addMessage("🤖 " + reply, "bot");
+        } catch (err) {
+            addMessage("⚠️ Nettverksfeil – prøv igjen.", "bot");
+            console.error(err);
+        }
     }
 });
+
 
