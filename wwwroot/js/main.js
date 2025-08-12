@@ -150,72 +150,80 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const sessionId = "session-" + Date.now();
 
-    /* ---------- iOS/mobile: lås scroll når chat er åpen ---------- */
+    // ---- Hjelpere ----
+    const isMobile = () =>
+        window.matchMedia("(max-width: 768px)").matches ||
+        ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
     let _scrollY = 0;
     function lockBodyScroll() {
+        if (!isMobile()) return;                  // aldri lås på desktop
         _scrollY = window.scrollY || 0;
         document.body.style.top = `-${_scrollY}px`;
         document.body.style.position = "fixed";
-        document.body.classList.add("chat-open"); 
+        document.body.classList.add("chat-open");
     }
     function unlockBodyScroll() {
         document.body.classList.remove("chat-open");
         document.body.style.position = "";
         document.body.style.top = "";
-        window.scrollTo(0, _scrollY);
+        if (_scrollY) window.scrollTo(0, _scrollY);
     }
 
-    /* ---------- iOS keyboard offset – oppdater --kb ---------- */
+    // iOS keyboard offset -> --kb
     const vv = window.visualViewport;
     function updateKbOffset() {
         if (!vv) return;
-        // Hvor mye av vinduet “forsvinner” pga tastatur
         const kb = Math.max(0, (window.innerHeight - vv.height) * vv.scale);
         document.documentElement.style.setProperty("--kb", kb > 0 ? `${kb}px` : "0px");
     }
     if (vv) {
         vv.addEventListener("resize", updateKbOffset);
         vv.addEventListener("scroll", updateKbOffset);
+        window.addEventListener("orientationchange", () => setTimeout(updateKbOffset, 150));
         updateKbOffset();
     }
 
-    /* ---------- Åpne/Lukk/Minimer ---------- */
-    toggleBtn.addEventListener("click", () => {
+    // ---- Åpne/Lukk/Minimer ----
+    function openChat() {
         chatWidget.classList.add("active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
-        lockBodyScroll();
-        // sørg for at input er synlig når boksen åpnes
+        lockBodyScroll();                          // lås kun på mobil
         setTimeout(() => chatWidget.scrollIntoView({ block: "end", behavior: "smooth" }), 0);
-    });
-
-    closeBtn.addEventListener("click", () => {
+    }
+    function closeChat() {
         chatWidget.classList.remove("active");
+        chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "flex";
-        unlockBodyScroll();
-    });
-
-    minimizeBtn.addEventListener("click", () => {
+        unlockBodyScroll();                        // alltid lås opp ved lukking
+        updateKbOffset();
+    }
+    function toggleMinimize() {
         chatWidget.classList.toggle("minimized");
-    });
+        // Når minimert: tillat side-scroll på mobil
+        if (chatWidget.classList.contains("minimized")) {
+            unlockBodyScroll();
+        } else {
+            lockBodyScroll();
+        }
+    }
 
-    /* ---------- Input fokus/blur: unngå hopp & zoom ---------- */
+    toggleBtn.addEventListener("click", openChat);
+    closeBtn.addEventListener("click", closeChat);
+    minimizeBtn.addEventListener("click", toggleMinimize);
+
+    // ---- Input fokus/blur ----
     chatInput.addEventListener("focus", () => {
-        // unngå at siden hopper: hold fokusområdet i viewport
         setTimeout(() => {
             chatWidget.scrollIntoView({ block: "end", behavior: "smooth" });
             updateKbOffset();
         }, 0);
     });
+    chatInput.addEventListener("blur", () => setTimeout(updateKbOffset, 120));
 
-    chatInput.addEventListener("blur", () => {
-        // når tastaturet lukkes: nullstill kb-offset litt etterpå
-        setTimeout(updateKbOffset, 120);
-    });
-
-    /* ---------- Send melding ---------- */
+    // ---- Sending ----
     chatSend.addEventListener("click", sendMessage);
-    // keypress er deprecated og oppfører seg rart på iOS – bruk keydown
     chatInput.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -244,7 +252,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text: message, sessionId })
             });
-
             const data = await response.json();
             const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
             addMessage("🤖 " + reply, "bot");
@@ -254,5 +261,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+
 
 
