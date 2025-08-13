@@ -148,6 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeBtn = document.getElementById("chat-close");
     const minimizeBtn = document.getElementById("chat-minimize");
 
+    if (!toggleBtn || !chatWidget) return; // sikkerhet ved delrender
+
     const sessionId = "session-" + Date.now();
 
     // --- Enkelt mobil-sjekk
