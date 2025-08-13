@@ -2514,3 +2514,9 @@ body.chat-open {
         left: 4vw;
     }
 }
+
+#chat-toggle, #chat-send, #chat-close, #chat-minimize {
+    touch-action: manipulation; 
+    pointer-events: auto;
+}
+
