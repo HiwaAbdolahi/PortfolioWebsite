@@ -2473,47 +2473,46 @@ body.dark-theme #chat-send {
 
 
 
-/* iOS keyboard & zoom fixes */
+/* --- iOS keyboard/zoom + safe-area --- */
 :root {
     --kb: 0px;
 }
 
-/* Forhindre iOS auto-zoom (16px+) */
+/* 16px hindrer auto-zoom ved fokus på iOS */
 #chat-input, #chat-send {
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
 }
 
-/* Løft widget når tastatur er oppe */
+/* Løft widget akkurat over tastaturet */
 #chat-widget {
-    bottom: calc(20px + var(--kb)); /* <- 20px gir luft + safe offset */
+    bottom: calc(20px + var(--kb));
 }
 
+/* Litt luft for home-indicator */
 #chat-input-area {
     padding-bottom: max(10px, env(safe-area-inset-bottom));
 }
 
-/* Lås scroll i bakgrunnen KUN når chat er åpen (mobil håndteres i JS) */
+/* Lås bakgrunn bare når chat er åpen på mobil */
 body.chat-open {
     overflow: hidden;
-    overscroll-behavior-y: contain;
+    overscroll-behavior: contain;
 }
 
-/* Mobil: bruk dvh så boksen krymper med tastaturet */
-@media (max-width: 768px) {
+/* Mobil: bruk svh (stabil viewport-høyde) */
+@media (max-width:768px) {
     #chat-widget {
         width: 92vw;
-        height: min(70dvh, 560px);
-        right: 4vw;
         left: 4vw;
+        right: 4vw;
+        height: min(70svh, 560px); /* svh er stabil når verktøylinjer skjules */
     }
 }
 
-/* Tap-respons og “ingen forsinkelse” på viktige knapper */
+/* Sørg for at knappene reagerer umiddelbart på touch */
 #chat-toggle, #chat-send, #chat-close, #chat-minimize {
     touch-action: manipulation;
-    pointer-events: auto;
-    -webkit-tap-highlight-color: transparent;
 }
 
 

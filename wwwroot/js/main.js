@@ -139,6 +139,18 @@ navLinks.forEach(link => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chat-input");
     const chatSend = document.getElementById("chat-send");
@@ -148,75 +160,89 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeBtn = document.getElementById("chat-close");
     const minimizeBtn = document.getElementById("chat-minimize");
 
-    if (!toggleBtn || !chatWidget) return; // sikkerhet ved delrender
-
     const sessionId = "session-" + Date.now();
 
-    // --- Enkelt mobil-sjekk
+    // --- mobil-deteksjon (konservativ) ---
     const isMobile = () =>
         window.matchMedia("(max-width: 768px)").matches ||
         ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
-    // --- iOS keyboard offset -> --kb 
+    // --- iOS tastatur-offset -> --kb (med støyfilter) ---
     const vv = window.visualViewport;
+    let lastKb = 0;
+    const KBD_THRESHOLD = 40;  // < 40px = sannsynlig toolbar, ikke keyboard
+
     const updateKbOffset = () => {
         if (!vv) return;
-        const kb = Math.max(0, (window.innerHeight - vv.height) * vv.scale);
-        document.documentElement.style.setProperty("--kb", kb > 0 ? `${kb}px` : "0px");
+        // hvor mye av vinduet som "forsvinner"
+        let diff = Math.round((window.innerHeight - vv.height) * (vv.scale || 1));
+        if (diff < KBD_THRESHOLD) diff = 0;     // ignorer små hopp
+        if (diff !== lastKb) {
+            lastKb = diff;
+            document.documentElement.style.setProperty("--kb", diff ? `${diff}px` : "0px");
+        }
     };
+
     if (vv) {
-        vv.addEventListener("resize", updateKbOffset, { passive: true });
-        vv.addEventListener("scroll", updateKbOffset, { passive: true });
+        const debounced = (() => {
+            let t;
+            return () => { clearTimeout(t); t = setTimeout(updateKbOffset, 50); };
+        })();
+        vv.addEventListener("resize", debounced, { passive: true });
+        vv.addEventListener("scroll", debounced, { passive: true });
         window.addEventListener("orientationchange", () => setTimeout(updateKbOffset, 120), { passive: true });
         updateKbOffset();
     }
 
-    // --- Scroll-lås uten jumps: kun overflow hidden på mobil
+    // --- bakgrunns-scroll: lås kun på mobil når chat er åpen ---
     const lockBg = () => { if (isMobile()) document.body.classList.add("chat-open"); };
     const unlockBg = () => document.body.classList.remove("chat-open");
 
-    // --- Åpne / Lukk / Minimer
+    // --- åpne/lukke/minimere ---
     const openChat = () => {
         chatWidget.classList.add("active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
-        lockBg();
+        lockBg();          // på mobil
+        // sett kb én gang til etter layout
+        setTimeout(updateKbOffset, 0);
     };
+
     const closeChat = () => {
         chatWidget.classList.remove("active", "minimized");
         toggleBtn.style.display = "flex";
         unlockBg();
-        updateKbOffset();
+        // vent litt så Safari rekker å skjule tastatur før vi nuller offset
+        setTimeout(updateKbOffset, 120);
     };
+
     const toggleMinimize = () => {
         chatWidget.classList.toggle("minimized");
         if (chatWidget.classList.contains("minimized")) {
-            // når minimert: la bakgrunn scrolle på mobil
-            unlockBg();
+            unlockBg();      // tillat scrolling når minimert
         } else {
             lockBg();
         }
+        setTimeout(updateKbOffset, 0);
     };
 
-   
-    ["touchstart", "pointerdown"].forEach(ev =>
-        toggleBtn.addEventListener(ev, () => { }, { passive: true, once: true })
-    );
+    // Første tapp-problem: lytt også på pointer/touch
+    const openOnce = () => openChat();
+    toggleBtn.addEventListener("pointerup", openOnce, { passive: true });
+    toggleBtn.addEventListener("touchend", openOnce, { passive: true });
+    toggleBtn.addEventListener("click", openOnce);
 
-    toggleBtn.addEventListener("click", openChat);
     closeBtn.addEventListener("click", closeChat);
     minimizeBtn.addEventListener("click", toggleMinimize);
-
-    // Tilgjengelighet for minimize-span
     minimizeBtn.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleMinimize(); }
     });
 
-    // ---- Input fokus/blur (ingen scrollIntoView for å unngå hopp)
+    // Fokus/blur – ikke scrollIntoView (gir hopp), bare oppdater offset
     chatInput.addEventListener("focus", () => setTimeout(updateKbOffset, 0));
-    chatInput.addEventListener("blur", () => setTimeout(updateKbOffset, 120));
+    chatInput.addEventListener("blur", () => setTimeout(updateKbOffset, 160));
 
-    // ---- Sending
+    // --- meldinger ---
     chatSend.addEventListener("click", sendMessage);
     chatInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
@@ -233,10 +259,8 @@ document.addEventListener("DOMContentLoaded", () => {
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
-
         addMessage("🧑‍💻 " + message, "user");
         chatInput.value = "";
-
         try {
             const res = await fetch("/api/Chat", {
                 method: "POST",
@@ -252,6 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+
 
 
 
