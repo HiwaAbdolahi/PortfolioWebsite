@@ -559,26 +559,26 @@
 
                 
                 <!-- Toggle-knapp med Agent.png (åpner chat) -->
-                <button id="chat-toggle" aria-label="Åpne chat">
+                <button id="chat-toggle" type="button" aria-label="Åpne chat">
                     <img src="https://i.postimg.cc/KcD8LycB/Agent1.png" alt="AI Agent" class="agent-icon">
                 </button>
-
 
                 <div id="chat-widget">
                     <div id="chat-header">
                         <span class="chat-title">Hiwa AI Agent 🤖</span>
                         <div class="chat-controls">
-                            <span class="chat-btn" id="chat-minimize">−</span>
-                            <button class="chat-btn" id="chat-close">✕</button>
+                            <span class="chat-btn" id="chat-minimize" role="button" tabindex="0" aria-label="Minimer">−</span>
+                            <button class="chat-btn" id="chat-close" type="button" aria-label="Lukk">✕</button>
                         </div>
                     </div>
 
                     <div id="chat-messages"></div>
                     <div id="chat-input-area">
                         <input type="text" id="chat-input" placeholder="Skriv en melding..." />
-                        <button id="chat-send">Send</button>
+                        <button id="chat-send" type="button">Send</button>
                     </div>
                 </div>
+
 
 
 
