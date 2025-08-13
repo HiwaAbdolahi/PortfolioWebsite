@@ -139,7 +139,7 @@ navLinks.forEach(link => {
 
 
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chat-input");
     const chatSend = document.getElementById("chat-send");
     const chatMessages = document.getElementById("chat-messages");
@@ -150,92 +150,81 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const sessionId = "session-" + Date.now();
 
-    // ---- Hjelpere ----
+    // --- Enkelt mobil-sjekk
     const isMobile = () =>
         window.matchMedia("(max-width: 768px)").matches ||
         ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
-    let _scrollY = 0;
-    function lockBodyScroll() {
-        if (!isMobile()) return;                  // aldri lås på desktop
-        _scrollY = window.scrollY || 0;
-        document.body.style.top = `-${_scrollY}px`;
-        document.body.style.position = "fixed";
-        document.body.classList.add("chat-open");
-    }
-    function unlockBodyScroll() {
-        document.body.classList.remove("chat-open");
-        document.body.style.position = "";
-        document.body.style.top = "";
-        if (_scrollY) window.scrollTo(0, _scrollY);
-    }
-
-    // iOS keyboard offset -> --kb
+    // --- iOS keyboard offset -> --kb 
     const vv = window.visualViewport;
-    function updateKbOffset() {
+    const updateKbOffset = () => {
         if (!vv) return;
         const kb = Math.max(0, (window.innerHeight - vv.height) * vv.scale);
         document.documentElement.style.setProperty("--kb", kb > 0 ? `${kb}px` : "0px");
-    }
+    };
     if (vv) {
-        vv.addEventListener("resize", updateKbOffset);
-        vv.addEventListener("scroll", updateKbOffset);
-        window.addEventListener("orientationchange", () => setTimeout(updateKbOffset, 150));
+        vv.addEventListener("resize", updateKbOffset, { passive: true });
+        vv.addEventListener("scroll", updateKbOffset, { passive: true });
+        window.addEventListener("orientationchange", () => setTimeout(updateKbOffset, 120), { passive: true });
         updateKbOffset();
     }
 
-    // ---- Åpne/Lukk/Minimer ----
-    function openChat() {
+    // --- Scroll-lås uten jumps: kun overflow hidden på mobil
+    const lockBg = () => { if (isMobile()) document.body.classList.add("chat-open"); };
+    const unlockBg = () => document.body.classList.remove("chat-open");
+
+    // --- Åpne / Lukk / Minimer
+    const openChat = () => {
         chatWidget.classList.add("active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
-        lockBodyScroll();                          // lås kun på mobil
-        setTimeout(() => chatWidget.scrollIntoView({ block: "end", behavior: "smooth" }), 0);
-    }
-    function closeChat() {
-        chatWidget.classList.remove("active");
-        chatWidget.classList.remove("minimized");
+        lockBg();
+    };
+    const closeChat = () => {
+        chatWidget.classList.remove("active", "minimized");
         toggleBtn.style.display = "flex";
-        unlockBodyScroll();                        // alltid lås opp ved lukking
+        unlockBg();
         updateKbOffset();
-    }
-    function toggleMinimize() {
+    };
+    const toggleMinimize = () => {
         chatWidget.classList.toggle("minimized");
-        // Når minimert: tillat side-scroll på mobil
         if (chatWidget.classList.contains("minimized")) {
-            unlockBodyScroll();
+            // når minimert: la bakgrunn scrolle på mobil
+            unlockBg();
         } else {
-            lockBodyScroll();
+            lockBg();
         }
-    }
+    };
+
+   
+    ["touchstart", "pointerdown"].forEach(ev =>
+        toggleBtn.addEventListener(ev, () => { }, { passive: true, once: true })
+    );
 
     toggleBtn.addEventListener("click", openChat);
     closeBtn.addEventListener("click", closeChat);
     minimizeBtn.addEventListener("click", toggleMinimize);
 
-    // ---- Input fokus/blur ----
-    chatInput.addEventListener("focus", () => {
-        setTimeout(() => {
-            chatWidget.scrollIntoView({ block: "end", behavior: "smooth" });
-            updateKbOffset();
-        }, 0);
+    // Tilgjengelighet for minimize-span
+    minimizeBtn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleMinimize(); }
     });
+
+    // ---- Input fokus/blur (ingen scrollIntoView for å unngå hopp)
+    chatInput.addEventListener("focus", () => setTimeout(updateKbOffset, 0));
     chatInput.addEventListener("blur", () => setTimeout(updateKbOffset, 120));
 
-    // ---- Sending ----
+    // ---- Sending
     chatSend.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            sendMessage();
-        }
+    chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
     });
 
     function addMessage(content, sender) {
-        const messageDiv = document.createElement("div");
-        messageDiv.className = sender;
-        messageDiv.textContent = content;
-        chatMessages.appendChild(messageDiv);
+        const el = document.createElement("div");
+        el.className = sender;
+        el.textContent = content;
+        chatMessages.appendChild(el);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
@@ -247,19 +236,20 @@ document.addEventListener("DOMContentLoaded", function () {
         chatInput.value = "";
 
         try {
-            const response = await fetch("/api/Chat", {
+            const res = await fetch("/api/Chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text: message, sessionId })
             });
-            const data = await response.json();
+            const data = await res.json();
             const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
             addMessage("🤖 " + reply, "bot");
         } catch (err) {
-            addMessage("⚠️ Nettverksfeil – prøv igjen.", "bot");
             console.error(err);
+            addMessage("⚠️ Nettverksfeil – prøv igjen.", "bot");
         }
     }
 });
+
 
 
