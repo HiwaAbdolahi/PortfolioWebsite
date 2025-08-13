@@ -159,92 +159,82 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatWidget = document.getElementById("chat-widget");
     const closeBtn = document.getElementById("chat-close");
     const minimizeBtn = document.getElementById("chat-minimize");
+    const overlay = document.getElementById("chat-overlay");
 
     const sessionId = "session-" + Date.now();
 
-    // --- mobil-deteksjon (konservativ) ---
     const isMobile = () =>
         window.matchMedia("(max-width: 768px)").matches ||
         ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
-    // --- iOS tastatur-offset -> --kb (med støyfilter) ---
-    const vv = window.visualViewport;
-    let lastKb = 0;
-    const KBD_THRESHOLD = 40;  // < 40px = sannsynlig toolbar, ikke keyboard
-
-    const updateKbOffset = () => {
+    /* ---- visualViewport -> CSS vars på overlay ---- */
+    function applyVV() {
+        const vv = window.visualViewport;
         if (!vv) return;
-        // hvor mye av vinduet som "forsvinner"
-        let diff = Math.round((window.innerHeight - vv.height) * (vv.scale || 1));
-        if (diff < KBD_THRESHOLD) diff = 0;     // ignorer små hopp
-        if (diff !== lastKb) {
-            lastKb = diff;
-            document.documentElement.style.setProperty("--kb", diff ? `${diff}px` : "0px");
-        }
-    };
-
-    if (vv) {
-        const debounced = (() => {
-            let t;
-            return () => { clearTimeout(t); t = setTimeout(updateKbOffset, 50); };
-        })();
+        // dimensjoner + offset: overlay følger synlig viewport nøyaktig
+        overlay.style.setProperty("--vvw", vv.width + "px");
+        overlay.style.setProperty("--vvh", vv.height + "px");
+        overlay.style.setProperty("--vvt", vv.offsetTop + "px");
+        overlay.style.setProperty("--vvl", vv.offsetLeft + "px");
+    }
+    if (window.visualViewport) {
+        const vv = window.visualViewport;
+        const debounced = (() => { let t; return () => { clearTimeout(t); t = setTimeout(applyVV, 40); }; })();
         vv.addEventListener("resize", debounced, { passive: true });
         vv.addEventListener("scroll", debounced, { passive: true });
-        window.addEventListener("orientationchange", () => setTimeout(updateKbOffset, 120), { passive: true });
-        updateKbOffset();
+        window.addEventListener("orientationchange", () => setTimeout(applyVV, 120), { passive: true });
+        applyVV();
     }
 
-    // --- bakgrunns-scroll: lås kun på mobil når chat er åpen ---
-    const lockBg = () => { if (isMobile()) document.body.classList.add("chat-open"); };
-    const unlockBg = () => document.body.classList.remove("chat-open");
+    /* ---- åpne/lukke/minimere ---- */
+    function lockBg() { if (isMobile()) document.body.classList.add("chat-open"); }
+    function unlockBg() { document.body.classList.remove("chat-open"); }
 
-    // --- åpne/lukke/minimere ---
-    const openChat = () => {
+    function openChat() {
+        if (isMobile()) {
+            overlay.classList.add("active");
+            lockBg();
+            applyVV(); // sikre korrekt posisjon ved åpning
+        }
         chatWidget.classList.add("active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
-        lockBg();          // på mobil
-        // sett kb én gang til etter layout
-        setTimeout(updateKbOffset, 0);
-    };
+    }
 
-    const closeChat = () => {
+    function closeChat() {
         chatWidget.classList.remove("active", "minimized");
+        overlay.classList.remove("active");
         toggleBtn.style.display = "flex";
         unlockBg();
-        // vent litt så Safari rekker å skjule tastatur før vi nuller offset
-        setTimeout(updateKbOffset, 120);
-    };
+        applyVV(); // rydde opp etter ev. tastatur
+    }
 
-    const toggleMinimize = () => {
+    function toggleMinimize() {
         chatWidget.classList.toggle("minimized");
-        if (chatWidget.classList.contains("minimized")) {
-            unlockBg();      // tillat scrolling når minimert
-        } else {
-            lockBg();
+        if (isMobile()) {
+            // Når minimert lar vi brukeren scrolle bakgrunnen
+            if (chatWidget.classList.contains("minimized")) unlockBg();
+            else lockBg();
         }
-        setTimeout(updateKbOffset, 0);
-    };
+    }
 
-    // Første tapp-problem: lytt også på pointer/touch
-    const openOnce = () => openChat();
-    toggleBtn.addEventListener("pointerup", openOnce, { passive: true });
-    toggleBtn.addEventListener("touchend", openOnce, { passive: true });
-    toggleBtn.addEventListener("click", openOnce);
-
+    // “første-tapp” på iOS
+    ["pointerup", "touchend", "click"].forEach(ev =>
+        toggleBtn.addEventListener(ev, openChat, { passive: true })
+    );
     closeBtn.addEventListener("click", closeChat);
     minimizeBtn.addEventListener("click", toggleMinimize);
-    minimizeBtn.addEventListener("keydown", (e) => {
+    minimizeBtn.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleMinimize(); }
     });
 
-    // Fokus/blur – ikke scrollIntoView (gir hopp), bare oppdater offset
-    chatInput.addEventListener("focus", () => setTimeout(updateKbOffset, 0));
-    chatInput.addEventListener("blur", () => setTimeout(updateKbOffset, 160));
+    // Fokus/blur – overlay følger tastaturet automatisk via visualViewport
+    chatInput.addEventListener("focus", () => setTimeout(applyVV, 0));
+    chatInput.addEventListener("blur", () => setTimeout(applyVV, 120));
 
-    // --- meldinger ---
+    /* ---- meldinger ---- */
     chatSend.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keydown", (e) => {
+    chatInput.addEventListener("keydown", e => {
         if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
     });
 
