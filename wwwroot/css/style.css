@@ -2499,7 +2499,7 @@ body.dark-theme #chat-send {
 /* Lås scroll i bakgrunnen når chat er åpen */
 body.chat-open {
     overflow: hidden;
-    touch-action: none;
+    
     overscroll-behavior-y: contain;
 }
 
