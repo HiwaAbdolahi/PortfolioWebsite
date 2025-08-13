@@ -2486,6 +2486,11 @@ body.dark-theme #chat-send {
     -webkit-text-size-adjust: 100%;
 }
 
+/* Løft widget når tastatur er oppe */
+#chat-widget {
+    bottom: calc(1px + var(--kb)); /* var(--kb) settes av JS */
+}
+
 
 
 /* Litt ekstra luft for home-indicator */
