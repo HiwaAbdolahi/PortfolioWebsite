@@ -139,19 +139,7 @@ navLinks.forEach(link => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
     const chatInput = document.getElementById("chat-input");
     const chatSend = document.getElementById("chat-send");
     const chatMessages = document.getElementById("chat-messages");
@@ -159,114 +147,61 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatWidget = document.getElementById("chat-widget");
     const closeBtn = document.getElementById("chat-close");
     const minimizeBtn = document.getElementById("chat-minimize");
-    const overlay = document.getElementById("chat-overlay");
 
     const sessionId = "session-" + Date.now();
 
-    const isMobile = () =>
-        window.matchMedia("(max-width: 768px)").matches ||
-        ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-
-    /* ---- visualViewport -> CSS vars på overlay ---- */
-    function applyVV() {
-        const vv = window.visualViewport;
-        if (!vv) return;
-        // dimensjoner + offset: overlay følger synlig viewport nøyaktig
-        overlay.style.setProperty("--vvw", vv.width + "px");
-        overlay.style.setProperty("--vvh", vv.height + "px");
-        overlay.style.setProperty("--vvt", vv.offsetTop + "px");
-        overlay.style.setProperty("--vvl", vv.offsetLeft + "px");
-    }
-    if (window.visualViewport) {
-        const vv = window.visualViewport;
-        const debounced = (() => { let t; return () => { clearTimeout(t); t = setTimeout(applyVV, 40); }; })();
-        vv.addEventListener("resize", debounced, { passive: true });
-        vv.addEventListener("scroll", debounced, { passive: true });
-        window.addEventListener("orientationchange", () => setTimeout(applyVV, 120), { passive: true });
-        applyVV();
-    }
-
-    /* ---- åpne/lukke/minimere ---- */
-    function lockBg() { if (isMobile()) document.body.classList.add("chat-open"); }
-    function unlockBg() { document.body.classList.remove("chat-open"); }
-
-    function openChat() {
-        if (isMobile()) {
-            overlay.classList.add("active");
-            lockBg();
-            applyVV(); // sikre korrekt posisjon ved åpning
-        }
+    // 🟢 Vis chat
+    toggleBtn.addEventListener("click", () => {
         chatWidget.classList.add("active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
-    }
-
-    function closeChat() {
-        chatWidget.classList.remove("active", "minimized");
-        overlay.classList.remove("active");
-        toggleBtn.style.display = "flex";
-        unlockBg();
-        applyVV(); // rydde opp etter ev. tastatur
-    }
-
-    function toggleMinimize() {
-        chatWidget.classList.toggle("minimized");
-        if (isMobile()) {
-            // Når minimert lar vi brukeren scrolle bakgrunnen
-            if (chatWidget.classList.contains("minimized")) unlockBg();
-            else lockBg();
-        }
-    }
-
-    // “første-tapp” på iOS
-    ["pointerup", "touchend", "click"].forEach(ev =>
-        toggleBtn.addEventListener(ev, openChat, { passive: true })
-    );
-    closeBtn.addEventListener("click", closeChat);
-    minimizeBtn.addEventListener("click", toggleMinimize);
-    minimizeBtn.addEventListener("keydown", e => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleMinimize(); }
     });
 
-    // Fokus/blur – overlay følger tastaturet automatisk via visualViewport
-    chatInput.addEventListener("focus", () => setTimeout(applyVV, 0));
-    chatInput.addEventListener("blur", () => setTimeout(applyVV, 120));
+    // 🔴 Lukk chat
+    closeBtn.addEventListener("click", () => {
+        chatWidget.classList.remove("active");
+        toggleBtn.style.display = "flex";
+    });
 
-    /* ---- meldinger ---- */
+    // 🟡 Minimer chat
+    minimizeBtn.addEventListener("click", () => {
+        chatWidget.classList.toggle("minimized");
+    });
+
     chatSend.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
+    chatInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") sendMessage();
     });
 
     function addMessage(content, sender) {
-        const el = document.createElement("div");
-        el.className = sender;
-        el.textContent = content;
-        chatMessages.appendChild(el);
+        const messageDiv = document.createElement("div");
+        messageDiv.className = sender;
+        messageDiv.textContent = content;
+        chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
+
         addMessage("🧑‍💻 " + message, "user");
         chatInput.value = "";
-        try {
-            const res = await fetch("/api/Chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: message, sessionId })
-            });
-            const data = await res.json();
-            const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
-            addMessage("🤖 " + reply, "bot");
-        } catch (err) {
-            console.error(err);
-            addMessage("⚠️ Nettverksfeil – prøv igjen.", "bot");
-        }
+
+        const response = await fetch("/api/Chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text: message,
+                sessionId: sessionId
+            })
+        });
+
+        const data = await response.json();
+        const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
+        addMessage("🤖 " + reply, "bot");
     }
 });
-
-
-
 
