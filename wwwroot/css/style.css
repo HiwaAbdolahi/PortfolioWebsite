@@ -2398,15 +2398,7 @@ body.dark-theme #chat-send {
         display: none;
     }
 
-@media (max-width:768px) {
-    #chat-widget {
-        width: 90vw;
-        height: 70vh;
-        bottom: 80px;
-        right: 16px;
-        border-radius: 20px;
-    }
-}
+
 
 @media (max-width:480px) {
     .chat-btn {
@@ -2472,47 +2464,68 @@ body.dark-theme #chat-send {
 
 
 
+/* ===== Overlay for mobil (A-løsningen) ===== */
 
-/* --- iOS keyboard/zoom + safe-area --- */
-:root {
-    --kb: 0px;
+/* som standard skjult */
+#chat-overlay {
+    display: none;
 }
 
-/* 16px hindrer auto-zoom ved fokus på iOS */
-#chat-input, #chat-send {
-    font-size: 16px;
-    -webkit-text-size-adjust: 100%;
-}
+/* Desktop: behold eksisterende #chat-widget-stilene dine */
 
-/* Løft widget akkurat over tastaturet */
-#chat-widget {
-    bottom: calc(20px + var(--kb));
-}
-
-/* Litt luft for home-indicator */
-#chat-input-area {
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
-}
-
-/* Lås bakgrunn bare når chat er åpen på mobil */
-body.chat-open {
-    overflow: hidden;
-    overscroll-behavior: contain;
-}
-
-/* Mobil: bruk svh (stabil viewport-høyde) */
+/* Mobil: overlay følger visualViewport og widget dokker nederst */
 @media (max-width:768px) {
+
+    /* Overlay dekker nøyaktig synlig viewport (verdier settes fra JS) */
+    #chat-overlay {
+        position: fixed;
+        top: var(--vvt, 0px);
+        left: var(--vvl, 0px);
+        width: var(--vvw, 100vw);
+        height: var(--vvh, 100vh);
+        z-index: 9998;
+        overflow: hidden;
+        display: none;
+    }
+
+        #chat-overlay.active {
+            display: block;
+        }
+
+    /* Viktig: i overlay-modus er widgeten ABSOLUTE og "dokker" nederst */
     #chat-widget {
-        width: 92vw;
+        position: absolute;
         left: 4vw;
         right: 4vw;
-        height: min(70svh, 560px); /* svh er stabil når verktøylinjer skjules */
+        width: auto;
+        max-width: none;
+        /* slå av gamle bottom-regler */
+        bottom: auto;
+        /* legg widgeten flush mot tastaturet + safe area */
+        bottom: env(safe-area-inset-bottom);
+        height: auto;
+        max-height: min(70svh, 560px);
+        border-radius: 20px;
+    }
+
+    /* Lås bakgrunn når chatten er åpen */
+    body.chat-open {
+        overflow: hidden;
+        overscroll-behavior: contain;
+        touch-action: none;
+    }
+
+    /* Anti-zoom ved fokus på iOS */
+    #chat-input, #chat-send {
+        font-size: 16px;
+        -webkit-text-size-adjust: 100%;
     }
 }
 
-/* Sørg for at knappene reagerer umiddelbart på touch */
+/* Umiddelbar touch-respons */
 #chat-toggle, #chat-send, #chat-close, #chat-minimize {
     touch-action: manipulation;
 }
+
 
 
