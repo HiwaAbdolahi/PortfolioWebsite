@@ -150,37 +150,116 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const sessionId = "session-" + Date.now();
 
-    // 🟢 Vis chat
-    toggleBtn.addEventListener("click", () => {
-        chatWidget.classList.add("active");
-        chatWidget.classList.remove("minimized");
-        toggleBtn.style.display = "none";
-    });
+    // ------- Helpers -------
+    function lockBodyScroll(lock) {
+        const html = document.documentElement;
+        if (lock) {
+            html.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+        } else {
+            html.style.overflow = '';
+            document.body.style.overflow = '';
+        }
+    }
 
-    // 🔴 Lukk chat
-    closeBtn.addEventListener("click", () => {
-        chatWidget.classList.remove("active");
-        toggleBtn.style.display = "flex";
-    });
+    function isNearBottom(el, threshold = 64) {
+        return (el.scrollHeight - el.scrollTop - el.clientHeight) < threshold;
+    }
 
-    // 🟡 Minimer chat
-    minimizeBtn.addEventListener("click", () => {
-        chatWidget.classList.toggle("minimized");
-    });
-
-    chatSend.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keypress", function (e) {
-        if (e.key === "Enter") sendMessage();
-    });
+    function scrollToBottomIfNeeded() {
+        if (isNearBottom(chatMessages)) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
 
     function addMessage(content, sender) {
         const messageDiv = document.createElement("div");
         messageDiv.className = sender;
         messageDiv.textContent = content;
         chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        // autoscroll kun om bruker var nær bunn
+        scrollToBottomIfNeeded();
     }
 
+    // ------- Open/Close/Minimize -------
+    function openChat() {
+        chatWidget.classList.add("active");
+        chatWidget.classList.remove("minimized");
+        toggleBtn.style.display = "none";
+        lockBodyScroll(true);
+        // sikre at vi scroller til bunn når vi åpner
+        requestAnimationFrame(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatInput.focus();
+        });
+    }
+
+    function closeChat() {
+        chatWidget.classList.remove("active");
+        chatWidget.classList.remove("minimized");
+        toggleBtn.style.display = "flex";
+        lockBodyScroll(false);
+        // nullstill keyboard-offset
+        document.documentElement.style.setProperty('--keyboard', '0px');
+        chatMessages.style.paddingBottom = '14px';
+    }
+
+    function toggleMinimize() {
+        const isMin = chatWidget.classList.contains('minimized');
+
+        if (isMin) {
+            // fra minimert -> fullskjerm igjen
+            chatWidget.classList.remove('minimized');
+            openChat(); // gir .active + låser scroll + fokus + autoscroll
+        } else {
+            // fra aktiv -> minimert “dock”
+            chatWidget.classList.remove('active');
+            chatWidget.classList.add('minimized');
+
+            // vis agentknappen igjen (valgfritt – kan skjule hvis du vil)
+            toggleBtn.style.display = 'flex';
+
+            // lås opp sidescroll + nullstill keyboard-offset
+            lockBodyScroll(false);
+            document.documentElement.style.setProperty('--keyboard', '0px');
+            chatMessages.style.paddingBottom = '14px';
+            toggleBtn.style.display = 'none';
+        }
+    }
+
+    minimizeBtn.removeEventListener("click", toggleMinimize); // hvis eksisterer
+    minimizeBtn.addEventListener("click", toggleMinimize);
+
+
+
+    // ------- Bind UI -------
+    toggleBtn.addEventListener("click", openChat);
+    closeBtn.addEventListener("click", closeChat);
+    
+
+    chatSend.addEventListener("click", sendMessage);
+    chatInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    // ------- VisualViewport: keyboard-aware -------
+    if (window.visualViewport) {
+        const vv = window.visualViewport;
+        const onVVChange = () => {
+            // Høyde som er “spist” av tastaturet
+            const keyboard = Math.max(0, (window.innerHeight - vv.height - vv.offsetTop));
+            // Løft composer (CSS transform) og legg litt luft i meldingslista
+            document.documentElement.style.setProperty('--keyboard', keyboard + 'px');
+            chatMessages.style.paddingBottom = (keyboard + 24) + 'px';
+
+            // Hold deg ved bunn når tastatur åpnes/lukkes (hvis du allerede var der)
+            scrollToBottomIfNeeded();
+        };
+        vv.addEventListener('resize', onVVChange);
+        vv.addEventListener('scroll', onVVChange);
+    }
+
+    // ------- Send message -------
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
@@ -188,20 +267,25 @@ document.addEventListener("DOMContentLoaded", function () {
         addMessage("🧑‍💻 " + message, "user");
         chatInput.value = "";
 
-        const response = await fetch("/api/Chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                text: message,
-                sessionId: sessionId
-            })
-        });
+        try {
+            const response = await fetch("/api/Chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: message, sessionId })
+            });
 
-        const data = await response.json();
-        const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
-        addMessage("🤖 " + reply, "bot");
+            const data = await response.json();
+            const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
+            addMessage("🤖 " + reply, "bot");
+        } catch (err) {
+            addMessage("⚠️ Nettverksfeil. Prøv igjen.", "bot");
+        }
     }
+
+    // (valgfritt) Lukker tastatur på iOS når man trykker utenfor input
+    chatMessages.addEventListener('pointerdown', () => {
+        if (document.activeElement === chatInput) chatInput.blur();
+    });
 });
+
 

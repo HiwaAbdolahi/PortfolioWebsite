@@ -2234,15 +2234,47 @@ body.dark-theme #chat-send {
 /* -----------------------------
    FELLES: States
 ----------------------------- */
+
+
+/* --- Minimized skal vises uten .active --- */
 #chat-widget.minimized {
-    height: 52px;
+    display: flex; /* viktig: vises selv uten .active */
+    align-items: center;
     overflow: hidden;
+    height: 52px;
+    border-radius: 16px;
+    /* standardposisjon som “dock” */
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    width: min(92vw, 420px);
+    box-shadow: 0 18px 36px rgba(0,0,0,.38), 0 1px 0 rgba(255,255,255,.08) inset;
 }
 
-    #chat-widget.minimized #chat-input-area,
-    #chat-widget.minimized #chat-messages {
+    /* skjul innhold når minimert */
+    #chat-widget.minimized #chat-messages,
+    #chat-widget.minimized #chat-input-area {
         display: none;
     }
+
+    /* header i minimer-modus: kompakt høyde */
+    #chat-widget.minimized #chat-header {
+        padding: 10px 12px;
+    }
+
+/* Mobil: sørg for liten bar nede selv om .active normalt ville vært fullskjerm */
+@media (max-width: 768px) {
+    #chat-widget.minimized {
+        position: fixed;
+        inset: auto; /* nøytraliser fullskjerm-inset */
+        right: 16px;
+        bottom: 16px;
+        width: min(92vw, 420px);
+        height: 52px;
+        border-radius: 16px;
+    }
+}
+   
 
 /* -----------------------------
    FELLES: Animations
