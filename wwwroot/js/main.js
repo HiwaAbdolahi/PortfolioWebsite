@@ -153,28 +153,60 @@ document.addEventListener("DOMContentLoaded", function () {
     // --------------------------------
     // Scroll-lock (robust iOS-vennlig)
     // --------------------------------
-    let _scrollY = 0;
     let _isLocked = false;
+    let _scroll = { x: 0, y: 0 };
 
     function lockBodyScroll(lock) {
-        const html = document.documentElement;
+        const b = document.body;
 
         if (lock) {
-            if (_isLocked) return; // allerede låst
-            _scrollY = window.scrollY || 0;
-            document.body.style.setProperty('--scroll-lock-top', `-${_scrollY}px`);
-            html.classList.add('chat-open');
-            document.body.classList.add('chat-open');
+            if (_isLocked) return;
+
+            // bevar X og Y
+            _scroll.x = window.pageXOffset || window.scrollX || 0;
+            _scroll.y = window.pageYOffset || window.scrollY || 0;
+
+            // frys body
+            b.style.position = 'fixed';
+            b.style.top = `-${_scroll.y}px`;
+            b.style.left = `-${_scroll.x}px`;
+            b.style.right = '0';
+            b.style.width = '100%';
+            b.style.overflow = 'hidden';
+
             _isLocked = true;
-        } else {
-            if (!_isLocked) return; // allerede ulåst
-            document.body.classList.remove('chat-open');
-            html.classList.remove('chat-open');
-            document.body.style.removeProperty('--scroll-lock-top');
-            _isLocked = false;
-            window.scrollTo(0, _scrollY); // tilbake til eksakt posisjon
+            return;
         }
+
+        if (!_isLocked) return;
+
+        // les tilbake før vi rydder
+        const y = -parseInt(b.style.top || '0', 10) || 0;
+        const x = -parseInt(b.style.left || '0', 10) || 0;
+
+        // slå av smooth scroll kort mens vi setter posisjonen
+        const root = document.documentElement;
+        const prevBehavior = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+
+        // rydd stilene synkront (ingen rAF)
+        b.style.position = '';
+        b.style.top = '';
+        b.style.left = '';
+        b.style.right = '';
+        b.style.width = '';
+        b.style.overflow = '';
+
+        // sett tilbake posisjonen synkront – ingen mellom-paint på top:0
+        window.scrollTo(x, y);
+
+        // restore smooth behavior etterpå
+        setTimeout(() => { root.style.scrollBehavior = prevBehavior; }, 0);
+
+        _isLocked = false;
     }
+
+
 
 
     // Blokker “bakgrunns-scroll” under overlay (iOS inertial)
@@ -235,12 +267,15 @@ document.addEventListener("DOMContentLoaded", function () {
         chatWidget.classList.remove("active", "minimized");
         toggleBtn.style.display = "flex";
 
-        // nullstill keyboard-offset
         document.documentElement.style.setProperty('--keyboard', '0px');
         chatMessages.style.paddingBottom = '14px';
 
-        // Vent litt så iOS rekker å lukke tastatur og adresselinje
-        setTimeout(() => lockBodyScroll(false), 250);
+        // kun delay hvis tastatur var synlig
+        if (_keyboardPx > 0) {
+            setTimeout(() => lockBodyScroll(false), 250);
+        } else {
+            lockBodyScroll(false);
+        }
     }
 
     function toggleMinimize() {
@@ -248,23 +283,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (isMin) {
             chatWidget.classList.remove('minimized');
-            openChat(); // låser + fokuserer
+            openChat();
         } else {
-            // fra aktiv -> minimert dock
             chatWidget.classList.remove('active');
             chatWidget.classList.add('minimized');
 
-            // nullstill keyboard-offset
             document.documentElement.style.setProperty('--keyboard', '0px');
             chatMessages.style.paddingBottom = '14px';
 
-            // la dock-baren være synlig, men lås opp etter keyboard-anim
-            setTimeout(() => lockBodyScroll(false), 250);
+            if (_keyboardPx > 0) {
+                setTimeout(() => lockBodyScroll(false), 250);
+            } else {
+                lockBodyScroll(false);
+            }
 
-            // vi bruker bare dock-baren — agentknappen skjules
             toggleBtn.style.display = 'none';
         }
     }
+
 
     // Rebind (sikkert)
     minimizeBtn?.removeEventListener("click", toggleMinimize);
@@ -294,21 +330,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // -------------------------------
     // VisualViewport (keyboard-aware)
     // -------------------------------
+    let _keyboardPx = 0; // øverst i filen
+
     if (window.visualViewport) {
         const vv = window.visualViewport;
-
         const onVVChange = () => {
-            // Høyde "spist" av tastatur/adresselinje
-            const keyboard = Math.max(0, (window.innerHeight - vv.height - vv.offsetTop));
-
-            // Oppdater CSS-variabel + litt ekstra luft i meldinger
-            document.documentElement.style.setProperty('--keyboard', keyboard + 'px');
-            chatMessages.style.paddingBottom = (keyboard + 24) + 'px';
-
-            // Hold deg ved bunn når tastatur åpnes/lukkes
+            _keyboardPx = Math.max(0, (window.innerHeight - vv.height - vv.offsetTop));
+            document.documentElement.style.setProperty('--keyboard', _keyboardPx + 'px');
+            chatMessages.style.paddingBottom = (_keyboardPx + 24) + 'px';
             scrollToBottomIfNeeded();
         };
-
         vv.addEventListener('resize', onVVChange);
         vv.addEventListener('scroll', onVVChange);
     }
