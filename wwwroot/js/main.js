@@ -149,159 +149,179 @@ document.addEventListener("DOMContentLoaded", function () {
     const minimizeBtn = document.getElementById("chat-minimize");
 
     const sessionId = "session-" + Date.now();
-    const mmMobile = window.matchMedia("(max-width: 768px)");
-    let vv = window.visualViewport || null;
-    let kbOpen = false;            // om tastatur “regnes” som åpent
-    let nearBottomFlag = true;     // husker nær-bunn-status før resize
-    let vvTimer = null;            // debounce timer
 
-    // ---------- helpers ----------
+    // --------------------------------
+    // Scroll-lock (robust iOS-vennlig)
+    // --------------------------------
+    let _scrollY = 0;
+    let _isLocked = false;
+
     function lockBodyScroll(lock) {
         const html = document.documentElement;
-        if (lock) { html.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; }
-        else { html.style.overflow = ''; document.body.style.overflow = ''; }
+
+        if (lock) {
+            if (_isLocked) return; // allerede låst
+            _scrollY = window.scrollY || 0;
+            document.body.style.setProperty('--scroll-lock-top', `-${_scrollY}px`);
+            html.classList.add('chat-open');
+            document.body.classList.add('chat-open');
+            _isLocked = true;
+        } else {
+            if (!_isLocked) return; // allerede ulåst
+            document.body.classList.remove('chat-open');
+            html.classList.remove('chat-open');
+            document.body.style.removeProperty('--scroll-lock-top');
+            _isLocked = false;
+            window.scrollTo(0, _scrollY); // tilbake til eksakt posisjon
+        }
     }
 
+
+    // Blokker “bakgrunns-scroll” under overlay (iOS inertial)
+    function stopBgTouch(e) {
+        if (!chatWidget.classList.contains('active')) return;
+        if (!chatWidget.contains(e.target)) e.preventDefault();
+    }
+    document.addEventListener('touchmove', stopBgTouch, { passive: false });
+
+    // -----------------
+    // UI-hjelpefunksjoner
+    // -----------------
     function isNearBottom(el, threshold = 64) {
         return (el.scrollHeight - el.scrollTop - el.clientHeight) < threshold;
     }
 
-    function scrollToBottom(force = false) {
-        if (force || isNearBottom(chatMessages)) {
+    function scrollToBottomIfNeeded() {
+        if (isNearBottom(chatMessages)) {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     }
 
-    function setKeyboardOffset(px) {
-        document.documentElement.style.setProperty('--keyboard', `${px}px`);
-        chatMessages.style.paddingBottom = `${px + 24}px`;
+    function addMessage(content, sender) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = sender;
+        messageDiv.textContent = content;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottomIfNeeded();
     }
 
-    function resetKeyboardOffset() {
-        setKeyboardOffset(0);
-    }
-
-    // ---------- open/close/minimize ----------
+    // -------------
+    // Åpne/Lukke UI
+    // -------------
     function openChat() {
         chatWidget.classList.add("active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
+
         lockBodyScroll(true);
+
+        // sikre autoscroll + fokuser uten å “skubbe” bakgrunn
         requestAnimationFrame(() => {
-            scrollToBottom(true);
-            // ikke auto‑focus for desktop; for mobil er det ok:
-            if (mmMobile.matches) chatInput.focus({ preventScroll: true });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            if (window.matchMedia("(max-width:768px)").matches) {
+                // iOS: unngå scroll-jump ved fokus
+                try {
+                    chatInput.focus({ preventScroll: true });
+                } catch {
+                    chatInput.focus();
+                }
+            } else {
+                chatInput.focus();
+            }
         });
     }
 
     function closeChat() {
-        chatWidget.classList.remove("active", "kb-active");
-        chatWidget.classList.remove("minimized");
+        chatWidget.classList.remove("active", "minimized");
         toggleBtn.style.display = "flex";
-        lockBodyScroll(false);
-        kbOpen = false;
-        resetKeyboardOffset();
+
+        // nullstill keyboard-offset
+        document.documentElement.style.setProperty('--keyboard', '0px');
+        chatMessages.style.paddingBottom = '14px';
+
+        // Vent litt så iOS rekker å lukke tastatur og adresselinje
+        setTimeout(() => lockBodyScroll(false), 250);
     }
 
     function toggleMinimize() {
         const isMin = chatWidget.classList.contains('minimized');
+
         if (isMin) {
             chatWidget.classList.remove('minimized');
-            openChat();
+            openChat(); // låser + fokuserer
         } else {
-            chatWidget.classList.remove('active', 'kb-active');
+            // fra aktiv -> minimert dock
+            chatWidget.classList.remove('active');
             chatWidget.classList.add('minimized');
-            lockBodyScroll(false);
-            kbOpen = false;
-            resetKeyboardOffset();
-            toggleBtn.style.display = 'none'; // behold bare dock‑baren
+
+            // nullstill keyboard-offset
+            document.documentElement.style.setProperty('--keyboard', '0px');
+            chatMessages.style.paddingBottom = '14px';
+
+            // la dock-baren være synlig, men lås opp etter keyboard-anim
+            setTimeout(() => lockBodyScroll(false), 250);
+
+            // vi bruker bare dock-baren — agentknappen skjules
+            toggleBtn.style.display = 'none';
         }
     }
 
-    toggleBtn.addEventListener("click", openChat);
-    closeBtn.addEventListener("click", closeChat);
+    // Rebind (sikkert)
+    minimizeBtn?.removeEventListener("click", toggleMinimize);
     minimizeBtn?.addEventListener("click", toggleMinimize);
 
-    chatSend.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keypress", (e) => {
+    // --------------
+    // Event bindinger
+    // --------------
+    toggleBtn?.addEventListener("click", openChat);
+    closeBtn?.addEventListener("click", closeChat);
+
+    chatSend?.addEventListener("click", sendMessage);
+    chatInput?.addEventListener("keypress", function (e) {
         if (e.key === "Enter") sendMessage();
     });
 
-    // ---------- VisualViewport (keyboard-aware) ----------
-    function computeKeyboard() {
-        // bruk bare på mobil + når input (eller composer) har fokus
-        if (!mmMobile.matches) return resetKeyboardOffset();
+    // Når input får/ mister fokus: IKKE lås opp body her.
+    // Vi vil holde bakgrunnen frosset så lenge chatten er åpen.
+    chatInput?.addEventListener('focus', () => {
+        // sørg for at vi er låst hvis bruker åpner tastatur via fokus
+        if (chatWidget.classList.contains('active')) lockBodyScroll(true);
+    });
+    chatInput?.addEventListener('blur', () => {
+        // ikke unlock her; close/minimize håndterer unlock med delay
+    });
 
-        const active = document.activeElement;
-        const focusIsComposer = active === chatInput || active === chatSend;
+    // -------------------------------
+    // VisualViewport (keyboard-aware)
+    // -------------------------------
+    if (window.visualViewport) {
+        const vv = window.visualViewport;
 
-        if (!vv || !focusIsComposer || !chatWidget.classList.contains('active')) {
-            kbOpen = false;
-            chatWidget.classList.remove('kb-active');
-            return resetKeyboardOffset();
-        }
+        const onVVChange = () => {
+            // Høyde "spist" av tastatur/adresselinje
+            const keyboard = Math.max(0, (window.innerHeight - vv.height - vv.offsetTop));
 
-        // real offset (innerHeight - vv.height - vv.offsetTop)
-        const delta = Math.max(0, (window.innerHeight - vv.height - vv.offsetTop));
+            // Oppdater CSS-variabel + litt ekstra luft i meldinger
+            document.documentElement.style.setProperty('--keyboard', keyboard + 'px');
+            chatMessages.style.paddingBottom = (keyboard + 24) + 'px';
 
-        // regnes som åpent først når vi ser > 60px endring (filtrerer adressefelt/toolbar)
-        kbOpen = delta > 60;
+            // Hold deg ved bunn når tastatur åpnes/lukkes
+            scrollToBottomIfNeeded();
+        };
 
-        if (kbOpen) {
-            chatWidget.classList.add('kb-active');
-            setKeyboardOffset(delta);
-            // hold bunn dersom bruker var nær bunn
-            if (nearBottomFlag) scrollToBottom(true);
-        } else {
-            chatWidget.classList.remove('kb-active');
-            resetKeyboardOffset();
-        }
+        vv.addEventListener('resize', onVVChange);
+        vv.addEventListener('scroll', onVVChange);
     }
 
-    function debouncedVVChange() {
-        // husk status før resize
-        nearBottomFlag = isNearBottom(chatMessages);
-        if (vvTimer) clearTimeout(vvTimer);
-        // liten delay spiller godt med iOS som rapporterer i flere steg
-        vvTimer = setTimeout(computeKeyboard, 80);
-    }
-
-    if (vv) {
-        vv.addEventListener('resize', debouncedVVChange);
-        vv.addEventListener('scroll', debouncedVVChange);
-    }
-
-    // Focus/blur på input styrer når vi “aktiverer” keyboard‑modusen
-    chatInput.addEventListener('focus', () => {
-        nearBottomFlag = isNearBottom(chatMessages);
-        debouncedVVChange();               // gjør en første måling
-        setTimeout(() => scrollToBottom(true), 120); // sørg for bunn etter iOS “hopp”
-    });
-
-    chatInput.addEventListener('blur', () => {
-        // iOS sender blur før viewport er ferdig; vent litt, nullstill så
-        setTimeout(() => { kbOpen = false; chatWidget.classList.remove('kb-active'); resetKeyboardOffset(); }, 120);
-    });
-
-    // orientasjon / historikk
-    window.addEventListener('orientationchange', () => {
-        setTimeout(() => { kbOpen = false; resetKeyboardOffset(); scrollToBottom(true); }, 200);
-    });
-    window.addEventListener('pageshow', () => { resetKeyboardOffset(); });
-
-    // trykk i meldingsområdet lukker tastatur
-    chatMessages.addEventListener('pointerdown', () => {
-        if (document.activeElement === chatInput) chatInput.blur();
-    });
-
-    // ---------- send message ----------
+    // -----------
+    // Send melding
+    // -----------
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
 
         addMessage("🧑‍💻 " + message, "user");
         chatInput.value = "";
-        scrollToBottom(true);
 
         try {
             const response = await fetch("/api/Chat", {
@@ -309,30 +329,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text: message, sessionId })
             });
+
             const data = await response.json();
             const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
             addMessage("🤖 " + reply, "bot");
-        } catch {
+        } catch (err) {
             addMessage("⚠️ Nettverksfeil. Prøv igjen.", "bot");
-        } finally {
-            // etter send: hold fokus og vis tastatur igjen uten å hoppe
-            if (mmMobile.matches) {
-                chatInput.focus({ preventScroll: true });
-                setTimeout(() => scrollToBottom(true), 80);
-            }
+        }
+
+        // Behold body-låsen selv om tastaturet forsvinner (iOS)
+        // slik at bakgrunnssiden ikke glir.
+        if (chatWidget.classList.contains('active')) {
+            lockBodyScroll(true);
         }
     }
 
-    // ---------- message append ----------
-    function addMessage(content, sender) {
-        const el = document.createElement("div");
-        el.className = sender;
-        el.textContent = content;
-        chatMessages.appendChild(el);
-        scrollToBottom(); // bare om bruker var nær bunn
-    }
-
-  
-
+    // Lukker tastatur på iOS når man trykker i meldingsfeltet
+    chatMessages?.addEventListener('pointerdown', () => {
+        if (document.activeElement === chatInput) chatInput.blur();
+    });
 });
+
 
