@@ -2484,3 +2484,39 @@ body.dark-theme #chat-send {
 
 
 
+
+
+
+
+
+
+@media (max-width:768px) {
+    #chat-widget.kb-active {
+        /* lås containeren – ingen transform på forfedre */
+        will-change: auto;
+    }
+
+        #chat-widget.kb-active #chat-header,
+        #chat-widget.kb-active #chat-input-area,
+        #chat-widget.kb-active .user,
+        #chat-widget.kb-active .bot {
+            backdrop-filter: blur(10px) saturate(140%);
+            -webkit-backdrop-filter: blur(10px) saturate(140%);
+        }
+}
+
+/* Fullscreen på mobil når aktiv (holder du allerede, men gjentar for tydelighet) */
+@media (max-width:768px) {
+    #chat-widget.active {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100dvh;
+        border-radius: 0;
+    }
+}
+
+
+body:has(#chat-widget.active) {
+    overscroll-behavior: none;
+}

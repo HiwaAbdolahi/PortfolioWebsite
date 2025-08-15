@@ -149,123 +149,159 @@ document.addEventListener("DOMContentLoaded", function () {
     const minimizeBtn = document.getElementById("chat-minimize");
 
     const sessionId = "session-" + Date.now();
+    const mmMobile = window.matchMedia("(max-width: 768px)");
+    let vv = window.visualViewport || null;
+    let kbOpen = false;            // om tastatur “regnes” som åpent
+    let nearBottomFlag = true;     // husker nær-bunn-status før resize
+    let vvTimer = null;            // debounce timer
 
-    // ------- Helpers -------
+    // ---------- helpers ----------
     function lockBodyScroll(lock) {
         const html = document.documentElement;
-        if (lock) {
-            html.style.overflow = 'hidden';
-            document.body.style.overflow = 'hidden';
-        } else {
-            html.style.overflow = '';
-            document.body.style.overflow = '';
-        }
+        if (lock) { html.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; }
+        else { html.style.overflow = ''; document.body.style.overflow = ''; }
     }
 
     function isNearBottom(el, threshold = 64) {
         return (el.scrollHeight - el.scrollTop - el.clientHeight) < threshold;
     }
 
-    function scrollToBottomIfNeeded() {
-        if (isNearBottom(chatMessages)) {
+    function scrollToBottom(force = false) {
+        if (force || isNearBottom(chatMessages)) {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     }
 
-    function addMessage(content, sender) {
-        const messageDiv = document.createElement("div");
-        messageDiv.className = sender;
-        messageDiv.textContent = content;
-        chatMessages.appendChild(messageDiv);
-        // autoscroll kun om bruker var nær bunn
-        scrollToBottomIfNeeded();
+    function setKeyboardOffset(px) {
+        document.documentElement.style.setProperty('--keyboard', `${px}px`);
+        chatMessages.style.paddingBottom = `${px + 24}px`;
     }
 
-    // ------- Open/Close/Minimize -------
+    function resetKeyboardOffset() {
+        setKeyboardOffset(0);
+    }
+
+    // ---------- open/close/minimize ----------
     function openChat() {
         chatWidget.classList.add("active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
         lockBodyScroll(true);
-        // sikre at vi scroller til bunn når vi åpner
         requestAnimationFrame(() => {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            chatInput.focus();
+            scrollToBottom(true);
+            // ikke auto‑focus for desktop; for mobil er det ok:
+            if (mmMobile.matches) chatInput.focus({ preventScroll: true });
         });
     }
 
     function closeChat() {
-        chatWidget.classList.remove("active");
+        chatWidget.classList.remove("active", "kb-active");
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "flex";
         lockBodyScroll(false);
-        // nullstill keyboard-offset
-        document.documentElement.style.setProperty('--keyboard', '0px');
-        chatMessages.style.paddingBottom = '14px';
+        kbOpen = false;
+        resetKeyboardOffset();
     }
 
     function toggleMinimize() {
         const isMin = chatWidget.classList.contains('minimized');
-
         if (isMin) {
-            // fra minimert -> fullskjerm igjen
             chatWidget.classList.remove('minimized');
-            openChat(); // gir .active + låser scroll + fokus + autoscroll
+            openChat();
         } else {
-            // fra aktiv -> minimert “dock”
-            chatWidget.classList.remove('active');
+            chatWidget.classList.remove('active', 'kb-active');
             chatWidget.classList.add('minimized');
-
-            // vis agentknappen igjen (valgfritt – kan skjule hvis du vil)
-            toggleBtn.style.display = 'flex';
-
-            // lås opp sidescroll + nullstill keyboard-offset
             lockBodyScroll(false);
-            document.documentElement.style.setProperty('--keyboard', '0px');
-            chatMessages.style.paddingBottom = '14px';
-            toggleBtn.style.display = 'none';
+            kbOpen = false;
+            resetKeyboardOffset();
+            toggleBtn.style.display = 'none'; // behold bare dock‑baren
         }
     }
 
-    minimizeBtn.removeEventListener("click", toggleMinimize); // hvis eksisterer
-    minimizeBtn.addEventListener("click", toggleMinimize);
-
-
-
-    // ------- Bind UI -------
     toggleBtn.addEventListener("click", openChat);
     closeBtn.addEventListener("click", closeChat);
-    
+    minimizeBtn?.addEventListener("click", toggleMinimize);
 
     chatSend.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keypress", function (e) {
+    chatInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") sendMessage();
     });
 
-    // ------- VisualViewport: keyboard-aware -------
-    if (window.visualViewport) {
-        const vv = window.visualViewport;
-        const onVVChange = () => {
-            // Høyde som er “spist” av tastaturet
-            const keyboard = Math.max(0, (window.innerHeight - vv.height - vv.offsetTop));
-            // Løft composer (CSS transform) og legg litt luft i meldingslista
-            document.documentElement.style.setProperty('--keyboard', keyboard + 'px');
-            chatMessages.style.paddingBottom = (keyboard + 24) + 'px';
+    // ---------- VisualViewport (keyboard-aware) ----------
+    function computeKeyboard() {
+        // bruk bare på mobil + når input (eller composer) har fokus
+        if (!mmMobile.matches) return resetKeyboardOffset();
 
-            // Hold deg ved bunn når tastatur åpnes/lukkes (hvis du allerede var der)
-            scrollToBottomIfNeeded();
-        };
-        vv.addEventListener('resize', onVVChange);
-        vv.addEventListener('scroll', onVVChange);
+        const active = document.activeElement;
+        const focusIsComposer = active === chatInput || active === chatSend;
+
+        if (!vv || !focusIsComposer || !chatWidget.classList.contains('active')) {
+            kbOpen = false;
+            chatWidget.classList.remove('kb-active');
+            return resetKeyboardOffset();
+        }
+
+        // real offset (innerHeight - vv.height - vv.offsetTop)
+        const delta = Math.max(0, (window.innerHeight - vv.height - vv.offsetTop));
+
+        // regnes som åpent først når vi ser > 60px endring (filtrerer adressefelt/toolbar)
+        kbOpen = delta > 60;
+
+        if (kbOpen) {
+            chatWidget.classList.add('kb-active');
+            setKeyboardOffset(delta);
+            // hold bunn dersom bruker var nær bunn
+            if (nearBottomFlag) scrollToBottom(true);
+        } else {
+            chatWidget.classList.remove('kb-active');
+            resetKeyboardOffset();
+        }
     }
 
-    // ------- Send message -------
+    function debouncedVVChange() {
+        // husk status før resize
+        nearBottomFlag = isNearBottom(chatMessages);
+        if (vvTimer) clearTimeout(vvTimer);
+        // liten delay spiller godt med iOS som rapporterer i flere steg
+        vvTimer = setTimeout(computeKeyboard, 80);
+    }
+
+    if (vv) {
+        vv.addEventListener('resize', debouncedVVChange);
+        vv.addEventListener('scroll', debouncedVVChange);
+    }
+
+    // Focus/blur på input styrer når vi “aktiverer” keyboard‑modusen
+    chatInput.addEventListener('focus', () => {
+        nearBottomFlag = isNearBottom(chatMessages);
+        debouncedVVChange();               // gjør en første måling
+        setTimeout(() => scrollToBottom(true), 120); // sørg for bunn etter iOS “hopp”
+    });
+
+    chatInput.addEventListener('blur', () => {
+        // iOS sender blur før viewport er ferdig; vent litt, nullstill så
+        setTimeout(() => { kbOpen = false; chatWidget.classList.remove('kb-active'); resetKeyboardOffset(); }, 120);
+    });
+
+    // orientasjon / historikk
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => { kbOpen = false; resetKeyboardOffset(); scrollToBottom(true); }, 200);
+    });
+    window.addEventListener('pageshow', () => { resetKeyboardOffset(); });
+
+    // trykk i meldingsområdet lukker tastatur
+    chatMessages.addEventListener('pointerdown', () => {
+        if (document.activeElement === chatInput) chatInput.blur();
+    });
+
+    // ---------- send message ----------
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
 
         addMessage("🧑‍💻 " + message, "user");
         chatInput.value = "";
+        scrollToBottom(true);
 
         try {
             const response = await fetch("/api/Chat", {
@@ -273,19 +309,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text: message, sessionId })
             });
-
             const data = await response.json();
             const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
             addMessage("🤖 " + reply, "bot");
-        } catch (err) {
+        } catch {
             addMessage("⚠️ Nettverksfeil. Prøv igjen.", "bot");
+        } finally {
+            // etter send: hold fokus og vis tastatur igjen uten å hoppe
+            if (mmMobile.matches) {
+                chatInput.focus({ preventScroll: true });
+                setTimeout(() => scrollToBottom(true), 80);
+            }
         }
     }
 
-    // (valgfritt) Lukker tastatur på iOS når man trykker utenfor input
-    chatMessages.addEventListener('pointerdown', () => {
-        if (document.activeElement === chatInput) chatInput.blur();
-    });
+    // ---------- message append ----------
+    function addMessage(content, sender) {
+        const el = document.createElement("div");
+        el.className = sender;
+        el.textContent = content;
+        chatMessages.appendChild(el);
+        scrollToBottom(); // bare om bruker var nær bunn
+    }
 });
-
 
