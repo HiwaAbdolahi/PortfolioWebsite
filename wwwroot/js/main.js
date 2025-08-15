@@ -331,5 +331,8 @@ document.addEventListener("DOMContentLoaded", function () {
         chatMessages.appendChild(el);
         scrollToBottom(); // bare om bruker var nær bunn
     }
+
+    el.lastElementChild?.scrollIntoView({ block: 'end', behavior: 'instant' });
+
 });
 
