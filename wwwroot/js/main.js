@@ -150,6 +150,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const sessionId = "session-" + Date.now();
 
+    // --- Breakpoint helpers ---
+    const isMobile = () =>
+        window.matchMedia("(max-width:768px)").matches ||
+        window.matchMedia("(pointer: coarse)").matches;
+
     // --------------------------------
     // Scroll-lock (robust iOS-vennlig)
     // --------------------------------
@@ -161,12 +166,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (lock) {
             if (_isLocked) return;
-
-            // bevar X og Y
             _scroll.x = window.pageXOffset || window.scrollX || 0;
             _scroll.y = window.pageYOffset || window.scrollY || 0;
 
-            // frys body
             b.style.position = 'fixed';
             b.style.top = `-${_scroll.y}px`;
             b.style.left = `-${_scroll.x}px`;
@@ -180,16 +182,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!_isLocked) return;
 
-        // les tilbake før vi rydder
         const y = -parseInt(b.style.top || '0', 10) || 0;
         const x = -parseInt(b.style.left || '0', 10) || 0;
 
-        // slå av smooth scroll kort mens vi setter posisjonen
         const root = document.documentElement;
         const prevBehavior = root.style.scrollBehavior;
         root.style.scrollBehavior = 'auto';
 
-        // rydd stilene synkront (ingen rAF)
         b.style.position = '';
         b.style.top = '';
         b.style.left = '';
@@ -197,24 +196,20 @@ document.addEventListener("DOMContentLoaded", function () {
         b.style.width = '';
         b.style.overflow = '';
 
-        // sett tilbake posisjonen synkront – ingen mellom-paint på top:0
         window.scrollTo(x, y);
-
-        // restore smooth behavior etterpå
         setTimeout(() => { root.style.scrollBehavior = prevBehavior; }, 0);
 
         _isLocked = false;
     }
 
-
-
-
-    // Blokker “bakgrunns-scroll” under overlay (iOS inertial)
+    // Blokker bakgrunns-scroll på touch‑enheter (ikke desktop)
     function stopBgTouch(e) {
         if (!chatWidget.classList.contains('active')) return;
         if (!chatWidget.contains(e.target)) e.preventDefault();
     }
-    document.addEventListener('touchmove', stopBgTouch, { passive: false });
+    if (window.matchMedia("(pointer: coarse)").matches) {
+        document.addEventListener('touchmove', stopBgTouch, { passive: false });
+    }
 
     // -----------------
     // UI-hjelpefunksjoner
@@ -222,13 +217,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function isNearBottom(el, threshold = 64) {
         return (el.scrollHeight - el.scrollTop - el.clientHeight) < threshold;
     }
-
     function scrollToBottomIfNeeded() {
         if (isNearBottom(chatMessages)) {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     }
-
     function addMessage(content, sender) {
         const messageDiv = document.createElement("div");
         messageDiv.className = sender;
@@ -245,18 +238,14 @@ document.addEventListener("DOMContentLoaded", function () {
         chatWidget.classList.remove("minimized");
         toggleBtn.style.display = "none";
 
-        lockBodyScroll(true);
+        // Lås bare på mobil
+        if (isMobile()) lockBodyScroll(true);
 
-        // sikre autoscroll + fokuser uten å “skubbe” bakgrunn
         requestAnimationFrame(() => {
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            if (window.matchMedia("(max-width:768px)").matches) {
-                // iOS: unngå scroll-jump ved fokus
-                try {
-                    chatInput.focus({ preventScroll: true });
-                } catch {
-                    chatInput.focus();
-                }
+            if (isMobile()) {
+                try { chatInput.focus({ preventScroll: true }); }
+                catch { chatInput.focus(); }
             } else {
                 chatInput.focus();
             }
@@ -270,8 +259,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document.documentElement.style.setProperty('--keyboard', '0px');
         chatMessages.style.paddingBottom = '14px';
 
-        // kun delay hvis tastatur var synlig
-        if (_keyboardPx > 0) {
+        // Kun delay ved mobil/keyboard; på desktop unlock umiddelbart
+        if (isMobile() && _keyboardPx > 0) {
             setTimeout(() => lockBodyScroll(false), 250);
         } else {
             lockBodyScroll(false);
@@ -291,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.documentElement.style.setProperty('--keyboard', '0px');
             chatMessages.style.paddingBottom = '14px';
 
-            if (_keyboardPx > 0) {
+            if (isMobile() && _keyboardPx > 0) {
                 setTimeout(() => lockBodyScroll(false), 250);
             } else {
                 lockBodyScroll(false);
@@ -300,7 +289,6 @@ document.addEventListener("DOMContentLoaded", function () {
             toggleBtn.style.display = 'none';
         }
     }
-
 
     // Rebind (sikkert)
     minimizeBtn?.removeEventListener("click", toggleMinimize);
@@ -317,20 +305,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (e.key === "Enter") sendMessage();
     });
 
-    // Når input får/ mister fokus: IKKE lås opp body her.
-    // Vi vil holde bakgrunnen frosset så lenge chatten er åpen.
+    // Hold lås kun på mobil når input får fokus
     chatInput?.addEventListener('focus', () => {
-        // sørg for at vi er låst hvis bruker åpner tastatur via fokus
-        if (chatWidget.classList.contains('active')) lockBodyScroll(true);
-    });
-    chatInput?.addEventListener('blur', () => {
-        // ikke unlock her; close/minimize håndterer unlock med delay
+        if (chatWidget.classList.contains('active') && isMobile()) lockBodyScroll(true);
     });
 
     // -------------------------------
     // VisualViewport (keyboard-aware)
     // -------------------------------
-    let _keyboardPx = 0; // øverst i filen
+    let _keyboardPx = 0;
 
     if (window.visualViewport) {
         const vv = window.visualViewport;
@@ -344,9 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
         vv.addEventListener('scroll', onVVChange);
     }
 
-    // -----------
-    // Send melding
-    // -----------
+    // ----------- Send melding ----------
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
@@ -360,7 +341,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text: message, sessionId })
             });
-
             const data = await response.json();
             const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
             addMessage("🤖 " + reply, "bot");
@@ -368,16 +348,27 @@ document.addEventListener("DOMContentLoaded", function () {
             addMessage("⚠️ Nettverksfeil. Prøv igjen.", "bot");
         }
 
-        // Behold body-låsen selv om tastaturet forsvinner (iOS)
-        // slik at bakgrunnssiden ikke glir.
-        if (chatWidget.classList.contains('active')) {
+        // Hold lås aktiv på mobil mens chatten er åpen
+        if (chatWidget.classList.contains('active') && isMobile()) {
             lockBodyScroll(true);
         }
     }
 
-    // Lukker tastatur på iOS når man trykker i meldingsfeltet
+    // Lukker tastatur på iOS når man trykker i meldingslisten
     chatMessages?.addEventListener('pointerdown', () => {
         if (document.activeElement === chatInput) chatInput.blur();
+    });
+
+    // Hvis vinduet krysser breakpoint mens chatten er åpen
+    window.addEventListener('resize', () => {
+        if (!chatWidget.classList.contains('active')) return;
+        if (!isMobile() && _isLocked) {
+            // Gikk over til desktop: tillat scroll
+            lockBodyScroll(false);
+        } else if (isMobile() && !_isLocked) {
+            // Tilbake til mobil: re‑lock
+            lockBodyScroll(true);
+        }
     });
 });
 
