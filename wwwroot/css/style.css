@@ -1931,6 +1931,9 @@ body.light-theme {
     background-clip: padding-box;
     -webkit-background-clip: padding-box;
     font-family: var(--ff-roboto);
+    /* ytelses-/komposisjons-hint */
+    contain: layout paint;
+    will-change: transform;
 }
 
     /* Grid-layout når aktiv: header / messages / composer */
@@ -2013,6 +2016,8 @@ body.light-theme #chat-widget {
     align-items: center;
     justify-content: center;
     padding: 12px 16px;
+    /* safe-area top for notch/dynamic island */
+    padding-top: calc(12px + env(safe-area-inset-top));
     color: #fff;
     background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)), linear-gradient(135deg, #232834, #2b3242);
     box-shadow: inset 0 -1px 0 rgba(255,255,255,.18), 0 10px 26px rgba(0,0,0,.28);
@@ -2239,8 +2244,6 @@ body.dark-theme #chat-send {
 /* ============================
    Minimized: Elegant glass-dock
    ============================ */
-
-/* Selve widgeten blir “transparant beholder” i dock-modus */
 #chat-widget.minimized {
     display: flex;
     align-items: center;
@@ -2258,19 +2261,16 @@ body.dark-theme #chat-send {
     isolation: auto;
     z-index: 9999;
 }
-
     /* Fjern bakgrunns-sheen når minimert */
     #chat-widget.minimized::before,
     #chat-widget.minimized::after {
         display: none;
     }
-
     /* Skjul alt unntatt headeren (baren) */
     #chat-widget.minimized #chat-messages,
     #chat-widget.minimized #chat-input-area {
         display: none !important;
     }
-
     /* Selve baren = headeren, stylet som glass-pill */
     #chat-widget.minimized #chat-header {
         position: relative;
@@ -2279,15 +2279,13 @@ body.dark-theme #chat-send {
         gap: 10px;
         padding: 10px 12px;
         border-radius: 9999px;
-        /* Apple‑glass stil, litt mer opak for tydelig pill */
         background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.10)), rgb(var(--bg-secondary-rgb) / .42);
         border: 1px solid rgba(255,255,255,.26);
         box-shadow: 0 18px 36px rgba(0,0,0,.36), 0 1px 0 rgba(255,255,255,.14) inset;
         backdrop-filter: blur(14px) saturate(160%);
         -webkit-backdrop-filter: blur(14px) saturate(160%);
-        cursor: pointer; /* hele pillen kan trykkes for å åpne */
+        cursor: pointer;
         user-select: none;
-        /* Subtil “glow ring” på hele pillen ved hover */
         transition: box-shadow .18s ease, transform .12s ease, background .18s ease;
     }
 
@@ -2295,8 +2293,7 @@ body.dark-theme #chat-send {
             box-shadow: 0 22px 46px rgba(0,0,0,.42), 0 0 0 6px rgb(var(--gm-accent-2-rgb) / .16), 0 1px 0 rgba(255,255,255,.16) inset;
             transform: translateY(-1px);
         }
-
-    /* Tittel: komprimert, ellipsis, sentrert i pillen */
+    /* Tittel i pill */
     #chat-widget.minimized .chat-title {
         flex: 1 1 auto;
         min-width: 120px;
@@ -2311,11 +2308,9 @@ body.dark-theme #chat-send {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        /* litt venstremarg for plass til “avatar‑dot” (pseudo) */
         position: relative;
     }
 
-        /* Liten “agent‑dot” foran tittelen (kan byttes til bakgrunnsbilde) */
         #chat-widget.minimized .chat-title::before {
             content: "";
             display: inline-block;
@@ -2327,8 +2322,7 @@ body.dark-theme #chat-send {
             box-shadow: 0 0 8px rgba(56,189,248,.8);
             vertical-align: middle;
         }
-
-    /* Kontrollknapper: helt til høyre, runde, tydelig hit‑area */
+    /* Kontrollknapper */
     #chat-widget.minimized .chat-controls {
         position: static;
         display: inline-flex;
@@ -2336,7 +2330,6 @@ body.dark-theme #chat-send {
         z-index: 1;
     }
 
-    /* Runde glass-knapper */
     #chat-widget.minimized .chat-btn {
         width: 34px;
         height: 34px;
@@ -2361,7 +2354,6 @@ body.dark-theme #chat-send {
             box-shadow: 0 12px 26px rgba(0,0,0,.38), 0 0 0 6px rgb(var(--gm-accent-rgb) / .18), 0 1px 0 rgba(255,255,255,.14) inset;
         }
 
-    /* Gjør minus litt “sekundær”, X litt “fareaccent” */
     #chat-widget.minimized #chat-minimize {
         background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
     }
@@ -2370,8 +2362,6 @@ body.dark-theme #chat-send {
         background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08)), radial-gradient(120% 120% at 30% 10%, rgba(244,63,94,.35), transparent 60%);
         border-color: rgba(255,255,255,.32);
     }
-
-   
 
 /* -----------------------------
    FELLES: Animations
@@ -2437,9 +2427,20 @@ body.dark-theme #chat-send {
         inset: 0;
         width: 100vw;
         height: 100dvh; /* dvh = keyboard-aware */
+        min-height: 100dvh;
         right: 0;
         bottom: 0;
         border-radius: 0;
+        /* demp “rubber band” i fullskjerm */
+        overscroll-behavior: contain;
+    }
+
+    /* Bruk stabil viewport‑høyde der det finnes */
+    @supports (height: 100svh) {
+        #chat-widget.active {
+            height: 100svh; /* mer stabil enn 100vh/dvh i noen browsere */
+            min-height: 100svh;
+        }
     }
 
     /* Unngå iOS zoom ved fokus */
@@ -2450,6 +2451,12 @@ body.dark-theme #chat-send {
     #chat-toggle {
         width: 84px;
         height: 84px;
+    }
+
+    /* Baseline safe‑area under meldinger (JS legger mer ved keyboard) */
+    #chat-messages {
+        padding-bottom: calc(14px + env(safe-area-inset-bottom));
+        overscroll-behavior: contain;
     }
 
     /* Lettner blur for ytelse (valgfritt) */
@@ -2481,5 +2488,6 @@ body.dark-theme #chat-send {
             filter: blur(28px) saturate(115%);
         }
 }
+
 
 
