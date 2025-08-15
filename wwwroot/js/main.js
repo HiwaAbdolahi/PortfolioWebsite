@@ -332,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
         scrollToBottom(); // bare om bruker var nær bunn
     }
 
-    el.lastElementChild?.scrollIntoView({ block: 'end', behavior: 'instant' });
+  
 
 });
 
