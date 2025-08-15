@@ -2483,27 +2483,3 @@ body.dark-theme #chat-send {
 }
 
 
-
-
-
-
-
-
-
-/* Når chatten er åpen, frys siden fullstendig */
-html.chat-open,
-body.chat-open {
-    overflow: hidden !important;
-    overscroll-behavior: none;
-    height: 100%;
-}
-
-/* Kroppen “festes” i viewporten (klassisk iOS-lås) */
-body.chat-open {
-    position: fixed;
-    width: 100%;
-    top: var(--scroll-lock-top, 0); /* settes fra JS som -${scrollY}px */
-    left: 0;
-    right: 0;
-}
-
