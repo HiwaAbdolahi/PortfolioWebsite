@@ -1865,23 +1865,21 @@ body:not(.dark-theme) {
 /* AI Agent Widget */
 
 /* =========================================================
-   Hiwa AI Agent — Liquid Glass (felles → mobil → desktop)
-   Fullscreen on mobile + keyboard-aware
+   Hiwa AI Agent — Liquid Glass (mobil + desktop)
+   Fullscreen på mobil, fast størrelse på desktop
    ========================================================= */
 
 /* -----------------------------
-   FELLES: Variabler & defaults
+   Variabler
 ----------------------------- */
 :root {
     --ff-roboto: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     /* Tema / farger */
-    --bg-primary: #0e1116;
     --bg-primary-rgb: 14 17 22;
     --bg-secondary-rgb: 23 27 36;
     --color-primary: #e6e8ec;
     --color-secondary: #9aa3b2;
-    --input-bg: rgba(255,255,255,.08);
-    /* Glassmorfisme (likt mobil & desktop) */
+    /* Glass look */
     --gm-radius: 18px;
     --glass-stroke: rgba(255,255,255,.18);
     --glass-alpha: .36;
@@ -1895,26 +1893,28 @@ body:not(.dark-theme) {
     /* Effekter */
     --gm-ring: 0 0 0 4px rgb(59 130 246 / .25);
     --gm-mshadow: 0 12px 28px rgba(0,0,0,.18), 0 2px 0 rgba(0,0,0,.18);
-    /* Dynamisk keyboard-offset (settes av JS via VisualViewport) */
+    /* Keyboard-offset settes av JS */
     --keyboard: 0px;
+    /* Desktop-størrelse */
+    --chat-desktop-w: 520px;
+    --chat-desktop-h: min(82vh, 660px);
 }
 
 /* Light-variant */
 body.light-theme {
     --color-primary: #1a1f2b;
     --color-secondary: #4a5568;
-    --input-bg: rgba(0,0,0,.06);
 }
 
 /* -----------------------------
-   FELLES: Container & Toggle
+   Container & Toggle
 ----------------------------- */
 #chat-widget {
     display: none;
     position: fixed;
     right: 20px;
     bottom: 20px;
-    width: clamp(320px,24vw,400px);
+    width: clamp(320px, 24vw, 400px);
     max-height: 600px;
     border-radius: var(--gm-radius);
     border: 1px solid var(--glass-stroke);
@@ -1925,24 +1925,19 @@ body.light-theme {
     background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 35%), linear-gradient(0deg, rgba(0,0,0,.10), rgba(0,0,0,0) 55%), rgb(var(--bg-secondary-rgb) / var(--glass-alpha));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    transform: translateZ(0);
     animation: gmIn .35s cubic-bezier(.22,1,.36,1) both;
     z-index: 9999;
     background-clip: padding-box;
     -webkit-background-clip: padding-box;
     font-family: var(--ff-roboto);
-    /* ytelses-/komposisjons-hint */
-    contain: layout paint;
-    will-change: transform;
 }
 
-    /* Grid-layout når aktiv: header / messages / composer */
     #chat-widget.active {
         display: grid;
         grid-template-rows: auto 1fr auto;
     }
 
-    /* “Tekstur” og “sheen” */
+    /* Sheen/tekstur */
     #chat-widget::before {
         content: "";
         position: absolute;
@@ -1965,6 +1960,7 @@ body.light-theme {
         animation: gmSheen 16s ease-in-out infinite alternate;
     }
 
+/* Light tweaks */
 body.light-theme #chat-widget {
     color: var(--gm-ink);
     box-shadow: 0 24px 60px rgba(22,28,45,.12), 0 1px 0 rgba(255,255,255,.85) inset;
@@ -1992,7 +1988,7 @@ body.light-theme #chat-widget {
     overflow: hidden;
     background: transparent;
     transition: transform .18s ease, box-shadow .25s ease;
-    touch-action: manipulation;
+    touch-action: manipulation
 }
 
     #chat-toggle:hover {
@@ -2008,7 +2004,7 @@ body.light-theme #chat-widget {
 }
 
 /* -----------------------------
-   FELLES: Header
+   Header
 ----------------------------- */
 #chat-header {
     position: relative;
@@ -2016,7 +2012,6 @@ body.light-theme #chat-widget {
     align-items: center;
     justify-content: center;
     padding: 12px 16px;
-    /* safe-area top for notch/dynamic island */
     padding-top: calc(12px + env(safe-area-inset-top));
     color: #fff;
     background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0)), linear-gradient(135deg, #232834, #2b3242);
@@ -2028,7 +2023,7 @@ body.light-theme #chat-widget {
 }
 
 .chat-title {
-    font: 800 16px/1 var(--ff-roboto, ui-sans-serif);
+    font: 800 16px/1 var(--ff-roboto);
     letter-spacing: .25px;
     text-shadow: 0 1px 0 rgba(0,0,0,.25);
     padding: 0 74px;
@@ -2065,11 +2060,11 @@ body.light-theme #chat-widget {
     }
 
 /* -----------------------------
-   FELLES: Messages
+   Messages
 ----------------------------- */
 #chat-messages {
     grid-row: 2;
-    min-height: 0; /* kritisk for grid + overflow */
+    min-height: 0;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -2110,16 +2105,14 @@ body.light-theme #chat-widget {
     align-self: flex-end;
     color: #1b2230;
     background: linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.35));
-    border-top-right-radius: 10px;
     border: 1px solid rgba(255,255,255,.35);
-    text-shadow: 0 1px 0 rgba(255,255,255,.5);
+    border-top-right-radius: 10px;
 }
 
 body.dark-theme .user {
     color: #0e1117;
     background: linear-gradient(135deg, rgba(255,255,255,.42), rgba(255,255,255,.24));
     border-color: rgba(255,255,255,.22);
-    text-shadow: none;
 }
 
 .bot {
@@ -2158,7 +2151,7 @@ body.light-theme .bot {
 }
 
 /* -----------------------------
-   FELLES: Composer
+   Composer
 ----------------------------- */
 #chat-input-area {
     grid-row: 3;
@@ -2171,9 +2164,7 @@ body.light-theme .bot {
     backdrop-filter: blur(calc(var(--glass-blur) - 6px)) saturate(var(--glass-saturate));
     -webkit-backdrop-filter: blur(calc(var(--glass-blur) - 6px)) saturate(var(--glass-saturate));
     padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    /* Løft over tastaturet (JS setter --keyboard) */
     transform: translateY(calc(-1 * var(--keyboard)));
-    will-change: transform;
     transition: transform .18s ease;
 }
 
@@ -2237,18 +2228,12 @@ body.dark-theme #chat-send {
 }
 
 /* -----------------------------
-   FELLES: States
+   Minimized (dock)
 ----------------------------- */
-
-
-/* ============================
-   Minimized: Elegant glass-dock
-   ============================ */
 #chat-widget.minimized {
     display: flex;
     align-items: center;
     position: fixed;
-    inset: auto;
     right: 16px;
     bottom: 16px;
     width: auto;
@@ -2261,19 +2246,17 @@ body.dark-theme #chat-send {
     isolation: auto;
     z-index: 9999;
 }
-    /* Fjern bakgrunns-sheen når minimert */
-    #chat-widget.minimized::before,
-    #chat-widget.minimized::after {
+
+    #chat-widget.minimized::before, #chat-widget.minimized::after {
         display: none;
     }
-    /* Skjul alt unntatt headeren (baren) */
+
     #chat-widget.minimized #chat-messages,
     #chat-widget.minimized #chat-input-area {
         display: none !important;
     }
-    /* Selve baren = headeren, stylet som glass-pill */
+
     #chat-widget.minimized #chat-header {
-        position: relative;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -2293,7 +2276,7 @@ body.dark-theme #chat-send {
             box-shadow: 0 22px 46px rgba(0,0,0,.42), 0 0 0 6px rgb(var(--gm-accent-2-rgb) / .16), 0 1px 0 rgba(255,255,255,.16) inset;
             transform: translateY(-1px);
         }
-    /* Tittel i pill */
+
     #chat-widget.minimized .chat-title {
         flex: 1 1 auto;
         min-width: 120px;
@@ -2303,7 +2286,6 @@ body.dark-theme #chat-send {
         font-size: 14px;
         line-height: 1;
         letter-spacing: .2px;
-        text-shadow: 0 1px 0 rgba(0,0,0,.25);
         color: #fff;
         white-space: nowrap;
         overflow: hidden;
@@ -2322,7 +2304,7 @@ body.dark-theme #chat-send {
             box-shadow: 0 0 8px rgba(56,189,248,.8);
             vertical-align: middle;
         }
-    /* Kontrollknapper */
+
     #chat-widget.minimized .chat-controls {
         position: static;
         display: inline-flex;
@@ -2345,8 +2327,6 @@ body.dark-theme #chat-send {
         border: 1px solid rgba(255,255,255,.28);
         box-shadow: 0 8px 18px rgba(0,0,0,.32), 0 1px 0 rgba(255,255,255,.10) inset;
         transition: transform .12s ease, box-shadow .18s ease, background .18s ease;
-        cursor: pointer;
-        touch-action: manipulation;
     }
 
         #chat-widget.minimized .chat-btn:hover {
@@ -2354,17 +2334,8 @@ body.dark-theme #chat-send {
             box-shadow: 0 12px 26px rgba(0,0,0,.38), 0 0 0 6px rgb(var(--gm-accent-rgb) / .18), 0 1px 0 rgba(255,255,255,.14) inset;
         }
 
-    #chat-widget.minimized #chat-minimize {
-        background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
-    }
-
-    #chat-widget.minimized #chat-close {
-        background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08)), radial-gradient(120% 120% at 30% 10%, rgba(244,63,94,.35), transparent 60%);
-        border-color: rgba(255,255,255,.32);
-    }
-
 /* -----------------------------
-   FELLES: Animations
+   Animasjoner
 ----------------------------- */
 @keyframes gmIn {
     from {
@@ -2406,60 +2377,49 @@ body.dark-theme #chat-send {
     }
 }
 
-@media (prefers-reduced-motion:reduce) {
-    #chat-widget::after, #chat-widget::before {
-        animation: none;
-    }
-
-    .user, .bot {
+@media (prefers-reduced-motion: reduce) {
+    #chat-widget::after, #chat-widget::before, .user, .bot {
         animation: none;
     }
 }
 
 /* =============================
-   MOBIL/TABLET (≤ 768px)
-   Fullscreen sheet + riktig vh
+   Mobil (≤ 768px)
+   Fullscreen når aktiv
 ============================= */
-@media (max-width:768px) {
-    /* Fullskjerm når aktiv */
+@media (max-width: 768px) {
     #chat-widget.active {
         position: fixed;
         inset: 0;
-        width: 100vw;
-        height: 100dvh; /* dvh = keyboard-aware */
-        min-height: 100dvh;
         right: 0;
         bottom: 0;
         border-radius: 0;
-        /* demp “rubber band” i fullskjerm */
+        width: 100vw;
+        height: 100dvh;
+        min-height: 100dvh;
         overscroll-behavior: contain;
     }
 
-    /* Bruk stabil viewport‑høyde der det finnes */
     @supports (height: 100svh) {
         #chat-widget.active {
-            height: 100svh; /* mer stabil enn 100vh/dvh i noen browsere */
+            height: 100svh;
             min-height: 100svh;
         }
     }
 
-    /* Unngå iOS zoom ved fokus */
     #chat-input, #chat-send {
         font-size: 16px;
     }
-
+    /* hindrer iOS-zoom */
     #chat-toggle {
         width: 84px;
         height: 84px;
     }
 
-    /* Baseline safe‑area under meldinger (JS legger mer ved keyboard) */
     #chat-messages {
         padding-bottom: calc(14px + env(safe-area-inset-bottom));
-        overscroll-behavior: contain;
     }
 
-    /* Lettner blur for ytelse (valgfritt) */
     #chat-widget, #chat-input-area, .user, .bot {
         backdrop-filter: blur(12px) saturate(140%);
         -webkit-backdrop-filter: blur(12px) saturate(140%);
@@ -2467,16 +2427,14 @@ body.dark-theme #chat-send {
 }
 
 /* =============================
-   DESKTOP (≥ 1024px)
-   Samme glass, større panel
+   Desktop (≥ 1024px)
+   Fast størrelse
 ============================= */
-@media (min-width:1024px) {
+@media (min-width: 1024px) {
     #chat-widget {
-        width: clamp(380px, 28vw, 520px);
-        max-height: min(82vh, 860px);
-        background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 35%), linear-gradient(0deg, rgba(0,0,0,.10), rgba(0,0,0,0) 55%), rgb(var(--bg-secondary-rgb) / var(--glass-alpha));
-        box-shadow: 0 34px 90px rgba(0,0,0,.42), 0 1px 0 rgba(255,255,255,.08) inset;
-        border: 1px solid var(--glass-stroke);
+        width: var(--chat-desktop-w);
+        height: var(--chat-desktop-h);
+        max-height: none; /* overstyr basens max-height */
     }
 
         #chat-widget::before {
@@ -2487,7 +2445,15 @@ body.dark-theme #chat-send {
             opacity: .5;
             filter: blur(28px) saturate(115%);
         }
+
+    #chat-widget, #chat-input-area, .user, .bot {
+        backdrop-filter: blur(5px) saturate(140%);
+        -webkit-backdrop-filter: blur(12px) saturate(140%);
+    }
+
 }
+
+
 
 
 
