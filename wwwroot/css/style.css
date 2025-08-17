@@ -535,12 +535,15 @@ main {
     }
 
     .hero-title {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         margin-bottom: 10px;
         color: transparent !important;
         -webkit-text-fill-color: transparent !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+        filter: saturate(2.08) contrast(2.05); /* litt ekstra “punch” på iOS */
     }
+    
+    }
+
 
     .hero .btn-primary {
         margin-inline: auto;
@@ -554,7 +557,9 @@ main {
     color: transparent !important;
     -webkit-text-fill-color: transparent !important;
     -webkit-background-clip: text;
-    background-clip: text;
+    background-clip:
+       0
+     text;
     word-break: keep-all;
     hyphens: none;
 }
