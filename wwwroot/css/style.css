@@ -539,7 +539,11 @@ main {
         margin-bottom: 10px;
         color: transparent !important;
         -webkit-text-fill-color: transparent !important;
-        filter: saturate(2.08) contrast(2.05); /* litt ekstra “punch” på iOS */
+        filter: saturate(1.08) contrast(1.05); /* litt ekstra “punch” på iOS */
+    }
+
+    #changing-word .word-letters {
+        letter-spacing: -0.03em; /* veldig subtil */
     }
     
     }
@@ -548,7 +552,7 @@ main {
     .hero .btn-primary {
         margin-inline: auto;
     }
-}
+
 
 
 
@@ -573,6 +577,96 @@ main {
     -webkit-backface-visibility: hidden;
 }
 
+
+
+
+/* HUD-container ved ordet */
+#changing-word {
+    position: relative;
+    display: inline-block;
+}
+
+    #changing-word .word-hud {
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        transform: translate(10px,-50%);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        pointer-events: none;
+    }
+
+    /* Chip: glass + gradient-tekst (settes i JS) */
+    #changing-word .word-chip {
+        font-size: 0.78rem;
+        line-height: 1;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        letter-spacing: .02em;
+        white-space: nowrap;
+    }
+
+    /* Countdown progress under ordet */
+    #changing-word .word-progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -6px;
+        height: 2px;
+        background: rgba(255,255,255,0.18);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+        #changing-word .word-progress .bar {
+            width: 0%;
+            height: 100%;
+            background-image: linear-gradient(90deg,#ff9000,#ffffff,#00ffff);
+            border-radius: 999px;
+        }
+
+    /* Orbit-dot rundt ordet */
+    #changing-word .orbit-wrap {
+        position: absolute;
+        inset: -6px; /* liten margin utenfor teksten */
+        pointer-events: none;
+        transform-origin: 50% 50%;
+        opacity: 0;
+    }
+
+    #changing-word .orbit-dot {
+        position: absolute;
+        top: -3px; /* start på “kl 12” */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background-image: radial-gradient(circle at 30% 30%, #fff, #00ffff 60%, transparent 70%);
+        box-shadow: 0 0 8px rgba(0,255,255,0.7), 0 0 16px rgba(0,255,255,0.35);
+    }
+
+/* Små mobil-tilpasninger uten å endre logikken din */
+@media (max-width: 767px) {
+    #changing-word .word-hud {
+        transform: translate(8px,-50%) scale(.98);
+        gap: 8px;
+    }
+
+    #changing-word .word-chip {
+        padding: 5px 9px;
+        font-size: .74rem;
+    }
+
+    #changing-word .word-progress {
+        bottom: -5px;
+    }
+}
 
 
 

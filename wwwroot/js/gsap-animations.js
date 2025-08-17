@@ -1,9 +1,7 @@
 ﻿gsap.registerPlugin(ScrollTrigger);
 
 /* ---------------------------------------------------
-   🎨 Hero Title — Unified (Desktop + Mobile)
-   Per-bokstav 3D flip + particles + elastic-in + shimmer
-   (Gradient på .hero-title + på .letter for sikker Safari/iOS render)
+    Hero Title — Unified (Desktop + Mobile)
 --------------------------------------------------- */
 function animateHeroTitle() {
     const heroTitle = document.querySelector(".hero-title");
@@ -38,14 +36,7 @@ function animateHeroTitle() {
 /* Wrap siste ord til #changing-word > .word-letters > .letter* + shimmer */
 function wrapLastWordAdvanced(element) {
     const clean = t => (
-        t
-            // fjern alle "format characters" (bl.a. U+200B..U+200D, U+2060, U+FEFF)
-            .replace(/\p{Cf}/gu, "")
-            // fjern soft hyphen
-            .replace(/\u00AD/g, "")
-            // normaliser whitespace
-            .replace(/\s+/g, " ")
-            .trim()
+        t.replace(/\p{Cf}/gu, "").replace(/\u00AD/g, "").replace(/\s+/g, " ").trim()
     );
 
     const fullText = clean(element.textContent);
@@ -57,15 +48,27 @@ function wrapLastWordAdvanced(element) {
     element.innerHTML = `${prefix}&nbsp;<span id="changing-word">
     <span class="word-letters">${lettersHtml}</span>
     <span class="word-shimmer"></span>
+
+    <!--  HUD: chip + progress + orbit -->
+    <span class="word-hud">
+      <span class="word-chip" aria-hidden="true"></span>
+      <span class="word-progress"><span class="bar"></span></span>
+    </span>
+    <span class="orbit-wrap" aria-hidden="true"><span class="orbit-dot"></span></span>
   </span>`;
 
-    // Påfør gradient direkte på bokstavene (kritisk for Safari/iOS)
+    // gradient på bokstavene (Safari-sikkert)
     const letters = element.querySelectorAll("#changing-word .letter");
     applyGradientToLetters(letters, element);
+
+    // init HUD (sett label/ikon for første ord + start pre-countdown)
+    const container = element.querySelector("#changing-word");
+    initWordHUD(container, element, last);
 }
 
-/* Rotasjon m/ 3D flip (uten blur) + particles + elastic-in + shimmer */
+
 function startWordRotationAdvanced(heroTitle, opts) {
+    const INTERVAL = 2800; // behold tempoet ditt
     const words = ["nettsider", "webapplikasjoner", "digitale løsninger"];
     const container = heroTitle.querySelector("#changing-word");
     const lettersWrap = container.querySelector(".word-letters");
@@ -82,49 +85,39 @@ function startWordRotationAdvanced(heroTitle, opts) {
         particles: 8
     };
 
+    // start første countdown frem til første bytte (samme delay som under)
+    hudStartCountdown(container, 900);
+
     const switchWord = () => {
         const next = words[(idx + 1) % words.length];
+
+        // 🔔 HUD: oppdater chip, pulse, orbit + restart countdown
+        updateWordChip(container, next, heroTitle);
+        pulseWordChip(container);
+        hudStartCountdown(container, INTERVAL);
+        runOrbitSweep(container);
 
         if (useAdvanced) {
             const oldLetters = lettersWrap.querySelectorAll(".letter");
             const tl = gsap.timeline();
 
-            // OUT (uten blur for iOS)
             tl.to(oldLetters, {
-                rotationX: K.flipOutRotX,
-                z: K.flipOutZ,
-                y: K.flipOutY,
-                opacity: 0,
-                duration: K.flipOutDur,
-                ease: "power2.in",
+                rotationX: K.flipOutRotX, z: K.flipOutZ, y: K.flipOutY,
+                opacity: 0, duration: K.flipOutDur, ease: "power2.in",
                 stagger: { each: K.flipStagger, from: "end" }
             });
 
-            // Partikler
             tl.add(() => createParticleBurst(container, K.particles), "-=0.20");
 
-            // Bytt + IN
             tl.add(() => {
                 lettersWrap.innerHTML = next.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
-
                 const newLetters = lettersWrap.querySelectorAll(".letter");
-                applyGradientToLetters(newLetters, heroTitle); // <-- viktig
+                applyGradientToLetters(newLetters, heroTitle);
 
-                gsap.set(newLetters, {
-                    opacity: 0,
-                    rotationX: -90,
-                    y: K.inY,
-                    z: K.inZ,
-                    translateZ: 0 // iOS hint
-                });
-
+                gsap.set(newLetters, { opacity: 0, rotationX: -90, y: K.inY, z: K.inZ, translateZ: 0 });
                 gsap.to(newLetters, {
-                    opacity: 1,
-                    rotationX: 0,
-                    y: 0,
-                    z: 0,
-                    duration: K.inDur,
-                    ease: "elastic.out(1, 0.62)",
+                    opacity: 1, rotationX: 0, y: 0, z: 0,
+                    duration: K.inDur, ease: "elastic.out(1, 0.62)",
                     stagger: { each: K.inStagger, from: "start" }
                 });
 
@@ -134,7 +127,6 @@ function startWordRotationAdvanced(heroTitle, opts) {
             idx = (idx + 1) % words.length;
 
         } else {
-            // Reduced motion
             const tl = gsap.timeline();
             tl.to(lettersWrap, { y: -8, opacity: 0, duration: 0.22, ease: "power2.in" })
                 .add(() => {
@@ -150,9 +142,10 @@ function startWordRotationAdvanced(heroTitle, opts) {
 
     setTimeout(() => {
         switchWord();
-        setInterval(switchWord, 2800);
+        setInterval(switchWord, INTERVAL);
     }, 900);
 }
+
 
 /* Partikler */
 function createParticleBurst(container, count = 8) {
@@ -200,6 +193,66 @@ function runShimmer(container) {
     gsap.set(s, { left: "-30%" });
     gsap.to(s, { left: "130%", duration: 0.7, ease: "power2.out" });
 }
+
+// HUD init: sett chip for startord og start første progress
+function initWordHUD(container, heroTitle, startWord) {
+    updateWordChip(container, startWord, heroTitle);
+}
+
+// chip-tekst/ikon per ord
+function chipLabelFor(word) {
+    if (word === "nettsider") return "🌐 Web";
+    if (word === "webapplikasjoner") return "</> App";
+    return "✨ Løsning";
+}
+
+function updateWordChip(container, word, heroTitle) {
+    const chip = container.querySelector(".word-chip");
+    if (!chip) return;
+
+    chip.textContent = chipLabelFor(word);
+
+    // gradienttekst i chip (samme som tittel)
+    const cs = getComputedStyle(heroTitle);
+    const bg = cs.backgroundImage || "linear-gradient(90deg,#ff9000,#ffffff,#00ffff)";
+    const bgSize = cs.backgroundSize || "200% auto";
+
+    chip.style.backgroundImage = bg;
+    chip.style.backgroundSize = bgSize;
+    chip.style.webkitBackgroundClip = "text";
+    chip.style.backgroundClip = "text";
+    chip.style.webkitTextFillColor = "transparent";
+    chip.style.color = "transparent";
+}
+
+function pulseWordChip(container) {
+    const chip = container.querySelector(".word-chip");
+    if (!chip) return;
+    gsap.fromTo(chip, { scale: 0.88, filter: "drop-shadow(0 0 0 rgba(255,255,255,0))" }, {
+        scale: 1, duration: 0.22, ease: "power2.out"
+    });
+    gsap.fromTo(chip, { boxShadow: "0 0 0 rgba(255,255,255,0)" }, {
+        boxShadow: "0 0 18px rgba(255,255,255,0.25)", duration: 0.22, ease: "power2.out", yoyo: true, repeat: 1
+    });
+}
+
+function hudStartCountdown(container, ms) {
+    const bar = container.querySelector(".word-progress .bar");
+    if (!bar) return;
+    if (bar._tween) { bar._tween.kill(); bar._tween = null; }
+    gsap.set(bar, { width: "0%" });
+    bar._tween = gsap.to(bar, { width: "100%", duration: ms / 1000, ease: "linear" });
+}
+
+function runOrbitSweep(container) {
+    const wrap = container.querySelector(".orbit-wrap");
+    if (!wrap) return;
+    gsap.fromTo(wrap, { rotate: 0, opacity: 1 }, { rotate: 360, duration: 0.55, ease: "power2.out" });
+    // fade ut dot litt etterpå for å ikke bli “for mye”
+    gsap.to(wrap, { opacity: 0, duration: 0.25, ease: "power1.out", delay: 0.55 });
+}
+
+
 
 /* ➜ Gradient på hver bokstav + GPU-hints (Safari trygg) */
 function applyGradientToLetters(letters, heroTitle) {
