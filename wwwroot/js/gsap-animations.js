@@ -2,66 +2,69 @@
 
 /* ---------------------------------------------------
    🎨 Hero Title — Unified (Desktop + Mobile)
-   World-class word switch: per-letter 3D flip + particles + elastic-in + shimmer
+   Per-bokstav 3D flip + particles + elastic-in + shimmer
+   (Gradient på .hero-title + på .letter for sikker Safari/iOS render)
 --------------------------------------------------- */
 function animateHeroTitle() {
     const heroTitle = document.querySelector(".hero-title");
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Samme look på alle enheter: gradienttekst
+    // Gradient på forelder (for helheten)
     heroTitle.style.background = "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
     heroTitle.style.backgroundSize = "200% auto";
     heroTitle.style.webkitBackgroundClip = "text";
+    heroTitle.style.backgroundClip = "text";
     heroTitle.style.webkitTextFillColor = "transparent";
-    heroTitle.style.color = "";
+    heroTitle.style.color = "transparent";
     heroTitle.style.fontWeight = "700";
 
-    // Startposisjon
     gsap.set(heroTitle, { opacity: 0, y: 50 });
 
-    // Fade inn + typewriter
     gsap.to(heroTitle, {
         opacity: 1,
         y: 0,
         duration: 1.5,
         ease: "power4.out",
         onStart: () => typeWriter(heroTitle, () => {
-            // Glow på gradienten overalt
             animateGlow(heroTitle);
-            // Din eksisterende CTA-animasjon
             if (typeof animateContactButton === "function") animateContactButton(false);
 
-            // Pakk siste ord og start rotasjon
             wrapLastWordAdvanced(heroTitle);
             startWordRotationAdvanced(heroTitle, { prefersReduced });
         })
     });
 }
 
-/* ---------------------------------------------------
-   Wrap siste ord → #changing-word > .word-letters > .letter* + shimmer
---------------------------------------------------- */
+/* Wrap siste ord til #changing-word > .word-letters > .letter* + shimmer */
 function wrapLastWordAdvanced(element) {
-    const clean = t => t.replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/\s+/g, " ").trim(); // fjern zero-width + doble spaces
+    const clean = t => (
+        t
+            // fjern alle "format characters" (bl.a. U+200B..U+200D, U+2060, U+FEFF)
+            .replace(/\p{Cf}/gu, "")
+            // fjern soft hyphen
+            .replace(/\u00AD/g, "")
+            // normaliser whitespace
+            .replace(/\s+/g, " ")
+            .trim()
+    );
+
     const fullText = clean(element.textContent);
     const parts = fullText.split(" ");
     const last = parts.pop();
     const prefix = parts.join(" ");
-
     const lettersHtml = last.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
+
     element.innerHTML = `${prefix}&nbsp;<span id="changing-word">
     <span class="word-letters">${lettersHtml}</span>
     <span class="word-shimmer"></span>
   </span>`;
 
+    // Påfør gradient direkte på bokstavene (kritisk for Safari/iOS)
     const letters = element.querySelectorAll("#changing-word .letter");
-    applyGradientToLetters(letters, element); // gradient for alle enheter
+    applyGradientToLetters(letters, element);
 }
 
-/* ---------------------------------------------------
-   Rotering: per-bokstav 3D flip-out + particles + elastic-in + shimmer
-   (samme på mobil & desktop; fallback kun ved prefers-reduced-motion)
---------------------------------------------------- */
+/* Rotasjon m/ 3D flip (uten blur) + particles + elastic-in + shimmer */
 function startWordRotationAdvanced(heroTitle, opts) {
     const words = ["nettsider", "webapplikasjoner", "digitale løsninger"];
     const container = heroTitle.querySelector("#changing-word");
@@ -71,9 +74,8 @@ function startWordRotationAdvanced(heroTitle, opts) {
     let idx = Math.max(0, words.indexOf(currentWord));
     if (idx === -1) idx = 0;
 
-    const useAdvanced = !opts.prefersReduced; // én logikk for alle, med respekt for reduced motion
+    const useAdvanced = !opts.prefersReduced;
 
-    // Faste “knobs” (samme på mobil + desktop siden du ikke bryr deg om ytelse nå)
     const K = {
         flipOutRotX: 80, flipOutZ: -30, flipOutY: -10, flipOutDur: 0.38, flipStagger: 0.03,
         inY: 26, inZ: 30, inDur: 0.72, inStagger: 0.045,
@@ -87,13 +89,12 @@ function startWordRotationAdvanced(heroTitle, opts) {
             const oldLetters = lettersWrap.querySelectorAll(".letter");
             const tl = gsap.timeline();
 
-            // OUT: per-bokstav 3D flip
+            // OUT (uten blur for iOS)
             tl.to(oldLetters, {
                 rotationX: K.flipOutRotX,
                 z: K.flipOutZ,
                 y: K.flipOutY,
                 opacity: 0,
-                filter: "blur(3px)",
                 duration: K.flipOutDur,
                 ease: "power2.in",
                 stagger: { each: K.flipStagger, from: "end" }
@@ -102,19 +103,19 @@ function startWordRotationAdvanced(heroTitle, opts) {
             // Partikler
             tl.add(() => createParticleBurst(container, K.particles), "-=0.20");
 
-            // Bytt til nytt ord + IN: elastic
+            // Bytt + IN
             tl.add(() => {
                 lettersWrap.innerHTML = next.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
+
                 const newLetters = lettersWrap.querySelectorAll(".letter");
-                applyGradientToLetters(newLetters, heroTitle);
+                applyGradientToLetters(newLetters, heroTitle); // <-- viktig
 
                 gsap.set(newLetters, {
                     opacity: 0,
                     rotationX: -90,
                     y: K.inY,
                     z: K.inZ,
-                    filter: "blur(3px)",
-                    translateZ: 0 // iOS Safari hint
+                    translateZ: 0 // iOS hint
                 });
 
                 gsap.to(newLetters, {
@@ -122,7 +123,6 @@ function startWordRotationAdvanced(heroTitle, opts) {
                     rotationX: 0,
                     y: 0,
                     z: 0,
-                    filter: "blur(0px)",
                     duration: K.inDur,
                     ease: "elastic.out(1, 0.62)",
                     stagger: { each: K.inStagger, from: "start" }
@@ -134,7 +134,7 @@ function startWordRotationAdvanced(heroTitle, opts) {
             idx = (idx + 1) % words.length;
 
         } else {
-            // Reduced motion fallback
+            // Reduced motion
             const tl = gsap.timeline();
             tl.to(lettersWrap, { y: -8, opacity: 0, duration: 0.22, ease: "power2.in" })
                 .add(() => {
@@ -154,9 +154,7 @@ function startWordRotationAdvanced(heroTitle, opts) {
     }, 900);
 }
 
-/* ---------------------------------------------------
-   Partikkel-burst (små lys)
---------------------------------------------------- */
+/* Partikler */
 function createParticleBurst(container, count = 8) {
     const base = document.createElement("span");
     base.className = "particles";
@@ -181,7 +179,7 @@ function createParticleBurst(container, count = 8) {
         const ty = Math.sin(angle) * dist - 6;
 
         gsap.fromTo(p,
-            { x: 0, y: 0, scale: 0.4, opacity: 0.9, filter: "blur(0.5px)", translateZ: 0 },
+            { x: 0, y: 0, scale: 0.4, opacity: 0.9, translateZ: 0 },
             {
                 x: tx, y: ty,
                 scale: 0.95,
@@ -192,40 +190,38 @@ function createParticleBurst(container, count = 8) {
             }
         );
     }
-
     setTimeout(() => base.remove(), 700);
 }
 
-/* ---------------------------------------------------
-   Shimmer / glint
---------------------------------------------------- */
+/* Shimmer */
 function runShimmer(container) {
     const s = container.querySelector(".word-shimmer");
     if (!s) return;
-
     gsap.set(s, { left: "-30%" });
     gsap.to(s, { left: "130%", duration: 0.7, ease: "power2.out" });
 }
 
-/* ---------------------------------------------------
-   Gradient pr. bokstav + iOS GPU-hints (samme på alle enheter)
---------------------------------------------------- */
+/* ➜ Gradient på hver bokstav + GPU-hints (Safari trygg) */
 function applyGradientToLetters(letters, heroTitle) {
+    // hent gradient fra heroTitle
+    const bg = heroTitle.style.background || "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
+    const bgSize = heroTitle.style.backgroundSize || "200% auto";
+
     letters.forEach(letter => {
         letter.style.display = "inline-block";
-        letter.style.willChange = "transform, filter, opacity";
+        letter.style.willChange = "transform, opacity";
         letter.style.transformStyle = "preserve-3d";
         letter.style.backfaceVisibility = "hidden";
         letter.style.webkitBackfaceVisibility = "hidden";
         letter.style.transform = "translateZ(0)";
 
-        const bg = heroTitle.style.background || "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
-        const bgSize = heroTitle.style.backgroundSize || "200% auto";
+        // GI GRADIENT DIREKTE PÅ BOKSTAVEN
         letter.style.background = bg;
         letter.style.backgroundSize = bgSize;
         letter.style.webkitBackgroundClip = "text";
+        letter.style.backgroundClip = "text";
         letter.style.webkitTextFillColor = "transparent";
-        letter.style.color = "";
+        letter.style.color = "transparent";
         letter.style.fontWeight = "700";
     });
 
@@ -237,23 +233,25 @@ function applyGradientToLetters(letters, heroTitle) {
         wrap.style.perspectiveOrigin = "50% 60%";
         wrap.style.transformStyle = "preserve-3d";
         wrap.style.transform = "translateZ(0)";
+        wrap.style.overflow = "visible";
     }
 }
 
-/* ---------------------------------------------------
-   Utils
---------------------------------------------------- */
+/* Utils */
 function escapeHtml(str) {
     return str.replace(/[&<>"']/g, m => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
     }[m]));
 }
 
-/* ---------------------------------------------------
-   Typewriter — rens whitespace (fikser “j eg”)
---------------------------------------------------- */
+/* Typewriter — RENS TEKST (fikser «j eg») */
 function typeWriter(element, callback) {
-    let fullText = element.textContent.replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/\s+/g, " ").trim();
+    let fullText = element.textContent
+        .replace(/\p{Cf}/gu, "")  // fjern alle "format"-tegn (inkl. U+2060)
+        .replace(/\u00AD/g, "")   // fjern soft hyphen
+        .replace(/\s+/g, " ")
+        .trim();
+
     element.textContent = "";
     let i = 0;
 
@@ -268,9 +266,7 @@ function typeWriter(element, callback) {
     }, 90);
 }
 
-/* ---------------------------------------------------
-   Glow-effekt på gradienten (uendelig)
---------------------------------------------------- */
+/* Glow på gradienten */
 function animateGlow(element) {
     gsap.to(element, {
         backgroundPosition: "200% center",
@@ -281,14 +277,9 @@ function animateGlow(element) {
     });
 }
 
-/* ---------------------------------------------------
-   Auto-init (desktop + mobil)
---------------------------------------------------- */
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", animateHeroTitle);
-} else {
-    animateHeroTitle();
-}
+
+
+
 
 
 
