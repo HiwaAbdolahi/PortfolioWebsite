@@ -1,52 +1,259 @@
 ﻿gsap.registerPlugin(ScrollTrigger);
 
 /* ---------------------------------------------------
-   🎨 Animate Hero Title
+   🎨 Hero Title — Unified (Desktop + Mobile)
+   World-class word switch: per-letter 3D flip + particles + elastic-in + shimmer
 --------------------------------------------------- */
 function animateHeroTitle() {
     const heroTitle = document.querySelector(".hero-title");
-    const isMobile = window.innerWidth <= 767;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (isMobile) {
-        // Ikke bruk gradient på mobil — bruk vanlig hvit tekst
-        heroTitle.style.background = "";
-        heroTitle.style.backgroundSize = "";
-        heroTitle.style.webkitBackgroundClip = "";
-        heroTitle.style.webkitTextFillColor = "";
-        heroTitle.style.color = "#ffffff";
-        heroTitle.style.fontWeight = "700";
-    } else {
-        // Gradient for desktop
-        heroTitle.style.background = "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
-        heroTitle.style.backgroundSize = "200% auto";
-        heroTitle.style.webkitBackgroundClip = "text";
-        heroTitle.style.webkitTextFillColor = "transparent";
-        heroTitle.style.color = "";
-        heroTitle.style.fontWeight = "700";
-    }
+    // Samme look på alle enheter: gradienttekst
+    heroTitle.style.background = "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
+    heroTitle.style.backgroundSize = "200% auto";
+    heroTitle.style.webkitBackgroundClip = "text";
+    heroTitle.style.webkitTextFillColor = "transparent";
+    heroTitle.style.color = "";
+    heroTitle.style.fontWeight = "700";
 
     // Startposisjon
-    gsap.set(heroTitle, {
-        opacity: 0,
-        y: 50
-    });
+    gsap.set(heroTitle, { opacity: 0, y: 50 });
 
-    // Fade inn + fly opp
+    // Fade inn + typewriter
     gsap.to(heroTitle, {
         opacity: 1,
         y: 0,
         duration: 1.5,
         ease: "power4.out",
         onStart: () => typeWriter(heroTitle, () => {
-            if (!isMobile) animateGlow(heroTitle);
-            animateContactButton(isMobile);
+            // Glow på gradienten overalt
+            animateGlow(heroTitle);
+            // Din eksisterende CTA-animasjon
+            if (typeof animateContactButton === "function") animateContactButton(false);
+
+            // Pakk siste ord og start rotasjon
+            wrapLastWordAdvanced(heroTitle);
+            startWordRotationAdvanced(heroTitle, { prefersReduced });
         })
     });
 }
 
-// Typewriter-funksjon
+/* ---------------------------------------------------
+   Wrap siste ord → #changing-word > .word-letters > .letter* + shimmer
+--------------------------------------------------- */
+function wrapLastWordAdvanced(element) {
+    const clean = t => t.replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/\s+/g, " ").trim(); // fjern zero-width + doble spaces
+    const fullText = clean(element.textContent);
+    const parts = fullText.split(" ");
+    const last = parts.pop();
+    const prefix = parts.join(" ");
+
+    const lettersHtml = last.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
+    element.innerHTML = `${prefix}&nbsp;<span id="changing-word">
+    <span class="word-letters">${lettersHtml}</span>
+    <span class="word-shimmer"></span>
+  </span>`;
+
+    const letters = element.querySelectorAll("#changing-word .letter");
+    applyGradientToLetters(letters, element); // gradient for alle enheter
+}
+
+/* ---------------------------------------------------
+   Rotering: per-bokstav 3D flip-out + particles + elastic-in + shimmer
+   (samme på mobil & desktop; fallback kun ved prefers-reduced-motion)
+--------------------------------------------------- */
+function startWordRotationAdvanced(heroTitle, opts) {
+    const words = ["nettsider", "webapplikasjoner", "digitale løsninger"];
+    const container = heroTitle.querySelector("#changing-word");
+    const lettersWrap = container.querySelector(".word-letters");
+
+    let currentWord = lettersWrap.textContent.trim();
+    let idx = Math.max(0, words.indexOf(currentWord));
+    if (idx === -1) idx = 0;
+
+    const useAdvanced = !opts.prefersReduced; // én logikk for alle, med respekt for reduced motion
+
+    // Faste “knobs” (samme på mobil + desktop siden du ikke bryr deg om ytelse nå)
+    const K = {
+        flipOutRotX: 80, flipOutZ: -30, flipOutY: -10, flipOutDur: 0.38, flipStagger: 0.03,
+        inY: 26, inZ: 30, inDur: 0.72, inStagger: 0.045,
+        particles: 8
+    };
+
+    const switchWord = () => {
+        const next = words[(idx + 1) % words.length];
+
+        if (useAdvanced) {
+            const oldLetters = lettersWrap.querySelectorAll(".letter");
+            const tl = gsap.timeline();
+
+            // OUT: per-bokstav 3D flip
+            tl.to(oldLetters, {
+                rotationX: K.flipOutRotX,
+                z: K.flipOutZ,
+                y: K.flipOutY,
+                opacity: 0,
+                filter: "blur(3px)",
+                duration: K.flipOutDur,
+                ease: "power2.in",
+                stagger: { each: K.flipStagger, from: "end" }
+            });
+
+            // Partikler
+            tl.add(() => createParticleBurst(container, K.particles), "-=0.20");
+
+            // Bytt til nytt ord + IN: elastic
+            tl.add(() => {
+                lettersWrap.innerHTML = next.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
+                const newLetters = lettersWrap.querySelectorAll(".letter");
+                applyGradientToLetters(newLetters, heroTitle);
+
+                gsap.set(newLetters, {
+                    opacity: 0,
+                    rotationX: -90,
+                    y: K.inY,
+                    z: K.inZ,
+                    filter: "blur(3px)",
+                    translateZ: 0 // iOS Safari hint
+                });
+
+                gsap.to(newLetters, {
+                    opacity: 1,
+                    rotationX: 0,
+                    y: 0,
+                    z: 0,
+                    filter: "blur(0px)",
+                    duration: K.inDur,
+                    ease: "elastic.out(1, 0.62)",
+                    stagger: { each: K.inStagger, from: "start" }
+                });
+
+                runShimmer(container);
+            }, "-=0.10");
+
+            idx = (idx + 1) % words.length;
+
+        } else {
+            // Reduced motion fallback
+            const tl = gsap.timeline();
+            tl.to(lettersWrap, { y: -8, opacity: 0, duration: 0.22, ease: "power2.in" })
+                .add(() => {
+                    lettersWrap.innerHTML = next.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
+                    const newLetters = lettersWrap.querySelectorAll(".letter");
+                    applyGradientToLetters(newLetters, heroTitle);
+                })
+                .to(lettersWrap, { y: 0, opacity: 1, duration: 0.34, ease: "power3.out" });
+
+            idx = (idx + 1) % words.length;
+        }
+    };
+
+    setTimeout(() => {
+        switchWord();
+        setInterval(switchWord, 2800);
+    }, 900);
+}
+
+/* ---------------------------------------------------
+   Partikkel-burst (små lys)
+--------------------------------------------------- */
+function createParticleBurst(container, count = 8) {
+    const base = document.createElement("span");
+    base.className = "particles";
+    Object.assign(base.style, {
+        position: "absolute",
+        left: "0", top: "0",
+        width: container.offsetWidth + "px",
+        height: container.offsetHeight + "px",
+        pointerEvents: "none",
+        overflow: "visible"
+    });
+    container.appendChild(base);
+
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement("span");
+        p.className = "particle";
+        base.appendChild(p);
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 12 + Math.random() * 26;
+        const tx = Math.cos(angle) * dist;
+        const ty = Math.sin(angle) * dist - 6;
+
+        gsap.fromTo(p,
+            { x: 0, y: 0, scale: 0.4, opacity: 0.9, filter: "blur(0.5px)", translateZ: 0 },
+            {
+                x: tx, y: ty,
+                scale: 0.95,
+                opacity: 0,
+                duration: 0.55 + Math.random() * 0.25,
+                ease: "power2.out",
+                onComplete: () => p.remove()
+            }
+        );
+    }
+
+    setTimeout(() => base.remove(), 700);
+}
+
+/* ---------------------------------------------------
+   Shimmer / glint
+--------------------------------------------------- */
+function runShimmer(container) {
+    const s = container.querySelector(".word-shimmer");
+    if (!s) return;
+
+    gsap.set(s, { left: "-30%" });
+    gsap.to(s, { left: "130%", duration: 0.7, ease: "power2.out" });
+}
+
+/* ---------------------------------------------------
+   Gradient pr. bokstav + iOS GPU-hints (samme på alle enheter)
+--------------------------------------------------- */
+function applyGradientToLetters(letters, heroTitle) {
+    letters.forEach(letter => {
+        letter.style.display = "inline-block";
+        letter.style.willChange = "transform, filter, opacity";
+        letter.style.transformStyle = "preserve-3d";
+        letter.style.backfaceVisibility = "hidden";
+        letter.style.webkitBackfaceVisibility = "hidden";
+        letter.style.transform = "translateZ(0)";
+
+        const bg = heroTitle.style.background || "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
+        const bgSize = heroTitle.style.backgroundSize || "200% auto";
+        letter.style.background = bg;
+        letter.style.backgroundSize = bgSize;
+        letter.style.webkitBackgroundClip = "text";
+        letter.style.webkitTextFillColor = "transparent";
+        letter.style.color = "";
+        letter.style.fontWeight = "700";
+    });
+
+    const wrap = heroTitle.querySelector("#changing-word");
+    if (wrap) {
+        wrap.style.display = "inline-block";
+        wrap.style.position = "relative";
+        wrap.style.perspective = "900px";
+        wrap.style.perspectiveOrigin = "50% 60%";
+        wrap.style.transformStyle = "preserve-3d";
+        wrap.style.transform = "translateZ(0)";
+    }
+}
+
+/* ---------------------------------------------------
+   Utils
+--------------------------------------------------- */
+function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, m => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[m]));
+}
+
+/* ---------------------------------------------------
+   Typewriter — rens whitespace (fikser “j eg”)
+--------------------------------------------------- */
 function typeWriter(element, callback) {
-    const fullText = element.textContent;
+    let fullText = element.textContent.replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/\s+/g, " ").trim();
     element.textContent = "";
     let i = 0;
 
@@ -61,7 +268,9 @@ function typeWriter(element, callback) {
     }, 90);
 }
 
-// Glow-effekt (kun for desktop)
+/* ---------------------------------------------------
+   Glow-effekt på gradienten (uendelig)
+--------------------------------------------------- */
 function animateGlow(element) {
     gsap.to(element, {
         backgroundPosition: "200% center",
@@ -71,6 +280,18 @@ function animateGlow(element) {
         yoyo: true
     });
 }
+
+/* ---------------------------------------------------
+   Auto-init (desktop + mobil)
+--------------------------------------------------- */
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", animateHeroTitle);
+} else {
+    animateHeroTitle();
+}
+
+
+
 
 /* ---------------------------------------------------
    ✉️ Animate "Ta Kontakt"-knapp
