@@ -69,7 +69,7 @@ function wrapLastWordAdvanced(element) {
 
 function startWordRotationAdvanced(heroTitle, opts) {
     const INTERVAL = 2800; // behold tempoet ditt
-    const words = ["nettsider", "webapplikasjoner", "digitale løsninger"];
+    const words = ["nettsider", "webapplikasjoner", "digitale\u00A0løsninger"];
     const container = heroTitle.querySelector("#changing-word");
     const lettersWrap = container.querySelector(".word-letters");
 
