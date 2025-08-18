@@ -543,7 +543,7 @@ main {
     }
 
     #changing-word .word-letters {
-        letter-spacing: -0.03em; /* veldig subtil */
+        letter-spacing: -0.08em; /* veldig subtil */
     }
     
     }
@@ -561,9 +561,7 @@ main {
     color: transparent !important;
     -webkit-text-fill-color: transparent !important;
     -webkit-background-clip: text;
-    background-clip:
-       0
-     text;
+    background-clip: text;
     word-break: keep-all;
     hyphens: none;
 }
