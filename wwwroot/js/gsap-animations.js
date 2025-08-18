@@ -98,35 +98,25 @@ function startWordRotationAdvanced(heroTitle, opts) {
         runOrbitSweep(container);
 
         if (useAdvanced) {
-            const oldLetters = lettersWrap.querySelectorAll(".letter");
-            const tl = gsap.timeline();
+            // MATRIX-variant: Scramble overlay → resolve → vis ekte bokstaver
+            // 1) Skjul gammelt innhold raskt (nøytral ut)
+            gsap.to(lettersWrap, { opacity: 0, duration: 0.15, ease: "power1.in" });
 
-            tl.to(oldLetters, {
-                rotationX: K.flipOutRotX, z: K.flipOutZ, y: K.flipOutY,
-                opacity: 0, duration: K.flipOutDur, ease: "power2.in",
-                stagger: { each: K.flipStagger, from: "end" }
+            // 2) Kjør scramble/resolve
+            matrixSwitchWord(container, lettersWrap, next, heroTitle, {
+                duration: 650, // ms – juster 500–800 for smak
+                fps: 45,
+                jitter: true
             });
 
-            tl.add(() => createParticleBurst(container, K.particles), "-=0.20");
-
-            tl.add(() => {
-                lettersWrap.innerHTML = next.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
-                const newLetters = lettersWrap.querySelectorAll(".letter");
-                applyGradientToLetters(newLetters, heroTitle);
-
-                gsap.set(newLetters, { opacity: 0, rotationX: -90, y: K.inY, z: K.inZ, translateZ: 0 });
-                gsap.to(newLetters, {
-                    opacity: 1, rotationX: 0, y: 0, z: 0,
-                    duration: K.inDur, ease: "elastic.out(1, 0.62)",
-                    stagger: { each: K.inStagger, from: "start" }
-                });
-
-                runShimmer(container);
-            }, "-=0.10");
+            // 3) (valgfritt) Shimmer etter landing
+            //    Vent litt så den ikke "kræsjer" med matrix-faden
+            setTimeout(() => runShimmer(container), 160);
 
             idx = (idx + 1) % words.length;
 
         } else {
+            // din reduced-motion fallback kan stå som før
             const tl = gsap.timeline();
             tl.to(lettersWrap, { y: -8, opacity: 0, duration: 0.22, ease: "power2.in" })
                 .add(() => {
@@ -290,6 +280,134 @@ function applyGradientToLetters(letters, heroTitle) {
     }
 }
 
+
+
+
+
+
+
+
+
+
+// Tilfeldige "Matrix"-glyphs (ASCII + katakana + symboler)
+const MATRIX_GLYPHS = "01$#@%&*<>-=+アイウエオカキクケコｱｲｳｴｵ";
+
+function ensureMatrixLayer(container) {
+    let layer = container.querySelector(".matrix-layer");
+    if (!layer) {
+        layer = document.createElement("span");
+        layer.className = "matrix-layer";
+        container.appendChild(layer);
+    }
+    return layer;
+}
+
+/**
+ * Matrix overgang:
+ *  - Scramble med grønne glyphs på overlay
+ *  - Lås gradvis riktige tegn (venstre→høyre)
+ *  - Fade ut overlay, fade inn ekte gradient-bokstaver
+ */
+function matrixSwitchWord(container, lettersWrap, nextWord, heroTitle, opts = {}) {
+    const DURATION = opts.duration || 650;  // total ms
+    const FPS = opts.fps || 45;        // oppdateringsfrekvens
+    const JITTER = opts.jitter || true;   // liten hor./vert. jitter
+
+    // 1) Lag overlay + startstil
+    const layer = ensureMatrixLayer(container);
+    layer.style.opacity = "0";
+    layer.textContent = ""; // reset
+    container.style.setProperty("--matrix-green", "#00ff9c"); // juster hvis ønskelig
+
+    // 2) Forbered måltekst og skjul ekte bokstav-wrap til slutt
+    const target = nextWord; // kan inneholde NBSP
+    lettersWrap.style.opacity = "0";
+
+    // 3) Kick overlay inn
+    gsap.to(layer, { opacity: 1, duration: 0.12, ease: "power1.out" });
+
+    if (JITTER) {
+        // subtil "CRT/glitch" jitter
+        gsap.to(layer, { x: "+=0.6", y: "-=0.4", repeat: Math.ceil(DURATION / 40), yoyo: true, duration: 0.04, ease: "none" });
+    }
+
+    // 4) rAF-løkke – scramble → resolve
+    let i = 0;                      // hvor mange tegn som er låst
+    let last = performance.now();
+    let acc = 0;
+    const step = 1000 / FPS;
+
+    const len = target.length;
+    const arr = new Array(len).fill("");
+
+    function drawScramble() {
+        // fyll låste + scramble resten
+        for (let c = 0; c < len; c++) {
+            if (c < i) arr[c] = target[c];         // låst tegn
+            else {
+                const r = (Math.random() * MATRIX_GLYPHS.length) | 0;
+                const ch = MATRIX_GLYPHS[r];
+                // ikke skriv tilfeldige space – behold NBSP hvis mål er NBSP
+                arr[c] = (target[c] === "\u00A0") ? "\u00A0" : ch;
+            }
+        }
+        // én DOM-write per frame
+        layer.textContent = arr.join("");
+    }
+
+    function loop(now) {
+        const dt = now - last; last = now;
+        acc += dt;
+        // lås én (eller flere) tegn per step for jevn progresjon
+        while (acc >= step) {
+            acc -= step;
+            // øk lås med tempo koblet til lengden – jevnt over DURATION
+            const expectedLocked = Math.floor(((now - startTime) / DURATION) * len);
+            i = Math.max(i, Math.min(len, expectedLocked));
+        }
+
+        drawScramble();
+
+        if ((now - startTime) < DURATION) {
+            requestAnimationFrame(loop);
+        } else {
+            // 5) ferdig: skriv ekte bokstaver, gradient, fade ut overlay
+            lettersWrap.innerHTML = target.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
+            const newLetters = lettersWrap.querySelectorAll(".letter");
+            applyGradientToLetters(newLetters, heroTitle);
+
+            gsap.set(lettersWrap, { opacity: 0, y: 3, scale: 0.995 });
+            gsap.to(lettersWrap, { opacity: 1, y: 0, scale: 1, duration: 0.32, ease: "power2.out" });
+
+            gsap.to(layer, {
+                opacity: 0, duration: 0.18, ease: "power1.out", onComplete() {
+                    layer.textContent = ""; // rydde
+                }
+            });
+        }
+    }
+
+    const startTime = performance.now();
+    requestAnimationFrame(t => { last = t; loop(t); });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Utils */
 function escapeHtml(str) {
     return str.replace(/[&<>"']/g, m => ({
@@ -297,7 +415,7 @@ function escapeHtml(str) {
     }[m]));
 }
 
-
+/* Typewriter – rAF-basert (smooth), samme visuelle hastighet */
 /* Typewriter – rAF-basert (smooth) med ekte caret i enden */
 function typeWriter(element, callback) {
     // Rens tekst (som før)
@@ -311,7 +429,7 @@ function typeWriter(element, callback) {
     element.innerHTML = '<span class="typed-caret"></span>';
     const typed = element.querySelector('.typed-caret');
 
-   
+    // Mål: ca. 90 ms per tegn (juster for tempo)
     const CHAR_MS = 90;
     const CPS = 1000 / CHAR_MS;   
 
