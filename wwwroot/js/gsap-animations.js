@@ -297,27 +297,62 @@ function escapeHtml(str) {
     }[m]));
 }
 
-/* Typewriter — RENS TEKST (fikser «j eg») */
+
+/* Typewriter – rAF-basert (smooth) med ekte caret i enden */
 function typeWriter(element, callback) {
-    let fullText = element.textContent
-        .replace(/\p{Cf}/gu, "")  // fjern alle "format"-tegn (inkl. U+2060)
-        .replace(/\u00AD/g, "")   // fjern soft hyphen
+    // Rens tekst (som før)
+    const fullText = element.textContent
+        .replace(/\p{Cf}/gu, "")
+        .replace(/\u00AD/g, "")
         .replace(/\s+/g, " ")
         .trim();
 
-    element.textContent = "";
-    let i = 0;
+    // Sett opp typed + caret (inline, på samme linje som teksten)
+    element.innerHTML = '<span class="typed-caret"></span>';
+    const typed = element.querySelector('.typed-caret');
 
-    const typingInterval = setInterval(() => {
+   
+    const CHAR_MS = 90;
+    const CPS = 1000 / CHAR_MS;   
+
+    let i = 0;
+    let acc = 0;                  
+    let last = performance.now();
+
+    function frame(now) {
+        const dt = now - last;      
+        last = now;
+
+        
+        const progress = fullText.length ? i / fullText.length : 1; // 0..1
+        const ease = 0.9 + 0.2 * Math.sin(progress * Math.PI);
+
+        
+        acc += (dt * CPS * ease) / 1000;
+
+        
+        const take = Math.min(fullText.length - i, Math.floor(acc));
+        if (take > 0) {
+            typed.textContent += fullText.slice(i, i + take);
+            i += take;
+            acc -= take;
+        }
+
         if (i < fullText.length) {
-            element.textContent += fullText.charAt(i);
-            i++;
+            requestAnimationFrame(frame);
         } else {
-            clearInterval(typingInterval);
+            
+            typed.classList.remove('typed-caret');
+            element.textContent = typed.textContent;
             if (callback) callback();
         }
-    }, 90);
+    }
+
+    requestAnimationFrame(t => { last = t; frame(t); });
 }
+
+
+
 
 /* Glow på gradienten */
 function animateGlow(element) {

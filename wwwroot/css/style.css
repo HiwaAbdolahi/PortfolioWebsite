@@ -693,6 +693,31 @@ main {
 
 
 
+/* Caret som alltid ligger helt i enden av den skrevne teksten */
+.hero-title .typed-caret {
+    display: inline; /* sitter på samme linje som teksten */
+    border-right: 0.08em solid rgba(255,255,255,0.95); /* | */
+    padding-right: 0.08em; /* litt luft så ikke “spiser” siste tegn */
+    animation: hero-caret-blink .7s steps(1, end) infinite;
+}
+
+/* litt tydeligere på mobil om du vil */
+@media (max-width: 767px) {
+    .hero-title .typed-caret {
+        border-right-color: rgba(255,255,255,1);
+    }
+}
+
+@keyframes hero-caret-blink {
+    50% {
+        border-right-color: transparent;
+    }
+}
+
+
+
+
+
 
 
 
