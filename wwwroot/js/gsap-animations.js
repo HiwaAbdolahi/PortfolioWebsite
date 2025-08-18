@@ -382,6 +382,7 @@ function animateContactButton(isMobile) {
     }, 0);
 
     if (!isMobile) {
+        // DESKTOP: som før — kun på hover
         contactBtn.addEventListener("mouseenter", () => hoverTimeline.play());
         contactBtn.addEventListener("mouseleave", () => hoverTimeline.reverse());
 
@@ -393,9 +394,23 @@ function animateContactButton(isMobile) {
             duration: 2,
             delay: 1.5
         });
-    } else {
-        hoverTimeline.play();
 
+    } else {
+        // MOBIL: 1) kjør din første sweep (1.2s) ...
+        hoverTimeline.eventCallback("onComplete", () => {
+            // ... 2) deretter start en rolig, kontinuerlig sweep
+            gsap.set(contactBtn, { backgroundPosition: "0% center" });
+            gsap.to(contactBtn, {
+                backgroundPosition: "200% center",
+                duration: 3.6,        // <-- SAKTERE annen runde (juster 3.0–4.5 etter smak)
+                ease: "none",
+                repeat: 1,
+                yoyo: true            // frem og tilbake
+            });
+        });
+        hoverTimeline.play();     // start første naturlige pass
+
+        // (valgfritt) subtil pust i skalering, som før
         gsap.to(contactBtn, {
             scale: 1.02,
             repeat: -1,
@@ -405,6 +420,7 @@ function animateContactButton(isMobile) {
             delay: 1
         });
     }
+
 }
 
 /* ---------------------------------------------------
