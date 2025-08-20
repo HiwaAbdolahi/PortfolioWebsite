@@ -577,7 +577,6 @@ main {
 
 
 
-
 /* HUD-container ved ordet */
 #changing-word {
     position: relative;
@@ -595,19 +594,95 @@ main {
         pointer-events: none;
     }
 
-    /* Chip: glass + gradient-tekst (settes i JS) */
+    /* WORD CHIP – glass + gradient-ring + synk mot hero-gradient */
+    /* Størrelse + spacing som ikke arver fra .hero-title */
     #changing-word .word-chip {
-        font-size: 0.78rem;
-        line-height: 1;
-        padding: 6px 10px;
+        font-size: clamp(1.72rem, .5rem + .5vw, .9rem);
+        padding: .35rem .75rem;
+        line-height: 1.05;
+        left: calc(100% + .5rem); /* litt luft fra ordet */
+        z-index: 3; /* over bilde/tekst */
         border-radius: 999px;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.12);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        letter-spacing: .02em;
+        border: 1px solid transparent; /* trengs for gradient-ring */
+        display: inline-flex;
+
+        align-items: center;
+        gap: .35rem;
         white-space: nowrap;
+        /* 2-lags bakgrunn: 1) glass-fill  2) gradient-ring (følger --aurora-pos) */
+        background: linear-gradient(var(--chip-surface, rgba(255,255,255,.06)), var(--chip-surface, rgba(255,255,255,.06))) padding-box, linear-gradient(90deg,#ff9000,#ffffff,#00ffff) border-box;
+        background-size: auto, 200% auto;
+        background-position: center, var(--aurora-pos, 0%) center;
+        /* separasjon fra bakgrunn */
+        backdrop-filter: blur(10px) saturate(140%);
+        -webkit-backdrop-filter: blur(10px) saturate(140%);
+        box-shadow: 0 8px 24px rgba(0,0,0,.08), /* drop */
+        inset 0 1px 0 rgba(255,255,255,.22), /* glossy top */
+        inset 0 0 0 1px rgba(0,0,0,.06); /* innvendig kant for lysmodus */
     }
+
+    /* Gradient-tekst inne i chip (synk med hero) */
+    #changing-word .chip-label {
+        background-image: linear-gradient(90deg,#ff9000,#ffffff,#00ffff);
+        background-size: 200% auto;
+        background-position: var(--aurora-pos, 0%) center;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        letter-spacing: .02em;
+    }
+
+    /* Ikon får nøytral farge (god kontrast i begge moduser) */
+    #changing-word .chip-icon {
+        width: 1.05em;
+        height: 1.05em;
+        flex: 0 0 1.05em;
+        display: inline-block;
+        color: var(--chip-icon-color, #222);
+        filter: drop-shadow(0 1px 0 rgba(255,255,255,.25));
+    }
+
+        #changing-word .chip-icon path,
+        #changing-word .chip-icon circle {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+/* Kontrast-boost i light mode */
+@media (prefers-color-scheme: light) {
+    #changing-word .word-chip {
+        --chip-surface: rgba(255,255,255,.85); /* litt lys plate bak teksten */
+        box-shadow: 0 8px 24px rgba(0,0,0,.06), inset 0 0 0 1px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.22);
+    }
+
+    #changing-word .chip-label {
+        -webkit-text-stroke: .5px rgba(0,0,0,.45); /* outline mot hvitt */
+        text-shadow: 0 1px 1px rgba(0,0,0,.16), 0 0 2px rgba(0,0,0,.28); /* “hold” når hvit del av gradient passerer */
+    }
+
+    #changing-word .chip-icon {
+        --chip-icon-color: #222; /* mørkt ikon i lys modus */
+    }
+}
+
+/* Dark mode: la ikonet være lyst */
+@media (prefers-color-scheme: dark) {
+    #changing-word .word-chip {
+        --chip-surface: rgba(255,255,255,.06);
+    }
+
+    #changing-word .chip-icon {
+        --chip-icon-color: #fff;
+    }
+}
+
+
+
+
 
     /* Countdown progress under ordet */
     #changing-word .word-progress {

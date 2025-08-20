@@ -10,6 +10,8 @@ function animateHeroTitle() {
     // Gradient på forelder (for helheten)
     heroTitle.style.background = "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
     heroTitle.style.backgroundSize = "200% auto";
+    heroTitle.style.backgroundPosition = 'var(--aurora-pos) center';
+
     heroTitle.style.webkitBackgroundClip = "text";
     heroTitle.style.backgroundClip = "text";
     heroTitle.style.webkitTextFillColor = "transparent";
@@ -276,6 +278,8 @@ function applyGradientToLetters(letters, heroTitle) {
         letter.style.webkitTextFillColor = "transparent";
         letter.style.color = "transparent";
         letter.style.fontWeight = "700";
+        letter.style.backgroundPosition = 'var(--aurora-pos) center';
+
     });
 
     const wrap = heroTitle.querySelector("#changing-word");
@@ -356,14 +360,18 @@ function typeWriter(element, callback) {
 
 /* Glow på gradienten */
 function animateGlow(element) {
+    // startposisjon for variabelen som både tittel, chip og ord leser
+    gsap.set(element, { css: { '--aurora-pos': '0%' } });
+
     gsap.to(element, {
-        backgroundPosition: "200% center",
         duration: 2.5,
-        ease: "linear",
+        ease: 'linear',
         repeat: -1,
-        yoyo: true
+        yoyo: true,
+        css: { '--aurora-pos': '200%' }
     });
 }
+
 
 
 
