@@ -2702,4 +2702,206 @@ body.dark-theme #chat-send {
 
 
 
+/* =============================
+   Empty state + onboarding
+============================= */
+
+/* Containeren */
+#chat-empty {
+    display: grid;
+    gap: 12px;
+    padding: 18px;
+    margin: 8px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 10px 24px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.08);
+    color: var(--color-primary);
+}
+
+    #chat-empty .empty-title {
+        font-weight: 800;
+        font-size: 14px;
+        letter-spacing: .2px;
+    }
+
+    #chat-empty .empty-sub,
+    #chat-empty .empty-hint {
+        font-size: 12px;
+        color: var(--color-secondary);
+    }
+
+/* Forslagschips */
+.empty-suggestions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 8px;
+}
+
+@media (min-width: 480px) {
+    .empty-suggestions {
+        grid-template-columns: repeat(3, minmax(0,1fr));
+    }
+}
+
+.suggestion-chip {
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.22);
+    background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.10));
+    color: var(--color-primary);
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.08);
+    font-size: 12px;
+    transition: transform .12s ease, box-shadow .18s ease, background .18s ease;
+    white-space: normal;
+}
+
+    .suggestion-chip:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(0,0,0,.22), 0 0 0 6px rgb(var(--gm-accent-2-rgb) / .16);
+    }
+
+/* Banner som forklarer at det er en AI-assistent */
+.empty-banner {
+    padding: 10px 12px;
+    margin: 10px 10px 0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    border: 1px solid rgba(255,255,255,.22);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--color-primary);
+    box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+    .empty-banner .muted {
+        font-weight: 500;
+        opacity: .85;
+        margin-left: 6px;
+    }
+
+/* "Om agenten" – toggle og panel */
+.about-toggle {
+    margin: 6px 10px 0;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.24);
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+    color: var(--color-primary);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.08);
+    transition: transform .12s ease, background .18s ease, box-shadow .18s ease;
+}
+
+    .about-toggle:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(0,0,0,.22), 0 0 0 6px rgb(var(--gm-accent-rgb) / .14);
+    }
+
+.about-panel {
+    margin: 6px 10px 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.18);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+    font-size: 12px;
+    color: var(--color-primary);
+}
+
+    .about-panel ul {
+        margin: 0;
+        padding-left: 16px;
+    }
+
+    .about-panel li {
+        margin: 4px 0;
+    }
+
+/* =============================
+   Typing-indikator
+============================= */
+.bot.typing {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .bot.typing .dots {
+        display: inline-flex;
+        gap: 4px;
+    }
+
+        .bot.typing .dots i {
+            width: 6px;
+            height: 6px;
+            border-radius: 9999px;
+            background: currentColor;
+            opacity: .55;
+            animation: dotPulse 1.2s infinite ease-in-out;
+        }
+
+            .bot.typing .dots i:nth-child(2) {
+                animation-delay: .15s;
+            }
+
+            .bot.typing .dots i:nth-child(3) {
+                animation-delay: .30s;
+            }
+
+@keyframes dotPulse {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: .45;
+    }
+
+    40% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+}
+
+/* =============================
+   Light mode overrides
+============================= */
+body.light-theme #chat-empty {
+    background: linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,.00));
+    border-color: rgba(0,0,0,.08);
+    box-shadow: 0 18px 32px rgba(22,28,45,.12), inset 0 1px 0 rgba(255,255,255,.75);
+    color: var(--gm-ink);
+}
+
+body.light-theme .suggestion-chip {
+    background: linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,.02));
+    border: 1px solid rgba(0,0,0,.08);
+    color: var(--gm-ink);
+    box-shadow: 0 8px 18px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+    body.light-theme .suggestion-chip:hover {
+        box-shadow: 0 12px 26px rgba(0,0,0,.14), 0 0 0 6px rgb(var(--gm-accent-2-rgb) / .12);
+    }
+
+body.light-theme .empty-banner {
+    background: linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,.00));
+    border-color: rgba(0,0,0,.08);
+    color: var(--gm-ink);
+    box-shadow: 0 10px 20px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+body.light-theme .about-toggle {
+    background: linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,.02));
+    border: 1px solid rgba(0,0,0,.10);
+    color: var(--gm-ink);
+    box-shadow: 0 8px 18px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+body.light-theme .about-panel {
+    background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.00));
+    border: 1px solid rgba(0,0,0,.08);
+    color: var(--gm-ink);
+}
 
