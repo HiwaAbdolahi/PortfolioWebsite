@@ -26,7 +26,6 @@
         "Skriv meldingen din … jeg er en AI, ikke en FAQ 🤝",
         "Hva vil du vite om Hiwa?",
         "Gi en 30 sek pitch om Hiwa",
-        "Hvilke prosjekter passer best for jobben vår?",
         "Forklar CI/CD-oppsettet i House Rental (kort)",
         "Hvordan bruker Hiwa Azure i praksis?",
         "Hvilke databaser og datamodeller kan Hiwa?",

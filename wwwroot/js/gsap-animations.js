@@ -35,7 +35,7 @@ function animateHeroTitle() {
     });
 }
 
-/* Wrap siste ord til #changing-word > .word-letters > .letter* + shimmer */
+
 function wrapLastWordAdvanced(element) {
     const clean = t => (
         t.replace(/\p{Cf}/gu, "").replace(/\u00AD/g, "").replace(/\s+/g, " ").trim()
@@ -59,18 +59,18 @@ function wrapLastWordAdvanced(element) {
     <span class="orbit-wrap" aria-hidden="true"><span class="orbit-dot"></span></span>
   </span>`;
 
-    // gradient på bokstavene (Safari-sikkert)
+    
     const letters = element.querySelectorAll("#changing-word .letter");
     applyGradientToLetters(letters, element);
 
-    // init HUD (sett label/ikon for første ord + start pre-countdown)
+    
     const container = element.querySelector("#changing-word");
     initWordHUD(container, element, last);
 }
 
 
 function startWordRotationAdvanced(heroTitle, opts) {
-    const INTERVAL = 2800; // behold tempoet ditt
+    const INTERVAL = 2800; 
     const words = ["nettsider", "webapplikasjoner", "digitale\u00A0løsninger"];
     const container = heroTitle.querySelector("#changing-word");
     const lettersWrap = container.querySelector(".word-letters");
@@ -93,7 +93,7 @@ function startWordRotationAdvanced(heroTitle, opts) {
     const switchWord = () => {
         const next = words[(idx + 1) % words.length];
 
-        // 🔔 HUD: oppdater chip, pulse, orbit + restart countdown
+        //  HUD: oppdater chip, pulse, orbit + restart countdown
         updateWordChip(container, next, heroTitle);
         pulseWordChip(container);
         hudStartCountdown(container, INTERVAL);
@@ -256,7 +256,7 @@ function runOrbitSweep(container) {
 
 
 
-/* ➜ Gradient på hver bokstav + GPU-hints (Safari trygg) */
+/*  Gradient på hver bokstav + GPU-hints (Safari trygg) */
 function applyGradientToLetters(letters, heroTitle) {
     // hent gradient fra heroTitle
     const bg = heroTitle.style.background || "linear-gradient(90deg, rgba(255,144,0,0.8), #ffffff, rgba(0,255,255,0.7))";
@@ -302,7 +302,7 @@ function escapeHtml(str) {
 }
 
 
-/* Typewriter – rAF-basert (smooth) med ekte caret i enden */
+/* Typewriter */
 function typeWriter(element, callback) {
     // Rens tekst (som før)
     const fullText = element.textContent
@@ -328,7 +328,7 @@ function typeWriter(element, callback) {
         last = now;
 
         
-        const progress = fullText.length ? i / fullText.length : 1; // 0..1
+        const progress = fullText.length ? i / fullText.length : 1; 
         const ease = 0.9 + 0.2 * Math.sin(progress * Math.PI);
 
         
@@ -424,7 +424,7 @@ function animateContactButton(isMobile) {
     }, 0);
 
     if (!isMobile) {
-        // DESKTOP: som før — kun på hover
+        
         contactBtn.addEventListener("mouseenter", () => hoverTimeline.play());
         contactBtn.addEventListener("mouseleave", () => hoverTimeline.reverse());
 
@@ -438,21 +438,21 @@ function animateContactButton(isMobile) {
         });
 
     } else {
-        // MOBIL: 1) kjør din første sweep (1.2s) ...
+        
         hoverTimeline.eventCallback("onComplete", () => {
-            // ... 2) deretter start en rolig, kontinuerlig sweep
+            
             gsap.set(contactBtn, { backgroundPosition: "0% center" });
             gsap.to(contactBtn, {
                 backgroundPosition: "200% center",
-                duration: 3.6,        // <-- SAKTERE annen runde (juster 3.0–4.5 etter smak)
+                duration: 3.6,        
                 ease: "none",
                 repeat: 1,
-                yoyo: true            // frem og tilbake
+                yoyo: true            
             });
         });
-        hoverTimeline.play();     // start første naturlige pass
+        hoverTimeline.play();     
 
-        // (valgfritt) subtil pust i skalering, som før
+        
         gsap.to(contactBtn, {
             scale: 1.02,
             repeat: -1,
@@ -466,7 +466,7 @@ function animateContactButton(isMobile) {
 }
 
 /* ---------------------------------------------------
-   🧩 Animate Project Cards
+    Animate Project Cards
 --------------------------------------------------- */
 function animateProjectCardsAdvanced() {
     const cards = document.querySelectorAll(".project-card-wrapper");
@@ -540,7 +540,7 @@ navbarLinks.forEach(link => {
 
 
 /******************************************************************
- 🚀 initSkillsSection  –  én inngang for ALLE effektene
+  initSkillsSection  –  en inngang for ALLE effektene
  ******************************************************************/
 function initSkillsSection() {
     // ⇢ 1. Fade‑/Slide‑in kortene når seksjonen kommer i view
@@ -556,7 +556,7 @@ function initSkillsSection() {
         }
     });
 
-    // ⇢ 2. 3‑D tilt‑effekt (Vanilla‑Tilt)
+    //  2. 3‑D tilt‑effekt (Vanilla‑Tilt)
     VanillaTilt.init(document.querySelectorAll(".skills-card"), {
         max: 22,
         speed: 400,
@@ -564,7 +564,7 @@ function initSkillsSection() {
         "max-glare": 0.3,
     });
 
-    // ⇢ 3. Animasjon når man bytter mellom “Ferdigheter” og “Verktøy”
+    //  3. Animasjon når man bytter mellom “Ferdigheter” og “Verktøy”
     const skillsList = document.querySelector(".skills-list");
     const toolsList = document.querySelector(".tools-list");
     const [skillsBtn, toolsBtn] = document.querySelectorAll("[data-toggle-btn]");
@@ -598,111 +598,183 @@ function initSkillsSection() {
 
 
 
-/* 
-   ✨ Kontakt-suksessanimasjon  
-*/
-gsap.registerPlugin(MotionPathPlugin, CustomEase);
+/* Premium Contact Success */
+gsap.registerPlugin(CustomEase);
 
-window.addEventListener("formSent", (e) => {
-    const confirmation = document.getElementById("confirmation");
-    if (!confirmation) return;
+(() => {
+    const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const { alertHtml, newForm } = e.detail;
+    const SEL = {
+        box: ".success-box",
+        surface: ".success-surface",
+        glow: ".success-glow",
+        icon: ".success-icon",
+        checkSVG: ".success-check",
+        oldCheckSVG: ".confirmation-checkmark",
+        checkPath: ".success-check path",
+        headline: ".success-headline",
+        message: ".success-message, .confirmation-message",
+        actions: ".confirmation-actions",
+        btnNew: "#contact-new",
+    };
 
-    // Fjern tidligere innhold
-    confirmation.innerHTML = "";
+    function haptics() { try { navigator.vibrate && navigator.vibrate(16); } catch { } }
 
-    // 🎯 Suksessboks
-    const box = document.createElement("div");
-    box.className = "success-box";
-    box.innerHTML = `
-        <svg class="confirmation-checkmark" viewBox="0 0 52 52">
-            <circle cx="26" cy="26" r="25" fill="none"/>
-            <path fill="none" d="M14 27l7 7 16-16"/>
-        </svg>
-        <div class="confirmation-message">Takk! Meldingen er sendt ✉️</div>
-    `;
-    confirmation.appendChild(box);
-    confirmation.style.display = "flex";
+    function ensurePremiumMarkup(root) {
+        let box = root.querySelector(SEL.box);
+        if (!box) {
+            root.innerHTML = `
+        <div class="success-box" role="status" aria-live="polite" aria-atomic="true">
+          <div class="success-surface">
+            <div class="success-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" class="success-check">
+                <path d="M14 24.5 L21.5 32 L34 18"></path>
+              </svg>
+            </div>
+            <div class="success-text">
+              <div class="success-headline">Takk!</div>
+              <div class="success-message">Meldingen er sendt.</div>
+              <div class="success-sub">Jeg svarer deg så snart som mulig.</div>
+            </div>
+            <div class="confirmation-actions">
+              <button id="contact-new" type="button" class="btn btn-primary">Send en ny melding</button>
+            </div>
+          </div>
+          <div class="success-glow" aria-hidden="true"></div>
+        </div>`;
+            return root.querySelector(SEL.box);
+        }
 
-    // ✨ GSAP boksanimasjon med CustomEase
-    CustomEase.create("pop-ease", "M0,0 C0.17,0.84 0.44,1.03 1,1");
-    gsap.fromTo(box, {
-        scale: 0.4,
-        opacity: 0,
-        rotate: -15
-    }, {
-        scale: 1,
-        opacity: 1,
-        rotate: 0,
-        duration: 1.4,
-        ease: "pop-ease"
-    });
+        let surface = box.querySelector(SEL.surface);
+        if (!surface) {
+            surface = document.createElement("div");
+            surface.className = "success-surface";
+            const move = Array.from(box.childNodes).filter(n => !(n.nodeType === 1 && n.classList.contains("success-glow")));
+            move.forEach(n => surface.appendChild(n));
+            box.prepend(surface);
+        }
 
+        let icon = box.querySelector(SEL.icon);
+        if (!icon) {
+            icon = document.createElement("div");
+            icon.className = "success-icon";
+            surface.prepend(icon);
+        }
+        if (!icon.querySelector(SEL.checkSVG)) {
+            const old = surface.querySelector(SEL.oldCheckSVG);
+            if (old) {
+                old.classList.remove("confirmation-checkmark");
+                old.classList.add("success-check");
+                icon.appendChild(old);
+            } else {
+                icon.innerHTML = `
+          <svg viewBox="0 0 48 48" class="success-check">
+            <path d="M14 24.5 L21.5 32 L34 18"></path>
+          </svg>`;
+            }
+        }
 
-    gsap.fromTo(box, {
-        scale: 0.4,
-        opacity: 0,
-        rotate: -15,
-        filter: "blur(8px) brightness(0.8)"  // ← Ny effekt
-    }, {
-        scale: 1,
-        opacity: 1,
-        rotate: 0,
-        duration: 1.4,
-        ease: "pop-ease",
-        filter: "blur(0px) brightness(1.2)", // ← Smooth transition
-        boxShadow: "0 0 50px rgba(0, 255, 255, 0.4), 0 0 80px rgba(255, 144, 0, 0.3)"
-    });
+        if (!surface.querySelector(SEL.actions)) {
+            const actions = document.createElement("div");
+            actions.className = "confirmation-actions";
+            actions.innerHTML = `<button id="contact-new" type="button" class="btn btn-primary">Send en ny melding</button>`;
+            surface.appendChild(actions);
+        }
 
+        if (!box.querySelector(SEL.glow)) {
+            const glow = document.createElement("div");
+            glow.className = "success-glow";
+            glow.setAttribute("aria-hidden", "true");
+            box.appendChild(glow);
+        }
 
-    
-    // 🎈 Bobler (particles)
-    for (let i = 0; i < 18; i++) {  // ← Flere bobler
-        const bubble = document.createElement("div");
-        bubble.className = "bubble";
-        confirmation.appendChild(bubble);
+        return box;
+    }
 
-        const x = gsap.utils.random(-600, 600);
-        const y = gsap.utils.random(-700, -120);
-
-        gsap.fromTo(bubble, {
-            x: 0,
-            y: 0,
-            scale: 0.8,
-            opacity: 1,
-        }, {
-            motionPath: {
-                path: [{ x, y }],
-                curviness: 1
-            },
-            scale: 0.2,
-            opacity: 0,
-            duration: gsap.utils.random(1.8, 3.2),
-            ease: "power2.out",
-            delay: i * 0.08
+    function focusTrap(container) {
+        const Q = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        container.addEventListener("keydown", e => {
+            if (e.key !== "Tab") return;
+            const els = Array.from(container.querySelectorAll(Q)).filter(el => !el.disabled && el.offsetParent !== null);
+            if (!els.length) return;
+            const first = els[0], last = els[els.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
         });
     }
 
+    function animateIn(box) {
+        const surface = box.querySelector(SEL.surface);
+        const icon = box.querySelector(SEL.icon);
+        const check = box.querySelector(SEL.checkPath);
+        const headline = box.querySelector(SEL.headline);
+        const message = box.querySelector(SEL.message);
+        const btn = box.querySelector(SEL.btnNew);
 
-    // ⏳ Tilbakestill skjema etter 7 sekunder
-    setTimeout(() => {
-        confirmation.style.display = "none";
-        confirmation.innerHTML = "";
-
-        const contactSection = document.querySelector("#contact");
-        if (contactSection && newForm) {
-            contactSection.insertAdjacentHTML("beforeend", newForm);
-
-            gsap.from(".contact-form", {
-                opacity: 0,
-                y: 30,
-                duration: 0.6,
-                ease: "power4.out"
-            });
+        gsap.set(box, { "--sheen-x": "-140%", "--glow-strength": 0, "--ring-opacity": 0 });
+        gsap.set(surface, { opacity: 0, y: 10, scale: 0.985 });
+        gsap.set(icon, { opacity: 0, y: 4, scale: 0.92 });
+        if (check) {
+            const len = check.getTotalLength ? check.getTotalLength() : 48;
+            gsap.set(check, { strokeDasharray: len, strokeDashoffset: len });
         }
-    }, 7000);
-});
+        gsap.set([headline, message, btn], { opacity: 0, y: 6 });
+
+        CustomEase.create("pop", "M0,0 C0.2,0.88 0.35,1 1,1");
+
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        tl.to(surface, { opacity: 1, y: 0, scale: 1, duration: REDUCED ? 0.2 : 0.5, ease: "pop" }, 0)
+            .to(box, { "--sheen-x": "140%", duration: REDUCED ? 0.01 : 1.1, ease: "power2.out" }, 0.05)
+            .to(box, { "--glow-strength": 1, "--ring-opacity": 0.6, duration: REDUCED ? 0.2 : 0.6, ease: "sine.out" }, 0.06)
+            .to(icon, { opacity: 1, y: 0, scale: 1, duration: REDUCED ? 0.15 : 0.35 }, 0.15);
+
+        if (check) tl.to(check, { strokeDashoffset: 0, duration: REDUCED ? 0.25 : 0.55 }, 0.22);
+
+        tl.to([headline, message], { opacity: 1, y: 0, stagger: 0.08, duration: REDUCED ? 0.12 : 0.28 }, 0.34)
+            .to(btn, { opacity: 1, y: 0, duration: REDUCED ? 0.12 : 0.26 }, 0.44);
+
+        if (!REDUCED) {
+            tl.add(() => {
+                gsap.to(box, { "--glow-strength": 0.85, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1 });
+                gsap.to(box, { "--ring-opacity": 0.45, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1 });
+            }, ">-0.1");
+        }
+    }
+
+    function run(confirmation) {
+        confirmation.style.display = "flex";
+        const box = ensurePremiumMarkup(confirmation);
+        if (box.dataset.animated === "1") return;
+        box.dataset.animated = "1";
+
+        const btn = box.querySelector(SEL.btnNew);
+        btn && btn.focus();
+        focusTrap(box);
+        haptics();
+        animateIn(box);
+    }
+
+    function setup() {
+        const confirmation = document.getElementById("confirmation");
+        if (!confirmation) return;
+
+        ["formSent", "contactConfirmShown"].forEach(evt => {
+            window.addEventListener(evt, () => run(confirmation));
+        });
+
+        if (confirmation.querySelector(SEL.box)) run(confirmation);
+
+        const mo = new MutationObserver(() => {
+            const box = confirmation.querySelector(SEL.box);
+            if (box && !box.dataset.animated) run(confirmation);
+        });
+        mo.observe(confirmation, { childList: true, subtree: true });
+    }
+
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setup);
+    else setup();
+})();
+
 
 
 

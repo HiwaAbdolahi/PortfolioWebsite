@@ -2905,3 +2905,315 @@ body.light-theme .about-panel {
     color: var(--gm-ink);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== Premium Contact Success (match GSAP) ===== */
+
+/* Tema-variabler (lys som default) */
+:root {
+    --card-bg: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.86));
+    --card-stroke: rgba(0,0,0,.06);
+    --card-text: #0e1726;
+    --sub-text: #475569;
+    --check-color: #0a2b29;
+    --glow-c1: rgba(34,211,238,.25); /* cyan */
+    --glow-c2: rgba(14,165,233,.22); /* sky */
+    --glow-c3: rgba(167,139,250,.20); /* violet */
+
+    --ring-color: rgba(14,165,233,.22);
+    --btn-fg: #0b1117;
+    --btn-bg-top: #ffffff;
+    --btn-bg-bot: #f1f5f9;
+    --btn-stroke: rgba(0,0,0,.08);
+    --btn-shadow: 0 8px 18px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.90);
+}
+
+/* Dark theme tokens */
+body.dark-theme {
+    --card-bg: linear-gradient(180deg, rgba(15,19,28,.85), rgba(18,23,33,.82));
+    --card-stroke: rgba(255,255,255,.16);
+    --card-text: #e6edf7;
+    --sub-text: #9aa3b2;
+    --check-color: #ffffff;
+    --glow-c1: rgba(34,211,238,.32);
+    --glow-c2: rgba(14,165,233,.28);
+    --glow-c3: rgba(167,139,250,.26);
+    --ring-color: rgba(56,189,248,.35);
+    --btn-fg: #0b1117;
+    --btn-bg-top: rgba(255,255,255,.95);
+    --btn-bg-bot: rgba(255,255,255,.82);
+    --btn-stroke: rgba(255,255,255,.28);
+    --btn-shadow: 0 8px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.55);
+}
+
+
+#confirmation {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    z-index: 1000;
+}
+
+/* Kortet */
+.success-box {
+    position: relative;
+    isolation: isolate; /* eget stacking-context */
+    overflow: visible;
+    border-radius: 18px;
+    padding: 24px 24px 20px;
+    color: var(--card-text);
+    background: var(--card-bg);
+    border: 1px solid var(--card-stroke);
+    box-shadow: 0 24px 60px rgba(0,0,0,.22), 0 1px 0 rgba(255,255,255,.08) inset;
+    backdrop-filter: blur(10px) saturate(120%);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    /* GSAP animerer disse variablene */
+    --sheen-x: -140%;
+    --glow-strength: 0;
+    --ring-opacity: 0;
+}
+
+    
+    .success-box > * {
+        position: relative;
+        z-index: 2;
+    }
+
+
+.success-surface {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden; 
+}
+
+    
+    .success-surface::before {
+        content: "";
+        position: absolute;
+        /* litt større enn kortet  */
+        top: -35%;
+        bottom: -35%;
+        left: -30%;
+        right: -30%;
+        transform: translateX(var(--sheen-x)) rotate(18deg);
+        pointer-events: none;
+        
+        background: radial-gradient(40% 120% at 50% 50%, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), linear-gradient(to right, transparent 0%, color-mix(in srgb, #fff 80%, var(--ring-color)) 45%, color-mix(in srgb, #fff 95%, var(--ring-color)) 50%, color-mix(in srgb, #fff 70%, var(--ring-color)) 55%, transparent 100%);
+        filter: blur(14px) saturate(140%);
+        mix-blend-mode: screen;
+        opacity: .85;
+    }
+
+    
+    .success-surface::after {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        pointer-events: none;
+        background: radial-gradient(120% 80% at 0% 0%, rgba(255,255,255,.10), transparent 60%), radial-gradient(120% 80% at 100% 100%, rgba(255,255,255,.08), transparent 60%),
+        
+        repeating-linear-gradient(60deg, rgba(255,255,255,.05) 0 2px, rgba(255,255,255,0) 2px 6px);
+        mix-blend-mode: overlay;
+        opacity: .55;
+    }
+
+
+@media (prefers-reduced-motion: reduce) {
+    .success-surface::before {
+        filter: blur(10px);
+        opacity: .7;
+    }
+
+    .success-surface::after {
+        opacity: .35;
+    }
+}
+
+/* ==== Light mode fixes (premium & tydelig) ==== */
+
+/* 1) Mer synlig glød/ring i lys modus */
+body:not(.dark-theme) .success-glow {
+    /* litt mer kontrast rundt kortet */
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring-color) 42%, transparent);
+    opacity: calc(var(--ring-opacity) + 0.15);
+    /* litt mørkere blanding gjør ringen synlig på lys bakgrunn */
+    mix-blend-mode: multiply;
+}
+
+/* 2) Sheen: bruk multiply og litt farge i stedet for hvitt */
+body:not(.dark-theme) .success-surface::before {
+    transform: translateX(var(--sheen-x)) rotate(18deg);
+    filter: blur(12px) saturate(130%);
+    opacity: .85;
+    mix-blend-mode: multiply; /* ← viktig i lys tema */
+    background: radial-gradient(38% 120% at 50% 50%, rgba(2,6,23,.06), rgba(2,6,23,0) 62%), /* svakt mørkt fokus i midten */
+    linear-gradient(to right, /* farget lysstripe */
+    transparent 0%, color-mix(in srgb, #0ea5e9 40%, #000 0%) 45%, color-mix(in srgb, #22d3ee 60%, #000 0%) 50%, color-mix(in srgb, #0ea5e9 40%, #000 0%) 55%, transparent 100%);
+}
+
+/* 3) Corner-highlights/tekstur: bruk multiply + mørkere nyanser */
+body:not(.dark-theme) .success-surface::after {
+    mix-blend-mode: multiply;
+    opacity: 100.40;
+    background: radial-gradient(120% 80% at 0% 0%, rgba(2,6,23,.06), transparent 60%), radial-gradient(120% 80% at 100% 100%, rgba(2,6,23,.05), transparent 60%), repeating-linear-gradient(60deg, rgba(2,6,23,.05) 0 2px, rgba(2,6,23,0) 2px 6px); /* diskret “grain” for dybde */
+}
+
+/* 4) Kortets skygge/ramme i lys modus – mer dybde */
+body:not(.dark-theme) .success-box {
+    /* beholder dine variabler, men gir litt mer dybde */
+    box-shadow: 0 2px 48px rgba(2,6,23,.12), 0 1px 0 rgba(255,255,255,.95) inset, 0 0 0 1px rgba(2,6,23,.06) inset;
+}
+
+
+
+
+
+.success-glow {
+    position: absolute;
+    z-index: 0;
+    inset: -5px;
+    border-radius: 24px;
+    pointer-events: none;
+    background: radial-gradient(120% 120% at 10% 0%, var(--glow-c1), transparent 60%), radial-gradient(120% 120% at 100% 10%, var(--glow-c2), transparent 60%), radial-gradient(140% 140% at 50% 100%, var(--glow-c3), transparent 60%);
+    box-shadow: 0 0 0 20px color-mix(in srgb, var(--ring-color) calc(var(--ring-opacity)*100%), transparent);
+    opacity: var(--ring-opacity);
+    filter: blur(calc(8px + (var(--glow-strength) * px)));
+}
+/* --- Light mode --- */
+body:not(.dark-theme) .success-glow {
+    
+    mix-blend-mode: multiply;
+    opacity: calc(var(--ring-opacity) + 0.18);
+    
+    background: radial-gradient(120% 120% at 10% 0%, rgba(2,6,23,.10), transparent 60%), radial-gradient(120% 120% at 100% 10%, rgba(2,6,23,.08), transparent 60%), radial-gradient(140% 140% at 50% 100%, rgba(2,6,23,.06), transparent 60%);
+    
+    box-shadow: 0 0 0 20px rgba(2,6,23,.06), 0 16px 48px rgba(2,6,23,.12);
+    
+    filter: blur(calc(10px + (var(--glow-strength) * px)));
+}
+
+
+body:not(.dark-theme) {
+    --ring-color: rgba(2,6,23,.22); 
+    --glow-c1: rgba(14,165,233,.24); 
+    --glow-c2: rgba(59,130,246,.20); 
+    --glow-c3: rgba(2,132,199,.18); 
+}
+
+
+
+
+/* Ikon / check */
+.success-icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 8px;
+}
+
+.success-check {
+    width: 48px;
+    height: 48px;
+}
+
+    .success-check path {
+        stroke: var(--check-color);
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+    }
+
+/* Tekst */
+.success-headline {
+    font-weight: 800;
+    font-size: 39px;
+    letter-spacing: .2px;
+    margin-bottom: 2px;
+}
+
+.success-message,
+.confirmation-message {
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: .2px;
+}
+
+.success-sub {
+    font-size: 16px;
+    color: var(--sub-text);
+    margin-top: 6px;
+}
+
+
+.confirmation-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+}
+
+#contact-new {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: 10px 16px;
+    border-radius: 42px;
+    font-weight: 800;
+    color: var(--btn-fg);
+    background: linear-gradient(180deg, var(--btn-bg-top), var(--btn-bg-bot));
+    border: 1px solid var(--btn-stroke);
+    box-shadow: var(--btn-shadow);
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+}
+
+    #contact-new:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(0,0,0,.22), 0 0 0 6px color-mix(in srgb, var(--ring-color) 22%, transparent);
+    }
+
+    #contact-new:active {
+        transform: translateY(0);
+    }
+
+
+#confirmation .bubble {
+    z-index: 1;
+}
+
+/* Redusert bevegelse: la UI være rolig, GSAP håndterer også dette */
+@media (prefers-reduced-motion: reduce) {
+    .success-surface::after {
+        display: none;
+    }
+
+    .success-glow {
+        filter: blur(8px);
+    }
+}
+
+
