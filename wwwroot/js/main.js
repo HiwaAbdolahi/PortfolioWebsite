@@ -96,6 +96,26 @@ window.addEventListener('DOMContentLoaded', () => {
             },
         ],
     });
+
+   
+    const canvas = document.querySelector('.particles-js');
+    const ctx = canvas.getContext('2d');
+
+    function fitCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        const bw = Math.round(w * dpr);
+        const bh = Math.round(h * dpr);
+        if (canvas.width !== bw || canvas.height !== bh) {
+            canvas.width = bw;
+            canvas.height = bh;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // tegn videre i CSS-px
+        }
+    }
+
+    fitCanvas();
+    window.addEventListener('resize', fitCanvas);
 });
 
 
@@ -103,7 +123,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 
-/* Mobile justeringer for sats card Hiwa */
+
+
+
+                                                        /* Mobile justeringer for sats card Hiwa */
 
 
 const observer = new IntersectionObserver((entries) => {

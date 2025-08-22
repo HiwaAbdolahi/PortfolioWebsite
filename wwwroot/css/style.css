@@ -1977,16 +1977,24 @@ canvas {
 }
 
 /* Particles.js bakgrunn */
+
 .particles-js {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0; 
+    width: 100%;
+    height: 100%;
     z-index: -1;
     pointer-events: none;
-    background: rgba(255, 255, 255, 0.02); /* forsiktig bakgrunn */
+    background: rgba(255,255,255,0.02);
 }
+
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: clip;
+}
+
 
 
 
