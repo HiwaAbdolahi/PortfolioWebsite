@@ -78,34 +78,37 @@ if (localStorage.getItem('theme') === 'light-theme') {
 
 
 
+// particles-boot.js
 window.addEventListener('DOMContentLoaded', () => {
     const canvas = document.querySelector('.particles-js');
-
-    // 1) Ta 2D-konteksten FØRST
     const ctx = canvas.getContext('2d', {
-        willReadFrequently: true,
+        willReadFrequently: true,   // keep CPU path; avoids GPU artifacts
         alpha: true,
         desynchronized: false
     });
 
-    // 2) DPR-sikker sizing 
+    let currentDpr = 1;
+
     function fitCanvas() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
-        const bw = Math.ceil(w * dpr);
-        const bh = Math.ceil(h * dpr);
-        if (canvas.width !== bw || canvas.height !== bh) {
+        // Cap DPR a bit for perf, but keep it exact to avoid gaps
+        const dpr = Math.min(window.devicePixelRatio || 1, 3);
+        const w = Math.round(canvas.clientWidth);
+        const h = Math.round(canvas.clientHeight);
+        const bw = Math.round(w * dpr);
+        const bh = Math.round(h * dpr);
+
+        // Only touch when something actually changed
+        if (canvas.width !== bw || canvas.height !== bh || currentDpr !== dpr) {
+            currentDpr = dpr;
             canvas.width = bw;
             canvas.height = bh;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
-            ctx.clearRect(0, 0, w, h);              
+            // draw in CSS px
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
         }
     }
-    fitCanvas();
-    window.addEventListener('resize', fitCanvas);
 
-    // 3) Start Particles ETTER at canvas/ctx er låst til CPU-path
+    // 1) Init particles first
     Particles.init({
         selector: '.particles-js',
         color: ['#ff9000', '#ff0266', '#00ffff'],
@@ -124,7 +127,27 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         ]
     });
+
+    // 2) Then immediately force the correct backing size
+    fitCanvas();
+
+    // 3) Keep it correct over time (library may resize underneath)
+    new ResizeObserver(fitCanvas).observe(canvas);
+    window.addEventListener('resize', fitCanvas);
+
+    // 4) Re-fit when DPR/zoom changes (Chrome special)
+    let mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+    const dprListener = () => {
+        mq.removeEventListener('change', dprListener); fitCanvas();
+        mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+        mq.addEventListener('change', dprListener);
+    };
+    mq.addEventListener('change', dprListener);
+
+    // 5) Safety: verify and fix on next two frames (covers DevTools device switch)
+    requestAnimationFrame(() => { fitCanvas(); requestAnimationFrame(fitCanvas); });
 });
+
 
 
 

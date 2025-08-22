@@ -1973,7 +1973,7 @@ textarea.input-field {
 canvas {
     display: block;
     width: 100%;
-    height: 100%;
+    height: 100%
 }
 
 .particles-js {
@@ -1983,13 +1983,13 @@ canvas {
     height: 100%;
     z-index: -1;
     pointer-events: none;
-    background: rgba(255,255,255,0.02);
+    background: rgba(255,255,255,.02);
 }
 
 html, body {
     margin: 0;
     padding: 0;
-    overflow-x: clip;
+    overflow-x: clip
 }
 
 
