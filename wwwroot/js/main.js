@@ -77,7 +77,35 @@ if (localStorage.getItem('theme') === 'light-theme') {
 //-------------------------------------------------------------------------------Background------------------------------
 
 
+
 window.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.querySelector('.particles-js');
+
+    // 1) Ta 2D-konteksten FØRST
+    const ctx = canvas.getContext('2d', {
+        willReadFrequently: true,
+        alpha: true,
+        desynchronized: false
+    });
+
+    // 2) DPR-sikker sizing 
+    function fitCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        const bw = Math.ceil(w * dpr);
+        const bh = Math.ceil(h * dpr);
+        if (canvas.width !== bw || canvas.height !== bh) {
+            canvas.width = bw;
+            canvas.height = bh;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
+            ctx.clearRect(0, 0, w, h);              
+        }
+    }
+    fitCanvas();
+    window.addEventListener('resize', fitCanvas);
+
+    // 3) Start Particles ETTER at canvas/ctx er låst til CPU-path
     Particles.init({
         selector: '.particles-js',
         color: ['#ff9000', '#ff0266', '#00ffff'],
@@ -91,32 +119,13 @@ window.addEventListener('DOMContentLoaded', () => {
                     speed: 0.6,
                     color: ['#ff9000', '#ff0266', '#00ffff', '#15ff00'],
                     maxParticles: 63,
-                    connectParticles: false,
-                },
-            },
-        ],
+                    connectParticles: false
+                }
+            }
+        ]
     });
-
-   
-    const canvas = document.querySelector('.particles-js');
-    const ctx = canvas.getContext('2d');
-
-    function fitCanvas() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
-        const bw = Math.round(w * dpr);
-        const bh = Math.round(h * dpr);
-        if (canvas.width !== bw || canvas.height !== bh) {
-            canvas.width = bw;
-            canvas.height = bh;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // tegn videre i CSS-px
-        }
-    }
-
-    fitCanvas();
-    window.addEventListener('resize', fitCanvas);
 });
+
 
 
 
