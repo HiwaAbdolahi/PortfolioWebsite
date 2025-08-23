@@ -6,8 +6,8 @@
     <div class="form-wrapper">
         <label asp-for="Name" class="form-label"></label>
         <div class="input-wrapper">
-            <input asp-for="Name" class="input-field" placeholder="Hiwa Ab">
-            <ion-icon name="person-outline"></ion-icon>
+            <input asp-for="Name" class="input-field" placeholder="Hiwa Ab" autocomplete="name" spellcheck="false">
+            <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
         </div>
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
@@ -15,7 +15,7 @@
     <div class="form-wrapper">
         <label asp-for="Email" class="form-label"></label>
         <div class="input-wrapper">
-            <input asp-for="Email" class="input-field" placeholder="hiwa.abdolahi.dev@gmail.com">
+            <input asp-for="Email" class="input-field" placeholder="hiwa.abdolahi.dev@gmail.com" autocomplete="email" inputmode="email">
             <ion-icon name="mail"></ion-icon>
         </div>
         <span asp-validation-for="Email" class="text-danger"></span>
@@ -24,7 +24,7 @@
     <div class="form-wrapper">
         <label for="Phone" class="form-label">Telefon</label>
         <div class="input-wrapper">
-            <input asp-for="Phone" class="input-field" placeholder="Phone Number">
+            <input asp-for="Phone" class="input-field" placeholder="Phone Number" autocomplete="tel" inputmode="tel">
             <ion-icon name="call"></ion-icon>
         </div>
         <span asp-validation-for="Phone" class="text-danger"></span>
