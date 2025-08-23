@@ -78,45 +78,21 @@ if (localStorage.getItem('theme') === 'light-theme') {
 
 
 
-// particles-boot.js
-window.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.querySelector('.particles-js');
-    const ctx = canvas.getContext('2d', {
-        willReadFrequently: true,   // keep CPU path; avoids GPU artifacts
-        alpha: true,
-        desynchronized: false
-    });
+(() => {
+    const SEL = '.particles-js';
+    let started = false;
+    let rafId; // brukes til å pause/gjenoppta watchdog
 
-    let currentDpr = 1;
-
-    function fitCanvas() {
-        // Cap DPR a bit for perf, but keep it exact to avoid gaps
-        const dpr = Math.min(window.devicePixelRatio || 1, 3);
-        const w = Math.round(canvas.clientWidth);
-        const h = Math.round(canvas.clientHeight);
-        const bw = Math.round(w * dpr);
-        const bh = Math.round(h * dpr);
-
-        // Only touch when something actually changed
-        if (canvas.width !== bw || canvas.height !== bh || currentDpr !== dpr) {
-            currentDpr = dpr;
-            canvas.width = bw;
-            canvas.height = bh;
-            // draw in CSS px
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            ctx.clearRect(0, 0, w, h);
-        }
-    }
-
-    // 1) Init particles first
-    Particles.init({
-        selector: '.particles-js',
-        color: ['#ff9000', '#ff0266', '#00ffff'],
-        connectParticles: true,
-        speed: 0.3,
-        maxParticles: 120,
-        responsive: [
-            {
+    function initParticles() {
+        if (started) return;
+        started = true;
+        Particles.init({
+            selector: SEL,
+            color: ['#ff9000', '#ff0266', '#00ffff'],
+            connectParticles: true,
+            speed: 0.3,
+            maxParticles: 120,
+            responsive: [{
                 breakpoint: 1000,
                 options: {
                     speed: 0.6,
@@ -124,29 +100,75 @@ window.addEventListener('DOMContentLoaded', () => {
                     maxParticles: 63,
                     connectParticles: false
                 }
-            }
-        ]
+            }]
+        });
+    }
+
+    // Riktig DPR også ved zoom (<100% / >100%)
+    function effectiveDpr() {
+        const zoom = (window.visualViewport && window.visualViewport.scale) || 1;
+        const raw = window.devicePixelRatio || 1;
+        return Math.min(2, Math.max(1, raw / zoom)); // clamp 1..2
+    }
+
+    // Sørg for at backbuffer matcher CSS-størrelse × DPR
+    function syncCanvasSize(force = false) {
+        const c = document.querySelector(SEL);
+        if (!c) return;
+
+        const dpr = effectiveDpr();
+        const cssW = Math.ceil(c.clientWidth);
+        const cssH = Math.ceil(c.clientHeight);
+        const bw = Math.round(cssW * dpr);
+        const bh = Math.round(cssH * dpr);
+
+        if (force || c.width !== bw || c.height !== bh) {
+            c.width = bw;
+            c.height = bh;
+            const ctx = c.getContext('2d', { alpha: true });
+            if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // tegn i CSS-px
+        }
+    }
+
+    // Vakthund: holder size riktig selv om libben endrer den
+    function startWatchdog() {
+        const tick = () => {
+            syncCanvasSize(false);
+            rafId = requestAnimationFrame(tick);
+        };
+        cancelAnimationFrame(rafId);    // unngå doble løkker
+        rafId = requestAnimationFrame(tick);
+    }
+
+    // Pause når fanen er i bakgrunnen (spar CPU), restart når aktiv
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(rafId);
+        } else {
+            startWatchdog();
+        }
     });
 
-    // 2) Then immediately force the correct backing size
-    fitCanvas();
+    function setup() {
+        initParticles();
+        syncCanvasSize(true);
+        startWatchdog();
 
-    // 3) Keep it correct over time (library may resize underneath)
-    new ResizeObserver(fitCanvas).observe(canvas);
-    window.addEventListener('resize', fitCanvas);
+        // Oppfrisk ved resize/orientasjon/zoom-endringer
+        window.addEventListener('resize', () => syncCanvasSize(true), { passive: true });
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => syncCanvasSize(true), { passive: true });
+        }
+        window.addEventListener('orientationchange', () => setTimeout(() => syncCanvasSize(true), 0), { passive: true });
+    }
 
-    // 4) Re-fit when DPR/zoom changes (Chrome special)
-    let mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-    const dprListener = () => {
-        mq.removeEventListener('change', dprListener); fitCanvas();
-        mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-        mq.addEventListener('change', dprListener);
-    };
-    mq.addEventListener('change', dprListener);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setup);
+    } else {
+        setup();
+    }
+})();
 
-    // 5) Safety: verify and fix on next two frames (covers DevTools device switch)
-    requestAnimationFrame(() => { fitCanvas(); requestAnimationFrame(fitCanvas); });
-});
 
 
 
