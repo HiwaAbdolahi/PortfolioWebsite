@@ -82,12 +82,12 @@ if (localStorage.getItem('theme') === 'light-theme') {
             selector: SEL,
             color: ['#ff9000', '#ff0266', '#00ffff'],
             connectParticles: true,
-            speed: 0.3,
+            speed: 0.1,
             maxParticles: 120,
             responsive: [{
                 breakpoint: 1000,
                 options: {
-                    speed: 0.6,
+                    speed: 0.1,
                     color: ['#ff9000', '#ff0266', '#00ffff', '#15ff00'],
                     maxParticles: 63,
                     connectParticles: false
