@@ -10,16 +10,19 @@
     // Forslag / onboarding
     // ---------------------------
     const SUGGESTIONS = [
+        "Gi en 20–30 sek pitch om Hiwa.",
+        "Kort: Hvilken tech-stack bruker denne siden?",
+        "Deep: Hvordan er AI-assistenten koblet opp?",
+        "Hvordan deployes siden (CI/CD)?",
+        "Hvordan fungerer kontaktskjemaet (validering + e-post)?",
+        "Når velger Hiwa Azure SQL vs. Cosmos DB?",
+        "Hva lærte Hiwa mest i bacheloroppgaven?",
+        "Hvordan kan jeg kontakte Hiwa?",
+        "Kan jeg laste ned Hiwas CV?",
+        "Er koden offentlig tilgjengelig?",
         "Hvorfor bør dere ansette Hiwa?",
-        "Gi en 30-sekunders pitch om Hiwa.",
-        "Hvilke databaser behersker Hiwa?",
-        "Forklar CI/CD-oppsettet i House Rental.",
-        "Hvordan bruker Hiwa Azure i praksis?",
-        "Forklar dependency injection med eksempel.",
-        "Hva lærte Hiwa mest av bacheloroppgaven?",
         "Vis GitHub-prosjektene til Hiwa.",
-        "Hvilke sertifiseringer har Hiwa?",
-        "Forklar sikkerheten (Microsoft Identity) i House Rental."
+        
     ];
 
     const PLACEHOLDER_TIPS = [
@@ -30,9 +33,8 @@
         "Hvordan bruker Hiwa Azure i praksis?",
         "Hvilke databaser og datamodeller kan Hiwa?",
         "Vis Hiwas GitHub-prosjekter og live-lenker",
-        "Hvordan løser Hiwa autentisering med Identity?",
         "Hva lærte Hiwa mest i bachelorprosjektet?",
-        "Gi et lite kodeeksempel på DI i ASP.NET Core",
+        "Hvordan laster jeg ned CV?",
         "Sammenlign SQL vs NoSQL i Hiwas arbeid"
     ];
 
