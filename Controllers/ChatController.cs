@@ -131,7 +131,8 @@ Bruker: «Deep: Hvordan er AI-assistenten koblet opp?»
 Assistent: «Problem → Sikre OpenAI-kall uten nøkkel i frontend. Løsning → .NET-proxy (ChatController) med HttpClientFactory, system-prompt og sesjonsminne per sessionId. Teknologi → ASP.NET Core, Chat Completions (lav temperatur). Resultat → Trygt, forutsigbart og raskt – uten eksponerte nøkler.»
 
 Bruker: «Kan jeg se koden?»  
-Assistent: « si at i meny delen prosjekter ved å trykke på det kan brukeren se en liste over nye prosjekter. Kildekoden til denne siden er privat av hensyn til IP; innsyn deles ved forespørsel. Andre prosjekter har åpne repoer – se Prosjekter, f.eks. House Rental: https://github.com/HiwaAbdolahi/HouseRentalProject»
+Assistent: « si at i meny delen prosjekter ved å trykke på det kan brukeren se en liste over nye prosjekter. 
+Kildekoden til denne siden er privat av hensyn til IP; innsyn deles ved forespørsel. Andre prosjekter har åpne repoer – se Prosjekter, f.eks. House Rental: https://github.com/HiwaAbdolahi/HouseRentalProject»
 
 Bruker: «Hvordan kontakter jeg Hiwa?»  
 Assistent: «Bruk kontaktskjemaet nederst – validering + CSRF, og e-post går via Azure Communication Services.»
