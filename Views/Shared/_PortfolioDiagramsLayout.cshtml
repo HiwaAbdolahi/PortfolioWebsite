@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>@(ViewData["Title"] ?? "Hiwa Abdolahi - Utviklerportefølje")</title>
+
+    <!-- Samme CSS som porteføljen -->
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="shortcut icon" href="https://i.postimg.cc/7PTsH5kF/H.png">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <!-- Kun ekstra styles for diagrams -->
+    <link rel="stylesheet" href="~/css/diagrams.css" asp-append-version="true" />
+
+    <!-- Samme libs (for at gsap-animations.js ikke skal feile) -->
+    <script src="https://cdn.jsdelivr.net/npm/particlesjs@2.2.3/dist/particles.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CustomEase.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.7.2/dist/vanilla-tilt.min.js"></script>
+</head>
+
+<body class="dark-theme">
+    <canvas class="particles-js"></canvas>
+
+    <!-- Samme header/nav som Index -->
+    <header class="header" data-header>
+        <div class="container">
+            <h1 class="h1 logo">
+                <a href="/">Hiwa<span>.</span></a>
+            </h1>
+
+            <div class="navbar-actions">
+                <select name="language" id="lang">
+                    <option value="no">No</option>
+                    <option value="en">En</option>
+                </select>
+
+                <button class="theme-btn" aria-label="Change Theme" title="Change Theme" data-theme-btn>
+                    <span class="icon"></span>
+                </button>
+            </div>
+
+            <button class="nav-toggle-btn" aria-label="Toggle Menu" title="Toggle Menu" data-nav-toggle-btn>
+                <span class="one"></span>
+                <span class="two"></span>
+                <span class="three"></span>
+            </button>
+
+            <nav class="navbar" data-navbar>
+                <ul class="navbar-list">
+                    <!-- Viktig: på /diagrams må de peke til forsiden -->
+                    <li><a href="/#home" class="navbar-link">Hjem</a></li>
+                    <li><a href="/#about" class="navbar-link">Om meg</a></li>
+                    <li><a href="/#skills" class="navbar-link">Ferdigheter</a></li>
+                    <li><a href="/#portfolio" class="navbar-link">Prosjekter</a></li>
+                    <li><a href="/#contact" class="navbar-link">Kontakt</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Her kommer kun diagrams-innholdet -->
+    <main>
+        <article class="container">
+            @RenderBody()
+        </article>
+    </main>
+
+    <!-- Samme footer som Index -->
+    <footer class="footer">
+        <div class="container">
+            <p class="h1 logo">
+                <a href="/">Hiwa<span>.</span></a>
+            </p>
+            <p class="copyright">
+                &copy; 2025 <a href="https://github.com/HiwaAbdolahi" target="_blank">Hiwa Abdolahi</a>. Alle rettigheter reservert.
+            </p>
+        </div>
+    </footer>
+
+    <!-- AI-agent globalt -->
+    <button id="chat-toggle" aria-label="Åpne chat">
+        <img src="https://i.postimg.cc/KcD8LycB/Agent1.png" alt="AI Agent" class="agent-icon">
+    </button>
+
+    <div id="chat-widget">
+        <div id="chat-header">
+            <span class="chat-title">Hiwa AI Agent 🤖</span>
+            <div class="chat-controls">
+                <span class="chat-btn" id="chat-minimize">−</span>
+                <button class="chat-btn" id="chat-close">✕</button>
+            </div>
+        </div>
+
+        <div id="chat-messages"></div>
+        <div id="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Skriv en melding..." />
+            <button id="chat-send">Send</button>
+        </div>
+    </div>
+
+    <!-- Samme scripts som porteføljen trenger -->
+    <script src="~/js/main.js" asp-append-version="true"></script>
+    <script src="~/js/chat-agent.js" asp-append-version="true"></script>
+    <script src="~/js/gsap-animations.js" asp-append-version="true"></script>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+﻿@{
+    Layout = "_PortfolioDiagramsLayout";
+    ViewData["Title"] = "Architecture Diagrams";
+    var diagrams = new[]
+    {
+        new { Title = "App-internlogikk", Subtitle = "Worker", File = "01-App-internlogikk(Worker).png", Description = "Intern applikasjonslogikk og worker-prosesser" },
+        new { Title = "CI/CD Pipeline", Subtitle = "Deployment", File = "02-CI-CDPipeline.png", Description = "Continuous Integration og Deployment pipeline" },
+        new { Title = "Cloud Architecture", Subtitle = "Azure", File = "03-CloudArchitecture(Azure).png", Description = "Azure cloud-arkitektur og infrastruktur" },
+        new { Title = "Dashboard Dataflyt", Subtitle = "UI", File = "04-DashboardUI.png", Description = "Dashboard UI og dataflyt-visualisering" },
+        new { Title = "Local vs Cloud", Subtitle = "Topology", File = "05-LocalvsCloudTopology.png", Description = "Lokal vs cloud topology sammenligning" },
+        new { Title = "Message Flow", Subtitle = "Topics & Latency", File = "06-RuntimeMessageFlow(TopicsLatency).png", Description = "Runtime message flow med topics og latency" },
+    };
+    string basePath = Url.Content("~/images/diagrams/");
+}
+
+<section class="diagrams-page">
+    <!-- Header -->
+    <header class="diagrams-header">
+        <div class="header-content">
+            <h1>Architecture Diagrams</h1>
+            <p>Interaktive system-diagrammer med zoom, navigasjon og fullskjerm</p>
+        </div>
+        <div class="diagrams-actions">
+            <a class="btn-back" href="/">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Tilbake
+            </a>
+        </div>
+    </header>
+
+    <!-- Grid -->
+    <div class="diagrams-grid">
+        @for (int i = 0; i < diagrams.Length; i++)
+        {
+            var d = diagrams[i];
+            var src = basePath + d.File;
+            <div class="diagram-card" data-index="@i">
+                <div class="card-image">
+                    <img src="@src" loading="lazy" alt="@d.Title" />
+                    <div class="card-overlay">
+                        <div class="card-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3 class="card-title">@d.Title</h3>
+                        @if (!string.IsNullOrEmpty(d.Subtitle))
+                        {
+                            <span class="card-badge">@d.Subtitle</span>
+                        }
+                    </div>
+                    <p class="card-description">@d.Description</p>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Premium Lightbox Gallery -->
+<div id="gallery-lightbox" class="gallery-lightbox">
+    <div class="gallery-backdrop"></div>
+    
+    <div class="gallery-container">
+        <!-- Top Bar -->
+        <div class="gallery-topbar">
+            <div class="gallery-info">
+                <div class="info-text">
+                    <h2 class="gallery-title"></h2>
+                    <p class="gallery-description"></p>
+                </div>
+                <div class="gallery-counter">
+                    <span class="current">1</span>
+                    <span class="separator">/</span>
+                    <span class="total">@diagrams.Length</span>
+                </div>
+            </div>
+            <div class="gallery-controls">
+                <button class="gallery-btn" id="btn-zoom-in" title="Zoom Inn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                        <line x1="11" y1="8" x2="11" y2="14"/>
+                        <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                </button>
+                <button class="gallery-btn" id="btn-zoom-out" title="Zoom Ut">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                        <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                </button>
+                <button class="gallery-btn" id="btn-reset" title="Reset Zoom">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                        <path d="M21 3v5h-5"/>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                        <path d="M3 21v-5h5"/>
+                    </svg>
+                </button>
+                <button class="gallery-btn" id="btn-download" title="Last ned">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </button>
+                <button class="gallery-btn" id="btn-fullscreen" title="Fullskjerm">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                    </svg>
+                </button>
+                <button class="gallery-btn btn-close" id="btn-close" title="Lukk (ESC)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Image -->
+        <div class="gallery-main">
+            <button class="gallery-nav nav-prev" id="nav-prev" title="Forrige (←)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            
+            <div class="gallery-image-container" id="image-container">
+                <img class="gallery-image" id="main-image" src="" alt="" />
+                <div class="zoom-hint">Dobbeltklikk for å zoome</div>
+            </div>
+
+            <button class="gallery-nav nav-next" id="nav-next" title="Neste (→)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="gallery-thumbnails">
+            <button class="thumb-nav thumb-prev" id="thumb-prev">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="thumbnails-wrapper">
+                <div class="thumbnails-track">
+                    @for (int i = 0; i < diagrams.Length; i++)
+                    {
+                        var d = diagrams[i];
+                        var src = basePath + d.File;
+                        <div class="thumbnail-item @(i == 0 ? "active" : "")" data-index="@i">
+                            <img src="@src" alt="@d.Title" />
+                            <div class="thumbnail-number">@(i + 1)</div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <button class="thumb-nav thumb-next" id="thumb-next">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ULTRA PREMIUM GALLERY WITH PERFECT ZOOM & PAN
+(function() {
+    const diagrams = @Html.Raw(Json.Serialize(diagrams.Select((d, i) => new { 
+        title = d.Title,
+        subtitle = d.Subtitle,
+        description = d.Description,
+        file = basePath + d.File, 
+        index = i 
+    })));
+
+    // State
+    let currentIndex = 0;
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    // Elements
+    const lightbox = document.getElementById('gallery-lightbox');
+    const backdrop = lightbox.querySelector('.gallery-backdrop');
+    const mainImage = document.getElementById('main-image');
+    const imageContainer = document.getElementById('image-container');
+    const titleEl = lightbox.querySelector('.gallery-title');
+    const descriptionEl = lightbox.querySelector('.gallery-description');
+    const counterCurrent = lightbox.querySelector('.gallery-counter .current');
+    const zoomHint = lightbox.querySelector('.zoom-hint');
+    
+    // Buttons
+    const btnClose = document.getElementById('btn-close');
+    const btnPrev = document.getElementById('nav-prev');
+    const btnNext = document.getElementById('nav-next');
+    const btnZoomIn = document.getElementById('btn-zoom-in');
+    const btnZoomOut = document.getElementById('btn-zoom-out');
+    const btnReset = document.getElementById('btn-reset');
+    const btnDownload = document.getElementById('btn-download');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const btnThumbPrev = document.getElementById('thumb-prev');
+    const btnThumbNext = document.getElementById('thumb-next');
+
+    // Cards & Thumbnails
+    const cards = document.querySelectorAll('.diagram-card');
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    const thumbTrack = lightbox.querySelector('.thumbnails-track');
+
+    // ===== GALLERY OPEN/CLOSE =====
+    function openGallery(index) {
+        currentIndex = index;
+        resetZoom();
+        updateGallery();
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeGallery() {
+        // Exit fullscreen first if in fullscreen mode
+        if (document.fullscreenElement) {
+            document.exitFullscreen().then(() => {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+                resetZoom();
+            });
+        } else {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+            resetZoom();
+        }
+    }
+
+    // ===== UPDATE GALLERY =====
+    function updateGallery() {
+        const diagram = diagrams[currentIndex];
+        mainImage.src = diagram.file;
+        mainImage.alt = diagram.title;
+        titleEl.textContent = diagram.title + (diagram.subtitle ? ` (${diagram.subtitle})` : '');
+        descriptionEl.textContent = diagram.description;
+        counterCurrent.textContent = currentIndex + 1;
+
+        // Update thumbnails
+        thumbnails.forEach((thumb, i) => {
+            thumb.classList.toggle('active', i === currentIndex);
+        });
+
+        // Scroll thumbnail into view
+        scrollToActiveThumbnail();
+    }
+
+    function scrollToActiveThumbnail() {
+        const activeThumb = thumbnails[currentIndex];
+        if (activeThumb) {
+            const thumbWidth = activeThumb.offsetWidth;
+            const trackWidth = thumbTrack.offsetWidth;
+            const scrollLeft = activeThumb.offsetLeft - (trackWidth / 2) + (thumbWidth / 2);
+            thumbTrack.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+        }
+    }
+
+    // ===== NAVIGATION =====
+    function showPrev() {
+        currentIndex = currentIndex > 0 ? currentIndex - 1 : diagrams.length - 1;
+        resetZoom();
+        updateGallery();
+    }
+
+    function showNext() {
+        currentIndex = currentIndex < diagrams.length - 1 ? currentIndex + 1 : 0;
+        resetZoom();
+        updateGallery();
+    }
+
+    // ===== ZOOM & PAN SYSTEM =====
+    function resetZoom() {
+        scale = 1;
+        translateX = 0;
+        translateY = 0;
+        updateTransform();
+        imageContainer.style.cursor = 'zoom-in';
+        hideZoomHint();
+    }
+
+    function zoomIn(centerX = 0.5, centerY = 0.5) {
+        const oldScale = scale;
+        scale = Math.min(scale * 1.3, 4);
+        
+        // Adjust translation to zoom towards point
+        const scaleChange = scale / oldScale;
+        const rect = imageContainer.getBoundingClientRect();
+        const offsetX = (centerX * rect.width - rect.width / 2);
+        const offsetY = (centerY * rect.height - rect.height / 2);
+        
+        translateX = translateX * scaleChange - offsetX * (scaleChange - 1);
+        translateY = translateY * scaleChange - offsetY * (scaleChange - 1);
+        
+        updateTransform();
+        showZoomHint();
+    }
+
+    function zoomOut() {
+        scale = Math.max(scale / 1.3, 1);
+        if (scale === 1) {
+            translateX = 0;
+            translateY = 0;
+        }
+        updateTransform();
+        if (scale === 1) hideZoomHint();
+    }
+
+    function updateTransform() {
+        mainImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        imageContainer.style.cursor = scale > 1 ? 'move' : 'zoom-in';
+    }
+
+    function showZoomHint() {
+        if (scale > 1) {
+            zoomHint.classList.add('visible');
+            zoomHint.textContent = 'Dra for å flytte';
+            setTimeout(() => zoomHint.classList.remove('visible'), 2000);
+        }
+    }
+
+    function hideZoomHint() {
+        zoomHint.classList.remove('visible');
+    }
+
+    // ===== DRAG TO PAN =====
+    function startDrag(e) {
+        if (scale <= 1) return;
+        isDragging = true;
+        imageContainer.style.cursor = 'grabbing';
+        
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        startX = clientX - translateX;
+        startY = clientY - translateY;
+        
+        e.preventDefault();
+    }
+
+    function drag(e) {
+        if (!isDragging) return;
+        
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        translateX = clientX - startX;
+        translateY = clientY - startY;
+        
+        updateTransform();
+        e.preventDefault();
+    }
+
+    function stopDrag() {
+        if (isDragging) {
+            isDragging = false;
+            imageContainer.style.cursor = scale > 1 ? 'move' : 'zoom-in';
+        }
+    }
+
+    // ===== FULLSCREEN =====
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            lightbox.requestFullscreen().catch(err => {
+                console.log('Fullscreen error:', err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // ===== DOWNLOAD =====
+    function downloadImage() {
+        const link = document.createElement('a');
+        link.href = diagrams[currentIndex].file;
+        link.download = diagrams[currentIndex].title + '.png';
+        link.click();
+    }
+
+    // ===== EVENT LISTENERS =====
+    
+    // Open gallery
+    cards.forEach((card, index) => {
+        card.addEventListener('click', () => openGallery(index));
+    });
+
+    // Thumbnails
+    thumbnails.forEach((thumb, index) => {
+        thumb.addEventListener('click', () => {
+            currentIndex = index;
+            resetZoom();
+            updateGallery();
+        });
+    });
+
+    // Close
+    btnClose.addEventListener('click', closeGallery);
+    backdrop.addEventListener('click', closeGallery);
+
+    // Navigation
+    btnPrev.addEventListener('click', showPrev);
+    btnNext.addEventListener('click', showNext);
+
+    // Zoom controls
+    btnZoomIn.addEventListener('click', () => zoomIn(0.5, 0.5));
+    btnZoomOut.addEventListener('click', zoomOut);
+    btnReset.addEventListener('click', resetZoom);
+
+    // Other controls
+    btnFullscreen.addEventListener('click', toggleFullscreen);
+    btnDownload.addEventListener('click', downloadImage);
+
+    // Thumbnail navigation
+    btnThumbPrev.addEventListener('click', () => {
+        thumbTrack.scrollBy({ left: -200, behavior: 'smooth' });
+    });
+    btnThumbNext.addEventListener('click', () => {
+        thumbTrack.scrollBy({ left: 200, behavior: 'smooth' });
+    });
+
+    // Double click to zoom
+    imageContainer.addEventListener('dblclick', (e) => {
+        if (scale === 1) {
+            const rect = imageContainer.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            zoomIn(x, y);
+        } else {
+            resetZoom();
+        }
+    });
+
+    // Drag to pan
+    imageContainer.addEventListener('mousedown', startDrag);
+    imageContainer.addEventListener('mousemove', drag);
+    imageContainer.addEventListener('mouseup', stopDrag);
+    imageContainer.addEventListener('mouseleave', stopDrag);
+
+    // Touch support
+    imageContainer.addEventListener('touchstart', startDrag);
+    imageContainer.addEventListener('touchmove', drag);
+    imageContainer.addEventListener('touchend', stopDrag);
+
+    // Mouse wheel zoom
+    imageContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+            const rect = imageContainer.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            zoomIn(x, y);
+        } else {
+            zoomOut();
+        }
+    }, { passive: false });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('active')) return;
+        
+        switch(e.key) {
+            case 'Escape': 
+                // If in fullscreen, just exit fullscreen (closeGallery will be called separately)
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    closeGallery();
+                }
+                break;
+            case 'ArrowLeft': showPrev(); break;
+            case 'ArrowRight': showNext(); break;
+            case 'f':
+            case 'F': toggleFullscreen(); break;
+            case '+':
+            case '=': zoomIn(0.5, 0.5); break;
+            case '-':
+            case '_': zoomOut(); break;
+            case '0': resetZoom(); break;
+        }
+    });
+
+    // Swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    mainImage.addEventListener('touchstart', (e) => {
+        if (scale > 1) return; // Don't swipe when zoomed
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    mainImage.addEventListener('touchend', (e) => {
+        if (scale > 1) return;
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        if (touchEndX < touchStartX - swipeThreshold) showNext();
+        if (touchEndX > touchStartX + swipeThreshold) showPrev();
+    }
+})();
+</script>
