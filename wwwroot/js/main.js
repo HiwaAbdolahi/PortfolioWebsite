@@ -208,6 +208,28 @@ navLinks.forEach(link => {
 
 
 
+
+function initStatusMonitor() {
+    const monitor = document.getElementById('statusMonitor');
+    if (!monitor) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                setTimeout(() => monitor.classList.add('open'), 300);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    observer.observe(document.getElementById('aboutBanner'));
+}
+
+document.addEventListener('DOMContentLoaded', initStatusMonitor);
+
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const chatInput = document.getElementById("chat-input");
     const chatSend = document.getElementById("chat-send");
