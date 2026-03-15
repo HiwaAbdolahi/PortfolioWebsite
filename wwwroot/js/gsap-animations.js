@@ -71,7 +71,7 @@ function wrapLastWordAdvanced(element) {
 
 function startWordRotationAdvanced(heroTitle, opts) {
     const INTERVAL = 2800; 
-    const words = ["nettsider", "webapplikasjoner", "digitale\u00A0løsninger"];
+    const words = ["fullstack-løsninger", "cloud-applikasjoner", "IoT-plattformer"];
     const container = heroTitle.querySelector("#changing-word");
     const lettersWrap = container.querySelector(".word-letters");
 
@@ -203,9 +203,10 @@ function initWordHUD(container, heroTitle, startWord) {
 
 // chip-tekst/ikon per ord
 function chipLabelFor(word) {
-    if (word === "nettsider") return "🌐 Web";
-    if (word === "webapplikasjoner") return "</> App";
-    return "✨ Løsning";
+    if (word === "fullstack-løsninger") return "⚡ .NET + Azure";
+    if (word === "cloud-applikasjoner") return "☁️ Container";
+    if (word === "IoT-plattformer") return "📡 Real-time";
+    return "✨ Dev";
 }
 
 function updateWordChip(container, word, heroTitle) {

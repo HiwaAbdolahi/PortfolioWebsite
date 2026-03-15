@@ -581,6 +581,8 @@ main {
 #changing-word {
     position: relative;
     display: inline-block;
+    white-space: nowrap; /* ← LEGG TIL DENNE! */
+    min-width: max-content; /* ← OG DENNE! */
 }
 
     #changing-word .word-hud {
