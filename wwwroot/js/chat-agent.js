@@ -213,3 +213,90 @@
         }
     }
 });
+
+
+
+
+
+
+
+
+// =============================
+// AI Agent Notification - PREMIUM
+// =============================
+(function initAgentNotification() {
+    const notify = document.getElementById("agent-notification");
+    const chatToggle = document.getElementById("chat-toggle");
+    const closeBtn = notify?.querySelector(".notify-close");
+
+    if (!notify) return;
+
+    let hasShown = false;
+    let lastScrollY = window.scrollY;
+
+    // Funksjon for å vise notification
+    function showNotification() {
+        if (hasShown) return;
+        hasShown = true;
+
+        notify.removeAttribute("hidden");
+        notify.classList.add("showing");
+
+        // INGEN AUTO-HIDE! Brukeren må lukke manuelt
+    }
+
+    // Funksjon for å skjule
+    function hideNotification() {
+        if (notify.hasAttribute("hidden")) return;
+        notify.classList.add("hiding");
+        notify.classList.remove("showing");
+
+        setTimeout(() => {
+            notify.setAttribute("hidden", "");
+            notify.classList.remove("hiding");
+        }, 400);
+    }
+
+    // VIS når bruker scroller NED forbi 400px
+    let scrollTimeout;
+    window.addEventListener("scroll", () => {
+        clearTimeout(scrollTimeout);
+
+        scrollTimeout = setTimeout(() => {
+            const currentScrollY = window.scrollY;
+            const scrolledDown = currentScrollY > lastScrollY;
+
+            // Vis når bruker scroller ned forbi 400px
+            if (scrolledDown && currentScrollY > 400 && !hasShown) {
+                showNotification();
+            }
+
+            lastScrollY = currentScrollY;
+        }, 100);
+    }, { passive: true });
+
+    // BACKUP: Vis etter 15 sekunder hvis ikke scrollet
+    setTimeout(() => {
+        if (!hasShown && window.scrollY < 400) {
+            showNotification();
+        }
+    }, 15000);
+
+    // Klikk på notification = åpne chat
+    notify.addEventListener("click", (e) => {
+        if (e.target === closeBtn || e.target.closest(".notify-close")) return;
+        chatToggle?.click();
+        hideNotification();
+    });
+
+    // Lukk-knapp
+    closeBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hideNotification();
+    });
+
+    // Skjul når chat åpnes
+    chatToggle?.addEventListener("click", () => {
+        hideNotification();
+    });
+})();
