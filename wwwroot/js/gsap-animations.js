@@ -466,74 +466,18 @@ function animateContactButton(isMobile) {
 
 }
 
-/* ---------------------------------------------------
-    Animate Project Cards
---------------------------------------------------- */
-function animateProjectCardsAdvanced() {
-    const cards = document.querySelectorAll(".project-card-wrapper");
 
-    cards.forEach((card) => {
-        const randomRotate = gsap.utils.random(-5, 5, 1);
-        const randomSkew = gsap.utils.random(-8, 8, 1);
 
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: card,
-                start: "top 90%",
-                toggleActions: "play none none none"
-            }
-        });
 
-        tl.fromTo(card, {
-            opacity: 0,
-            y: 100,
-            rotateY: randomRotate,
-            skewY: randomSkew,
-            scale: 0.8,
-        }, {
-            opacity: 1,
-            y: 0,
-            rotateY: 0,
-            skewY: 0,
-            scale: 1,
-            duration: 1.3,
-            ease: "power4.out"
-        });
 
-        tl.to(card, {
-            boxShadow: "0 0 30px rgba(0, 255, 255, 0.2), 0 0 60px rgba(255, 144, 0, 0.1)",
-            duration: 1.2,
-            ease: "power1.inOut"
-        }, "-=1");
-    });
-}
 
-/* ---------------------------------------------------
-   📍 ScrollSpy Navbar Highlight
---------------------------------------------------- */
-const navbarLinks = document.querySelectorAll('.navbar-link');
 
-function setActiveLink(activeLink) {
-    navbarLinks.forEach(link => link.classList.remove('active-link'));
-    activeLink.classList.add('active-link');
-}
 
-navbarLinks.forEach(link => {
-    const targetId = link.getAttribute('href');
-    const section = document.querySelector(targetId);
 
-    if (section) {
-        ScrollTrigger.create({
-            trigger: section,
-            start: "top center",
-            end: "bottom center",
-            onEnter: () => setActiveLink(link),
-            onEnterBack: () => setActiveLink(link)
-        });
-    }
 
-    link.addEventListener("click", () => setActiveLink(link));
-});
+
+
+
 
 
 
@@ -541,51 +485,121 @@ navbarLinks.forEach(link => {
 
 
 /******************************************************************
-  initSkillsSection  –  en inngang for ALLE effektene
+  initSkillsSection – AUTO-SHOW ON SCROLL
  ******************************************************************/
 function initSkillsSection() {
-    // ⇢ 1. Fade‑/Slide‑in kortene når seksjonen kommer i view
-    gsap.from(".skills-card", {
-        opacity: 0,
-        y: 30,
-        stagger: 0.1,
-        duration: 0.6,
-        ease: "power2.out",
-        scrollTrigger: {
-            trigger: ".skills-box",
-            start: "top 80%",
+    const skillsBox = document.querySelector("[data-skills-box]");
+    const skillsToggle = document.querySelector(".skills-toggle");
+    const toggleBtns = document.querySelectorAll("[data-toggle-btn]");
+
+    if (!skillsBox || !skillsToggle || toggleBtns.length === 0) {
+        console.error("Skills elements not found!");
+        return;
+    }
+
+    // ⇢ 1. AUTO-SHOW Skills cards ved scroll
+    ScrollTrigger.create({
+        trigger: ".skills",
+        start: "top 80%",
+        end: "bottom 20%",
+        onEnter: () => {
+            // Animate skills cards når seksjonen kommer i view
+            gsap.fromTo(".skills-list .skills-card",
+                { opacity: 0, y: 30 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    stagger: 0.05,
+                    duration: 0.6,
+                    ease: "power2.out"
+                }
+            );
+        },
+        onLeaveBack: () => {
+            // Reset når brukeren scroller tilbake opp
+            gsap.set(".skills-list .skills-card", { opacity: 0, y: 30 });
         }
     });
 
-    //  2. 3‑D tilt‑effekt (Vanilla‑Tilt)
-    VanillaTilt.init(document.querySelectorAll(".skills-card"), {
-        max: 22,
-        speed: 400,
-        glare: true,
-        "max-glare": 0.3,
+    // ⇢ 2. Vanilla Tilt (vent til DOM er klar)
+    setTimeout(() => {
+        const allCards = document.querySelectorAll(".skills-card");
+        if (allCards.length > 0 && typeof VanillaTilt !== 'undefined') {
+            VanillaTilt.init(allCards, {
+                max: 15,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.25,
+                scale: 1.05
+            });
+        }
+    }, 500);
+
+    // ⇢ 3. Toggle Logic
+    toggleBtns.forEach((btn, index) => {
+        btn.addEventListener('click', function () {
+            // Fjern active fra alle
+            toggleBtns.forEach(b => b.classList.remove('active'));
+
+            // Legg til active på klikket
+            this.classList.add('active');
+
+            // Toggle box
+            if (index === 0) {
+                // Ferdigheter clicked
+                skillsBox.classList.remove('active');
+                skillsToggle.classList.remove('active');
+
+                // Animate skills cards
+                gsap.fromTo(".skills-list .skills-card",
+                    { opacity: 0, y: 20, scale: 0.9 },
+                    { opacity: 1, y: 0, scale: 1, stagger: 0.03, duration: 0.4, ease: "power2.out" }
+                );
+            } else {
+                // Verktøy clicked
+                skillsBox.classList.add('active');
+                skillsToggle.classList.add('active');
+
+                // Animate tools cards
+                gsap.fromTo(".tools-list .skills-card",
+                    { opacity: 0, y: 20, scale: 0.9 },
+                    { opacity: 1, y: 0, scale: 1, stagger: 0.03, duration: 0.4, ease: "power2.out" }
+                );
+            }
+        });
     });
 
-    //  3. Animasjon når man bytter mellom “Ferdigheter” og “Verktøy”
-    const skillsList = document.querySelector(".skills-list");
-    const toolsList = document.querySelector(".tools-list");
-    const [skillsBtn, toolsBtn] = document.querySelectorAll("[data-toggle-btn]");
-
-    skillsBtn.addEventListener("click", () => {
-        gsap.fromTo(
-            skillsList,
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.4, overwrite: "auto" }
-        );
-    });
-
-    toolsBtn.addEventListener("click", () => {
-        gsap.fromTo(
-            toolsList,
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.4, overwrite: "auto" }
-        );
-    });
+    // ⇢ 4. Hover icon animation
+    setTimeout(() => {
+        document.querySelectorAll('.skills-card').forEach(card => {
+            const icon = card.querySelector('.card-icon');
+            if (icon) {
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(icon, { scale: 1.15, duration: 0.3, ease: "power2.out" });
+                });
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(icon, { scale: 1, duration: 0.3, ease: "power2.out" });
+                });
+            }
+        });
+    }, 500);
 }
+
+// Initialize
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSkillsSection);
+} else {
+    initSkillsSection();
+}
+
+
+
+
+
+
+
+
+
 
 
 
