@@ -1404,12 +1404,16 @@ body.dark-theme .skills-card {
 
 
 /* Projects */
-
 .project-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 5fr));
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     gap: 30px;
     padding: 0;
+}
+
+.project-card-wrapper {
+    position: relative;
+    height: 100%; /* FIX: Alle cards samme høyde */
 }
 
 .project-card {
@@ -1423,6 +1427,7 @@ body.dark-theme .skills-card {
     box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.1);
     transition: transform 0.5s ease, box-shadow 0.5s ease;
     text-decoration: none;
+    height: 100%; /* FIX: Full høyde */
 }
 
     .project-card:hover {
@@ -1430,64 +1435,63 @@ body.dark-theme .skills-card {
         box-shadow: 0 30px 60px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.15);
     }
 
-    .project-card img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .project-card .card-text {
-        padding: 20px;
-        color: white;
-        text-align: center;
-        background: rgba(0, 0, 0, 0.4); /* Ny bakgrunn for bedre lesbarhet */
-        backdrop-filter: blur(5px);
-        border-bottom-left-radius: 20px;
-        border-bottom-right-radius: 20px;
-    }
-
-
-        .project-card .card-text h3 {
-            margin: 10px 0 5px;
-            font-size: 1.2rem;
-        }
-
-        .project-card .card-text p {
-            margin: 0 0 10px;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .project-card .card-text span {
-            font-size: 0.8rem;
-            opacity: 0.6;
-        }
-
-        /* Extra: Smooth hover underline on h3 */
-        .project-card .card-text h3::after {
-            content: '';
-            display: block;
-            width: 0;
-            height: 5px;
-            background: var(--raw-seinna, #ff9000);
-            transition: width 0.4s;
-            margin: 0 auto;
-        }
-
-    .project-card:hover .card-text h3::after {
-        width: 40%;
-    }
-
-
-
-
-                                                                                /*--------------------------------------------------Knapene live og github repo------------------------------------------*/
-
-.project-card-wrapper {
-    position: relative;
+.card-banner {
+    flex-shrink: 0;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.1); /* Bakgrunn for contain */
 }
 
+.project-card img {
+    width: 100%;
+    height: 250px; /* Fast høyde */
+    object-fit: contain; /* FIX: Viser hele bildet */
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.project-card .card-text {
+    padding: 20px;
+    padding-bottom: 60px; /* FIX: Plass til knapper */
+    color: white;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    flex-grow: 1; /* FIX: Fyller ledig plass */
+}
+
+    .project-card .card-text h3 {
+        margin: 10px 0 5px;
+        font-size: 1.2rem;
+    }
+
+    .project-card .card-text p {
+        margin: 0 0 10px;
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .project-card .card-text span {
+        font-size: 0.8rem;
+        opacity: 0.6;
+        display: block;
+    }
+
+    .project-card .card-text h3::after {
+        content: '';
+        display: block;
+        width: 0;
+        height: 5px;
+        background: var(--raw-seinna, #ff9000);
+        transition: width 0.4s;
+        margin: 0 auto;
+    }
+
+.project-card:hover .card-text h3::after {
+    width: 40%;
+}
+
+/* Knapper */
 .project-buttons {
     position: absolute;
     bottom: 9px;
@@ -1495,11 +1499,8 @@ body.dark-theme .skills-card {
     display: flex;
     gap: 10px;
     opacity: 1;
-    transform: translateY(0px);
-    
+    z-index: 10;
 }
-
-
 
 .btn-live, .btn-github {
     background: #fff;
@@ -1522,12 +1523,30 @@ body.dark-theme .skills-card {
         color: #fff;
     }
 
+/* MOBIL FIX */
+@media (max-width: 768px) {
+    .project-list {
+        grid-template-columns: 1fr;
+    }
 
+    .project-card .card-text {
+        padding-bottom: 70px; /* MOBIL: Mer plass */
+    }
 
+    .project-buttons {
+        bottom: 12px;
+        right: 12px;
+        flex-wrap: wrap;
+        max-width: calc(100% - 24px);
+    }
 
+    .btn-live, .btn-github {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+}
 
-                       /*-----------------------------------------------Github knapp for Resten av proskjektene-----------------------------------------------*/
-
+/* GitHub link */
 .github-link {
     display: inline-flex;
     align-items: center;
@@ -1551,23 +1570,6 @@ body.dark-theme .skills-card {
     text-align: center;
     margin-top: 2rem;
 }
-
-.github-link {
-    display: inline-block;
-    padding: 12px 24px;
-    background: #24292e;
-    color: white;
-    font-weight: bold;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background 0.3s ease;
-}
-
-    .github-link:hover {
-        background: #000;
-    }
-
-
 
 
 

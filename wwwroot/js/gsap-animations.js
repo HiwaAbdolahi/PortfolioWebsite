@@ -487,13 +487,8 @@ function animateContactButton(isMobile) {
 
 
 
-
-
-
-
-
 /******************************************************************
-  initSkillsSection – AUTO-SHOW ON SCROLL
+  🌟 PREMIUM SKILLS SECTION - 
  ******************************************************************/
 function initSkillsSection() {
     const skillsBox = document.querySelector("[data-skills-box]");
@@ -505,100 +500,340 @@ function initSkillsSection() {
         return;
     }
 
-    // ⇢ 1. AUTO-SHOW Skills cards ved scroll
+    // ⇢ 1. PREMIUM ENTRANCE - 3D Rotate + Scale + Glow
     ScrollTrigger.create({
         trigger: ".skills",
         start: "top 80%",
-        end: "bottom 20%",
+        once: true,
         onEnter: () => {
-            // Animate skills cards når seksjonen kommer i view
-            gsap.fromTo(".skills-list .skills-card",
-                { opacity: 0, y: 30 },
-                {
-                    opacity: 1,
-                    y: 0,
-                    stagger: 0.05,
-                    duration: 0.6,
-                    ease: "power2.out"
-                }
-            );
-        },
-        onLeaveBack: () => {
-            // Reset når brukeren scroller tilbake opp
-            gsap.set(".skills-list .skills-card", { opacity: 0, y: 30 });
+            const skillCards = gsap.utils.toArray(".skills-list .skills-card");
+
+            skillCards.forEach((card, i) => {
+                const delay = i * 0.08;
+                const randomX = gsap.utils.random(-100, 100);
+                const randomRotate = gsap.utils.random(-20, 20);
+
+                gsap.fromTo(card,
+                    {
+                        opacity: 0,
+                        scale: 0.3,
+                        rotationY: randomRotate,
+                        rotationX: gsap.utils.random(-15, 15),
+                        z: -500,
+                        x: randomX,
+                        y: 100,
+                        filter: "blur(20px) brightness(0.3)"
+                    },
+                    {
+                        opacity: 1,
+                        scale: 1,
+                        rotationY: 0,
+                        rotationX: 0,
+                        z: 0,
+                        x: 0,
+                        y: 0,
+                        filter: "blur(0px) brightness(1)",
+                        duration: 1.2,
+                        delay: delay,
+                        ease: "elastic.out(1, 0.6)",
+                        onStart: function () {
+                            // Glow pulse effect
+                            gsap.to(card, {
+                                boxShadow: "0 0 40px rgba(255, 94, 77, 0.6), 0 0 80px rgba(255, 94, 77, 0.3)",
+                                duration: 0.3,
+                                yoyo: true,
+                                repeat: 1
+                            });
+                        }
+                    }
+                );
+            });
         }
     });
 
-    // ⇢ 2. Vanilla Tilt (vent til DOM er klar)
+    // ⇢ 2. ULTRA PREMIUM VANILLA TILT
     setTimeout(() => {
         const allCards = document.querySelectorAll(".skills-card");
         if (allCards.length > 0 && typeof VanillaTilt !== 'undefined') {
             VanillaTilt.init(allCards, {
-                max: 15,
-                speed: 400,
+                max: 25,
+                speed: 600,
                 glare: true,
-                "max-glare": 0.25,
-                scale: 1.05
+                "max-glare": 0.4,
+                scale: 1.1,
+                perspective: 1000,
+                gyroscope: true
             });
         }
-    }, 500);
+    }, 100);
 
-    // ⇢ 3. Toggle Logic
+    // ⇢ 3. PREMIUM TOGGLE - MORPHING TRANSITION
     toggleBtns.forEach((btn, index) => {
         btn.addEventListener('click', function () {
-            // Fjern active fra alle
             toggleBtns.forEach(b => b.classList.remove('active'));
-
-            // Legg til active på klikket
             this.classList.add('active');
 
-            // Toggle box
             if (index === 0) {
-                // Ferdigheter clicked
+                // Skills - EXPLOSIVE ENTRANCE
                 skillsBox.classList.remove('active');
                 skillsToggle.classList.remove('active');
 
-                // Animate skills cards
-                gsap.fromTo(".skills-list .skills-card",
-                    { opacity: 0, y: 20, scale: 0.9 },
-                    { opacity: 1, y: 0, scale: 1, stagger: 0.03, duration: 0.4, ease: "power2.out" }
-                );
+                const skillCards = gsap.utils.toArray(".skills-list .skills-card");
+
+                skillCards.forEach((card, i) => {
+                    const angle = (i / skillCards.length) * 360;
+                    const radius = 200;
+                    const startX = Math.cos(angle * Math.PI / 180) * radius;
+                    const startY = Math.sin(angle * Math.PI / 180) * radius;
+
+                    gsap.fromTo(card,
+                        {
+                            opacity: 0,
+                            scale: 0,
+                            x: startX,
+                            y: startY,
+                            rotation: 360,
+                            filter: "blur(15px)"
+                        },
+                        {
+                            opacity: 1,
+                            scale: 1,
+                            x: 0,
+                            y: 0,
+                            rotation: 0,
+                            filter: "blur(0px)",
+                            duration: 0.8,
+                            delay: i * 0.04,
+                            ease: "back.out(2)"
+                        }
+                    );
+                });
+
             } else {
-                // Verktøy clicked
+                // Tools - WAVE ENTRANCE
                 skillsBox.classList.add('active');
                 skillsToggle.classList.add('active');
 
-                // Animate tools cards
-                gsap.fromTo(".tools-list .skills-card",
-                    { opacity: 0, y: 20, scale: 0.9 },
-                    { opacity: 1, y: 0, scale: 1, stagger: 0.03, duration: 0.4, ease: "power2.out" }
-                );
+                const toolCards = gsap.utils.toArray(".tools-list .skills-card");
+
+                toolCards.forEach((card, i) => {
+                    const delay = i * 0.06;
+
+                    gsap.fromTo(card,
+                        {
+                            opacity: 0,
+                            scale: 0.5,
+                            rotationY: -180,
+                            y: -100,
+                            filter: "blur(10px) brightness(0.5)"
+                        },
+                        {
+                            opacity: 1,
+                            scale: 1,
+                            rotationY: 0,
+                            y: 0,
+                            filter: "blur(0px) brightness(1)",
+                            duration: 0.9,
+                            delay: delay,
+                            ease: "power3.out",
+                            onComplete: function () {
+                                // Bounce effect at end
+                                gsap.to(card, {
+                                    y: -10,
+                                    duration: 0.2,
+                                    yoyo: true,
+                                    repeat: 1,
+                                    ease: "power2.inOut"
+                                });
+                            }
+                        }
+                    );
+                });
             }
         });
     });
 
-    // ⇢ 4. Hover icon animation
+    // ⇢ 4. MAGNETIC HOVER EFFECT
     setTimeout(() => {
         document.querySelectorAll('.skills-card').forEach(card => {
             const icon = card.querySelector('.card-icon');
+
             if (icon) {
+                // Icon pulse on card hover
                 card.addEventListener('mouseenter', () => {
-                    gsap.to(icon, { scale: 1.15, duration: 0.3, ease: "power2.out" });
+                    gsap.to(icon, {
+                        scale: 1.3,
+                        rotation: 360,
+                        duration: 0.6,
+                        ease: "elastic.out(1, 0.5)"
+                    });
+
+                    // Card glow
+                    gsap.to(card, {
+                        boxShadow: "0 0 50px rgba(255, 94, 77, 0.8), 0 0 100px rgba(255, 94, 77, 0.4)",
+                        duration: 0.3
+                    });
                 });
+
                 card.addEventListener('mouseleave', () => {
-                    gsap.to(icon, { scale: 1, duration: 0.3, ease: "power2.out" });
+                    gsap.to(icon, {
+                        scale: 1,
+                        rotation: 0,
+                        duration: 0.4,
+                        ease: "power2.out"
+                    });
+
+                    gsap.to(card, {
+                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset",
+                        duration: 0.3
+                    });
                 });
             }
         });
-    }, 500);
+    }, 100);
 }
 
-// Initialize
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSkillsSection);
-} else {
-    initSkillsSection();
+/******************************************************************
+  🚀 PREMIUM PROJECT CARDS - HOLLYWOOD 
+ ******************************************************************/
+function animateProjectCardsAdvanced() {
+    const cards = document.querySelectorAll(".project-card-wrapper");
+
+    cards.forEach((card, index) => {
+        const randomRotateStart = gsap.utils.random(-30, 30);
+        const randomRotateEnd = gsap.utils.random(-10, 10);
+        const randomSkew = gsap.utils.random(-15, 15);
+        const randomScale = gsap.utils.random(0.5, 0.7);
+
+        // Direction based on index (alternate left/right)
+        const direction = index % 2 === 0 ? -1 : 1;
+        const startX = direction * 300;
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: card,
+                start: "top 90%",
+                toggleActions: "play none none none"
+            }
+        });
+
+        // Phase 1: DRAMATIC ENTRANCE
+        tl.fromTo(card, {
+            opacity: 0,
+            x: startX,
+            y: 150,
+            rotateY: randomRotateStart,
+            rotateX: -20,
+            rotateZ: direction * 15,
+            skewY: randomSkew,
+            scale: randomScale,
+            filter: "blur(20px) brightness(0.3)",
+            transformPerspective: 1000
+        }, {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            rotateY: 0,
+            rotateX: 0,
+            rotateZ: 0,
+            skewY: 0,
+            scale: 1,
+            filter: "blur(0px) brightness(1)",
+            duration: 1.8,
+            ease: "power4.out"
+        });
+
+        // Phase 2: GLOW PULSE
+        tl.to(card, {
+            boxShadow: "0 0 60px rgba(255, 94, 77, 0.6), 0 0 120px rgba(0, 255, 255, 0.3), 0 20px 80px rgba(0, 0, 0, 0.4)",
+            duration: 0.8,
+            ease: "power2.inOut"
+        }, "-=1.2");
+
+        // Phase 3: SUBTLE FLOAT
+        tl.to(card, {
+            y: -10,
+            duration: 0.6,
+            ease: "power1.inOut"
+        }, "-=0.4");
+
+        tl.to(card, {
+            y: 0,
+            duration: 0.6,
+            ease: "power1.inOut"
+        });
+
+        // Phase 4: FINAL SETTLE GLOW
+        tl.to(card, {
+            boxShadow: "0 20px 50px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+            duration: 0.5,
+            ease: "power1.out"
+        });
+
+        // CONTINUOUS HOVER EFFECT
+        card.addEventListener('mouseenter', () => {
+            gsap.to(card, {
+                y: -15,
+                scale: 1.03,
+                rotateY: 5,
+                boxShadow: "0 30px 80px rgba(255, 94, 77, 0.4), 0 0 60px rgba(0, 255, 255, 0.3)",
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        });
+
+        card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+                y: 0,
+                scale: 1,
+                rotateY: 0,
+                boxShadow: "0 20px 50px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1)",
+                duration: 0.4,
+                ease: "power2.out"
+            });
+        });
+    });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
