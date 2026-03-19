@@ -203,9 +203,17 @@ function initWordHUD(container, heroTitle, startWord) {
 
 // chip-tekst/ikon per ord
 function chipLabelFor(word) {
-    if (word === "fullstack-løsninger") return "⚡ .NET + Azure";
-    if (word === "cloud-applikasjoner") return "☁️ Container";
-    if (word === "IoT-plattformer") return "📡 Real-time";
+    const isMobile = window.innerWidth <= 768;
+
+    if (word === "fullstack-løsninger") {
+        return isMobile ? "⚡ .NET" : "⚡ .NET + Azure";
+    }
+    if (word === "cloud-applikasjoner") {
+        return isMobile ? "🐋" : "☁️ Container";
+    }
+    if (word === "IoT-plattformer") {
+        return isMobile ? "📡 IoT" : "📡 Real-time";
+    }
     return "✨ Dev";
 }
 
