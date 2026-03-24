@@ -2606,31 +2606,32 @@ textarea.input-field {
 
 /*----------------------------------------------------------Background---------------------------------------------------------------------------*/
 
-
-canvas {
-    display: block;
-    width: 100%;
-    height: 100%
-}
-
-.particles-js {
+/* Premium gradient background layer */
+#premium-bg-layer {
     position: fixed;
     inset: 0;
-
     z-index: -1;
     pointer-events: none;
-    background: rgba(255,255,255,0.02);
-    transform: translateZ(0); /* hint til GPU, færre artefakter */
+    transform: translateZ(0);
     backface-visibility: hidden;
 }
 
+/* CSS fallback gradients */
+body.dark-theme {
+    background: radial-gradient(ellipse 800px 600px at 20% 30%, rgba(99, 102, 241, 0.18), transparent), radial-gradient(ellipse 700px 550px at 80% 20%, rgba(168, 85, 247, 0.15), transparent), radial-gradient(ellipse 750px 580px at 50% 70%, rgba(236, 72, 153, 0.16), transparent), radial-gradient(ellipse 650px 500px at 15% 85%, rgba(6, 182, 212, 0.14), transparent), #0f0a1e;
+    background-attachment: fixed;
+}
+
+body.light-theme {
+    background: radial-gradient(ellipse 900px 700px at 25% 25%, rgba(99, 102, 241, 0.12), transparent), radial-gradient(ellipse 800px 650px at 75% 20%, rgba(168, 85, 247, 0.10), transparent), radial-gradient(ellipse 850px 680px at 50% 65%, rgba(236, 72, 153, 0.11), transparent), radial-gradient(ellipse 750px 600px at 20% 80%, rgba(6, 182, 212, 0.09), transparent), radial-gradient(ellipse 780px 620px at 80% 75%, rgba(251, 146, 60, 0.08), transparent), linear-gradient(135deg, #fafbff 0%, #f0f4ff 50%, #fafbff 100%);
+    background-attachment: fixed;
+}
 
 html, body {
     margin: 0;
     padding: 0;
-    overflow-x: clip
+    overflow-x: clip;
 }
-
 
 
 

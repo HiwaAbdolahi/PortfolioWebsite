@@ -68,99 +68,95 @@ if (localStorage.getItem('theme') === 'light-theme') {
 
 //-------------------------------------------------------------------------------Background------------------------------
 
+//-------------------------------------------------------------------------------Premium Gradient Background------------------------------
 
+function initPremiumBackground() {
+    // Remove particles
+    const particlesEl = document.querySelector('.particles-js');
+    if (particlesEl) particlesEl.style.display = 'none';
 
-(() => {
-    const SEL = '.particles-js';
-    let started = false;
-    let rafId; // brukes til å pause/gjenoppta watchdog
-
-    function initParticles() {
-        if (started) return;
-        started = true;
-        Particles.init({
-            selector: SEL,
-            color: ['#ff9000', '#ff0266', '#00ffff'],
-            connectParticles: true,
-            speed: 0.1,
-            maxParticles: 120,
-            responsive: [{
-                breakpoint: 1000,
-                options: {
-                    speed: 0.1,
-                    color: ['#ff9000', '#ff0266', '#00ffff', '#15ff00'],
-                    maxParticles: 63,
-                    connectParticles: false
-                }
-            }]
-        });
+    // Create background layer (UNDER everything)
+    let bgLayer = document.getElementById('premium-bg-layer');
+    if (!bgLayer) {
+        bgLayer = document.createElement('div');
+        bgLayer.id = 'premium-bg-layer';
+        bgLayer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        `;
+        document.body.insertBefore(bgLayer, document.body.firstChild);
     }
 
-    // Riktig DPR også ved zoom (<100% / >100%)
-    function effectiveDpr() {
-        const zoom = (window.visualViewport && window.visualViewport.scale) || 1;
-        const raw = window.devicePixelRatio || 1;
-        return Math.min(2, Math.max(1, raw / zoom)); // clamp 1..2
-    }
+    // Function to apply correct background
+    function applyPremiumBackground() {
+        const isDark = document.body.classList.contains('dark-theme');
 
-    // Sørg for at backbuffer matcher CSS-størrelse × DPR
-    function syncCanvasSize(force = false) {
-        const c = document.querySelector(SEL);
-        if (!c) return;
-
-        const dpr = effectiveDpr();
-        const cssW = Math.ceil(c.clientWidth);
-        const cssH = Math.ceil(c.clientHeight);
-        const bw = Math.round(cssW * dpr);
-        const bh = Math.round(cssH * dpr);
-
-        if (force || c.width !== bw || c.height !== bh) {
-            c.width = bw;
-            c.height = bh;
-            const ctx = c.getContext('2d', { alpha: true });
-            if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // tegn i CSS-px
-        }
-    }
-
-    // Vakthund: holder size riktig selv om libben endrer den
-    function startWatchdog() {
-        const tick = () => {
-            syncCanvasSize(false);
-            rafId = requestAnimationFrame(tick);
-        };
-        cancelAnimationFrame(rafId);    // unngå doble løkker
-        rafId = requestAnimationFrame(tick);
-    }
-
-    // Pause når fanen er i bakgrunnen (spar CPU), restart når aktiv
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            cancelAnimationFrame(rafId);
+        if (isDark) {
+            // DARK MODE
+            bgLayer.style.background = `
+                radial-gradient(ellipse 800px 600px at 20% 30%, rgba(99, 102, 241, 0.18), transparent),
+                radial-gradient(ellipse 700px 550px at 80% 20%, rgba(168, 85, 247, 0.15), transparent),
+                radial-gradient(ellipse 750px 580px at 50% 70%, rgba(236, 72, 153, 0.16), transparent),
+                radial-gradient(ellipse 650px 500px at 15% 85%, rgba(6, 182, 212, 0.14), transparent),
+                #0f0a1e
+            `;
         } else {
-            startWatchdog();
+            // LIGHT MODE
+            bgLayer.style.background = `
+                radial-gradient(ellipse 900px 700px at 25% 25%, rgba(99, 102, 241, 0.12), transparent),
+                radial-gradient(ellipse 800px 650px at 75% 20%, rgba(168, 85, 247, 0.10), transparent),
+                radial-gradient(ellipse 850px 680px at 50% 65%, rgba(236, 72, 153, 0.11), transparent),
+                radial-gradient(ellipse 750px 600px at 20% 80%, rgba(6, 182, 212, 0.09), transparent),
+                radial-gradient(ellipse 780px 620px at 80% 75%, rgba(251, 146, 60, 0.08), transparent),
+                linear-gradient(135deg, #fafbff 0%, #f0f4ff 50%, #fafbff 100%)
+            `;
         }
+
+        bgLayer.style.backgroundAttachment = 'fixed';
+    }
+
+    // Apply on load
+    applyPremiumBackground();
+
+    // Watch for theme changes
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                applyPremiumBackground();
+            }
+        });
     });
 
-    function setup() {
-        initParticles();
-        syncCanvasSize(true);
-        startWatchdog();
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
 
-        // Oppfrisk ved resize/orientasjon/zoom-endringer
-        window.addEventListener('resize', () => syncCanvasSize(true), { passive: true });
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', () => syncCanvasSize(true), { passive: true });
-        }
-        window.addEventListener('orientationchange', () => setTimeout(() => syncCanvasSize(true), 0), { passive: true });
+    // Smooth color shift (ON THE LAYER, NOT BODY!)
+    let time = 0;
+    function smoothShift() {
+        time += 0.0002;
+        const hue = Math.sin(time) * 10;
+        const sat = 1 + Math.sin(time * 0.7) * 0.05;
+        bgLayer.style.filter = `hue-rotate(${hue}deg) saturate(${sat})`;
+        requestAnimationFrame(smoothShift);
     }
+    smoothShift();
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setup);
-    } else {
-        setup();
-    }
-})();
+    console.log('✅ Premium gradient background initialized');
+}
 
+// Initialize premium background
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPremiumBackground);
+} else {
+    initPremiumBackground();
+}
 
 
 
