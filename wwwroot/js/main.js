@@ -97,7 +97,7 @@ function initPremiumBackground() {
         const isDark = document.body.classList.contains('dark-theme');
 
         if (isDark) {
-            // DARK MODE
+            // DARK MODE (IKKE ENDRET - DIN EXISTING)
             bgLayer.style.background = `
                 radial-gradient(ellipse 800px 600px at 20% 30%, rgba(99, 102, 241, 0.18), transparent),
                 radial-gradient(ellipse 700px 550px at 80% 20%, rgba(168, 85, 247, 0.15), transparent),
@@ -106,14 +106,10 @@ function initPremiumBackground() {
                 #0f0a1e
             `;
         } else {
-            // LIGHT MODE
+            // LIGHT MODE (NY - PURE WHITE!)
             bgLayer.style.background = `
-                radial-gradient(ellipse 900px 700px at 25% 25%, rgba(99, 102, 241, 0.12), transparent),
-                radial-gradient(ellipse 800px 650px at 75% 20%, rgba(168, 85, 247, 0.10), transparent),
-                radial-gradient(ellipse 850px 680px at 50% 65%, rgba(236, 72, 153, 0.11), transparent),
-                radial-gradient(ellipse 750px 600px at 20% 80%, rgba(6, 182, 212, 0.09), transparent),
-                radial-gradient(ellipse 780px 620px at 80% 75%, rgba(251, 146, 60, 0.08), transparent),
-                linear-gradient(135deg, #fafbff 0%, #f0f4ff 50%, #fafbff 100%)
+                radial-gradient(ellipse 1200px 900px at 50% 50%, rgba(248, 250, 252, 0.8), transparent 70%),
+                linear-gradient(180deg, #ffffff 0%, #fafafa 50%, #ffffff 100%)
             `;
         }
 
@@ -157,8 +153,6 @@ if (document.readyState === 'loading') {
 } else {
     initPremiumBackground();
 }
-
-
 
 
 
