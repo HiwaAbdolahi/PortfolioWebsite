@@ -736,26 +736,9 @@ main {
             border-radius: 999px;
         }
 
-    /* Orbit-dot rundt ordet */
-    #changing-word .orbit-wrap {
-        position: absolute;
-        inset: -6px; /* liten margin utenfor teksten */
-        pointer-events: none;
-        transform-origin: 50% 50%;
-        opacity: 0;
-    }
+    
 
-    #changing-word .orbit-dot {
-        position: absolute;
-        top: -30px; /* start på “kl 12” */
-        left: 50%;
-        transform: translateX(-50%);
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background-image: radial-gradient(circle at 30% 30%, #fff, #00ffff 60%, transparent 70%);
-        box-shadow: 0 0 8px rgba(0,255,255,0.7), 0 0 16px rgba(0,255,255,0.35);
-    }
+    
 
 /* Små mobil-tilpasninger uten å endre logikken din */
 @media (max-width: 767px) {

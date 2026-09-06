@@ -55,8 +55,7 @@ function wrapLastWordAdvanced(element) {
     <span class="word-hud">
       <span class="word-chip" aria-hidden="true"></span>
       <span class="word-progress"><span class="bar"></span></span>
-    </span>
-    <span class="orbit-wrap" aria-hidden="true"><span class="orbit-dot"></span></span>
+    
   </span>`;
 
     
@@ -84,7 +83,7 @@ function startWordRotationAdvanced(heroTitle, opts) {
     const K = {
         flipOutRotX: 80, flipOutZ: -30, flipOutY: -10, flipOutDur: 0.38, flipStagger: 0.03,
         inY: 26, inZ: 30, inDur: 0.72, inStagger: 0.045,
-        particles: 8
+        
     };
 
     // start første countdown frem til første bytte (samme delay som under)
@@ -97,7 +96,7 @@ function startWordRotationAdvanced(heroTitle, opts) {
         updateWordChip(container, next, heroTitle);
         pulseWordChip(container);
         hudStartCountdown(container, INTERVAL);
-        runOrbitSweep(container);
+        
 
         if (useAdvanced) {
             const oldLetters = lettersWrap.querySelectorAll(".letter");
@@ -109,7 +108,7 @@ function startWordRotationAdvanced(heroTitle, opts) {
                 stagger: { each: K.flipStagger, from: "end" }
             });
 
-            tl.add(() => createParticleBurst(container, K.particles), "-=0.20");
+           
 
             tl.add(() => {
                 lettersWrap.innerHTML = next.split("").map(ch => `<span class="letter">${escapeHtml(ch)}</span>`).join("");
@@ -149,44 +148,7 @@ function startWordRotationAdvanced(heroTitle, opts) {
 }
 
 
-/* Partikler */
-function createParticleBurst(container, count = 8) {
-    const base = document.createElement("span");
-    base.className = "particles";
-    Object.assign(base.style, {
-        position: "absolute",
-        left: "0", top: "0",
-        width: container.offsetWidth + "px",
-        height: container.offsetHeight + "px",
-        pointerEvents: "none",
-        overflow: "visible"
-    });
-    container.appendChild(base);
 
-    for (let i = 0; i < count; i++) {
-        const p = document.createElement("span");
-        p.className = "particle";
-        base.appendChild(p);
-
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 12 + Math.random() * 26;
-        const tx = Math.cos(angle) * dist;
-        const ty = Math.sin(angle) * dist - 6;
-
-        gsap.fromTo(p,
-            { x: 0, y: 0, scale: 0.4, opacity: 0.9, translateZ: 0 },
-            {
-                x: tx, y: ty,
-                scale: 0.95,
-                opacity: 0,
-                duration: 0.55 + Math.random() * 0.25,
-                ease: "power2.out",
-                onComplete: () => p.remove()
-            }
-        );
-    }
-    setTimeout(() => base.remove(), 700);
-}
 
 /* Shimmer */
 function runShimmer(container) {
@@ -206,15 +168,18 @@ function chipLabelFor(word) {
     const isMobile = window.innerWidth <= 768;
 
     if (word === "fullstack-løsninger") {
-        return isMobile ? "⚡ .NET" : "⚡ .NET + Azure";
+        return isMobile ? ".NET" : ".NET + Azure";
     }
+
     if (word === "cloud-applikasjoner") {
-        return isMobile ? "🐋" : "☁️ Container";
+        return isMobile ? "Cloud" : "Cloud · Container";
     }
+
     if (word === "IoT-plattformer") {
-        return isMobile ? "📡 IoT" : "📡 Real-time";
+        return isMobile ? "IoT" : "IoT · Real-time";
     }
-    return "✨ Dev";
+
+    return "Development";
 }
 
 function updateWordChip(container, word, heroTitle) {
@@ -255,13 +220,7 @@ function hudStartCountdown(container, ms) {
     bar._tween = gsap.to(bar, { width: "100%", duration: ms / 1000, ease: "linear" });
 }
 
-function runOrbitSweep(container) {
-    const wrap = container.querySelector(".orbit-wrap");
-    if (!wrap) return;
-    gsap.fromTo(wrap, { rotate: 0, opacity: 1 }, { rotate: 360, duration: 0.55, ease: "power2.out" });
-    // fade ut dot litt etterpå for å ikke bli “for mye”
-    gsap.to(wrap, { opacity: 0, duration: 0.25, ease: "power1.out", delay: 0.55 });
-}
+
 
 
 
