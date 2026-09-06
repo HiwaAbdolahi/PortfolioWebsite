@@ -202,11 +202,31 @@
                 body: JSON.stringify({ text: message, sessionId })
             });
 
+
+
+
             const data = await response.json();
             removeTyping(typingEl);
 
-            const reply = data.choices?.[0]?.message?.content || "⚠️ Ingen svar.";
+            // Backend/OpenAI-feil
+            if (!response.ok) {
+                const errorMessage =
+                    data?.error ||
+                    "AI-assistenten er midlertidig utilgjengelig. Prøv igjen senere.";
+
+                addMessage("🤖 ⚠️ " + errorMessage, "bot", { force: true });
+                return;
+            }
+
+            // Normalt AI-svar
+            const reply =
+                data.choices?.[0]?.message?.content ||
+                "Jeg klarte ikke å generere et svar akkurat nå.";
+
             addMessage("🤖 " + reply, "bot", { force: true });
+
+
+
         } catch (err) {
             removeTyping(typingEl);
             addMessage("⚠️ Nettverksfeil. Prøv igjen.", "bot", { force: true });

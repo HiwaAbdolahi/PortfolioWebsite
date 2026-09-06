@@ -178,18 +178,27 @@ UTENFOR TEMA
 
                 var result = await response.Content.ReadAsStringAsync();
 
-                Console.WriteLine($"OpenAI status: {(int)response.StatusCode} {response.StatusCode}");
-                Console.WriteLine($"OpenAI response: {result}");
-
+                // Hvis OpenAI returnerer feil
                 if (!response.IsSuccessStatusCode)
                 {
+                    // Den ekte feilen logges kun på serveren
+                    Console.WriteLine(
+                        $"OpenAI API error {(int)response.StatusCode} " +
+                        $"{response.StatusCode}: {result}"
+                    );
+
+                    // Besøkende får kun en trygg og profesjonell melding
                     return StatusCode(
-                        (int)response.StatusCode,
-                        result
+                        StatusCodes.Status503ServiceUnavailable,
+                        new
+                        {
+                            error = "AI-assistenten er midlertidig utilgjengelig. Prøv igjen senere."
+                        }
                     );
                 }
 
-                var openAiResponse = JsonSerializer.Deserialize<JsonElement>(result);
+                var openAiResponse =
+                    JsonSerializer.Deserialize<JsonElement>(result);
 
 
 
