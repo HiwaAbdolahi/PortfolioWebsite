@@ -113,7 +113,7 @@ function initPremiumBackground() {
             `;
         }
 
-        bgLayer.style.backgroundAttachment = 'fixed';
+       /* bgLayer.style.backgroundAttachment = 'fixed';*/ /** scrol er tregg*/
     }
 
     // Apply on load
@@ -133,16 +133,7 @@ function initPremiumBackground() {
         attributeFilter: ['class']
     });
 
-    // Smooth color shift (ON THE LAYER, NOT BODY!)
-    let time = 0;
-    function smoothShift() {
-        time += 0.0002;
-        const hue = Math.sin(time) * 10;
-        const sat = 1 + Math.sin(time * 0.7) * 0.05;
-        bgLayer.style.filter = `hue-rotate(${hue}deg) saturate(${sat})`;
-        requestAnimationFrame(smoothShift);
-    }
-    smoothShift();
+    
 
     console.log('✅ Premium gradient background initialized');
 }
@@ -154,6 +145,20 @@ if (document.readyState === 'loading') {
     initPremiumBackground();
 }
 
+/*
+function smoothShift() {                              speed problem!
+    time += 0.0002;
+
+    const hue = Math.sin(time) * 10;
+    const sat = 1 + Math.sin(time * 0.7) * 0.05;
+
+    bgLayer.style.filter =
+        `hue-rotate(${hue}deg) saturate(${sat})`;
+
+    requestAnimationFrame(smoothShift);
+}
+
+smoothShift();                                                      */
 
 
 
