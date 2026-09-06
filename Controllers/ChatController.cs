@@ -166,10 +166,37 @@ UTENFOR TEMA
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-                var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
+
+
+
+
+
+
+
+
+                var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions",content);
+
                 var result = await response.Content.ReadAsStringAsync();
 
+                Console.WriteLine($"OpenAI status: {(int)response.StatusCode} {response.StatusCode}");
+                Console.WriteLine($"OpenAI response: {result}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return StatusCode(
+                        (int)response.StatusCode,
+                        result
+                    );
+                }
+
                 var openAiResponse = JsonSerializer.Deserialize<JsonElement>(result);
+
+
+
+
+
+
+
 
                 // ✅ Hent AI-svaret og legg det til i minnet
                 var assistantReply = openAiResponse
