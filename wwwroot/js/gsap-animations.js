@@ -51,20 +51,17 @@ function wrapLastWordAdvanced(element) {
     <span class="word-letters">${lettersHtml}</span>
     <span class="word-shimmer"></span>
 
-    <!--  HUD: chip + progress + orbit -->
-    <span class="word-hud">
-      <span class="word-chip" aria-hidden="true"></span>
-      <span class="word-progress"><span class="bar"></span></span>
-    
-  </span>`;
+    <span class="word-progress">
+        <span class="bar"></span>
+    </span>
+</span>`;
 
     
     const letters = element.querySelectorAll("#changing-word .letter");
     applyGradientToLetters(letters, element);
 
     
-    const container = element.querySelector("#changing-word");
-    initWordHUD(container, element, last);
+    
 }
 
 
@@ -87,15 +84,13 @@ function startWordRotationAdvanced(heroTitle, opts) {
     };
 
     // start første countdown frem til første bytte (samme delay som under)
-    hudStartCountdown(container, 900);
+    startWordProgress(container, 900);
 
     const switchWord = () => {
         const next = words[(idx + 1) % words.length];
 
-        //  HUD: oppdater chip, pulse, orbit + restart countdown
-        updateWordChip(container, next, heroTitle);
-        pulseWordChip(container);
-        hudStartCountdown(container, INTERVAL);
+        
+        startWordProgress(container, INTERVAL);
         
 
         if (useAdvanced) {
@@ -158,61 +153,14 @@ function runShimmer(container) {
     gsap.to(s, { left: "130%", duration: 0.7, ease: "power2.out" });
 }
 
-// HUD init: sett chip for startord og start første progress
-function initWordHUD(container, heroTitle, startWord) {
-    updateWordChip(container, startWord, heroTitle);
-}
 
-// chip-tekst/ikon per ord
-function chipLabelFor(word) {
-    const isMobile = window.innerWidth <= 768;
 
-    if (word === "fullstack-løsninger") {
-        return isMobile ? ".NET" : ".NET + Azure";
-    }
 
-    if (word === "cloud-applikasjoner") {
-        return isMobile ? "Cloud" : "Cloud · Container";
-    }
 
-    if (word === "IoT-plattformer") {
-        return isMobile ? "IoT" : "IoT · Real-time";
-    }
 
-    return "Development";
-}
 
-function updateWordChip(container, word, heroTitle) {
-    const chip = container.querySelector(".word-chip");
-    if (!chip) return;
 
-    chip.textContent = chipLabelFor(word);
-
-    // gradienttekst i chip (samme som tittel)
-    const cs = getComputedStyle(heroTitle);
-    const bg = cs.backgroundImage || "linear-gradient(90deg,#ff9000,#ffffff,#00ffff)";
-    const bgSize = cs.backgroundSize || "200% auto";
-
-    chip.style.backgroundImage = bg;
-    chip.style.backgroundSize = bgSize;
-    chip.style.webkitBackgroundClip = "text";
-    chip.style.backgroundClip = "text";
-    chip.style.webkitTextFillColor = "transparent";
-    chip.style.color = "transparent";
-}
-
-function pulseWordChip(container) {
-    const chip = container.querySelector(".word-chip");
-    if (!chip) return;
-    gsap.fromTo(chip, { scale: 0.88, filter: "drop-shadow(0 0 0 rgba(255,255,255,0))" }, {
-        scale: 1, duration: 0.22, ease: "power2.out"
-    });
-    gsap.fromTo(chip, { boxShadow: "0 0 0 rgba(255,255,255,0)" }, {
-        boxShadow: "0 0 18px rgba(255,255,255,0.25)", duration: 0.22, ease: "power2.out", yoyo: true, repeat: 1
-    });
-}
-
-function hudStartCountdown(container, ms) {
+function startWordProgress(container, ms) {
     const bar = container.querySelector(".word-progress .bar");
     if (!bar) return;
     if (bar._tween) { bar._tween.kill(); bar._tween = null; }
